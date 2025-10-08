@@ -7,6 +7,7 @@
 [p3]: doc/images/colors.png "NLogViewer"
 [p4]: doc/images/openpopup.gif "NLogViewer"
 [p5]: doc/images/newtask.gif "NLogViewer"
+[p6]: doc/images/nlogviewercolumns.png "Column Visibility Properties"
 
 [nuget]: https://nuget.org/packages/Sentinel.NlogViewer/
 
@@ -98,6 +99,37 @@ Set `TargetName` property to link them.
 ```xml
 <dj:NLogViewer TargetName="target1"/>
 <dj:NLogViewer TargetName="target2"/>
+```
+
+### Column Visibility
+
+Control which columns are visible in the NLogViewer. You can dynamically show or hide individual columns using the provided Dependency Properties.
+
+![Column Visibility Properties][p6]
+
+Available column visibility properties:
+- `ShowIdColumn` - Controls ID column visibility
+- `ShowLevelColumn` - Controls Level column visibility  
+- `ShowTimeStampColumn` - Controls TimeStamp column visibility
+- `ShowLoggerNameColumn` - Controls LoggerName column visibility
+- Message column is always visible (no control available)
+
+**Usage:**
+
+```csharp
+// Hide specific columns
+nLogViewer.ShowIdColumn = false;
+nLogViewer.ShowLevelColumn = false;
+
+// Show columns again
+nLogViewer.ShowIdColumn = true;
+nLogViewer.ShowLevelColumn = true;
+```
+
+**XAML Binding:**
+
+```xaml
+<dj:NLogViewer ShowIdColumn="{Binding IsIdColumnVisible}" ShowLevelColumn="{Binding IsLevelColumnVisible}" />
 ```
 
 ### Format output (ILogEventInfoResolver)

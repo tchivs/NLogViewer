@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6-windows</TargetFramework>
+    <TargetFramework>net8-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <StartupObject>TestApplication.App</StartupObject>
     <RootNamespace>TestApplication</RootNamespace>
@@ -25,7 +25,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NLog" Version="5.0.1" />
+    <PackageReference Include="NLog" Version="5.2.4" />
   </ItemGroup>
 
   <ItemGroup>

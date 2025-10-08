@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using DJ.Extensions;
+using DJ.Helper;
 using DJ.Resolver;
 using DJ.Targets;
 using NLog;
@@ -306,6 +307,37 @@ namespace DJ
             if (AutoScroll)
                 ListView?.ScrollToEnd();
         }
+
+        private void UpdateColumnVisibility()
+        {
+            if (ListView?.View is not AutoSizedGridView gridView) return;
+
+            // Update ID column visibility
+            if (gridView.Columns.Count > 0)
+            {
+                gridView.Columns[0].Width = ShowIdColumn ? _originalIdColumnWidth : 0;
+            }
+
+            // Update Level column visibility
+            if (gridView.Columns.Count > 1)
+            {
+                gridView.Columns[1].Width = ShowLevelColumn ? _originalLevelColumnWidth : 0;
+            }
+
+            // Update TimeStamp column visibility
+            if (gridView.Columns.Count > 2)
+            {
+                gridView.Columns[2].Width = ShowTimeStampColumn ? _originalTimeStampColumnWidth : 0;
+            }
+
+            // Update LoggerName column visibility
+            if (gridView.Columns.Count > 3)
+            {
+                gridView.Columns[3].Width = ShowLoggerNameColumn ? _originalLoggerNameColumnWidth : 0;
+            }
+
+            // Message column is always visible (no visibility control)
+        }
         
         /// <summary>
         /// Delele all entries
@@ -426,6 +458,91 @@ namespace DJ
         
         #endregion
 
+        // ##########################################################################################
+        // Column Visibility
+        // ##########################################################################################
+
+        #region Column Visibility
+
+        /// <summary>
+        /// Controls the visibility of the ID column
+        /// </summary>
+        [Category("NLogViewerColumns")]
+        public bool ShowIdColumn
+        {
+            get => (bool)GetValue(ShowIdColumnProperty);
+            set => SetValue(ShowIdColumnProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowIdColumn"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowIdColumnProperty = 
+            DependencyProperty.Register("ShowIdColumn", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true, OnColumnVisibilityChanged));
+
+        /// <summary>
+        /// Controls the visibility of the Level column
+        /// </summary>
+        [Category("NLogViewerColumns")]
+        public bool ShowLevelColumn
+        {
+            get => (bool)GetValue(ShowLevelColumnProperty);
+            set => SetValue(ShowLevelColumnProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowLevelColumn"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowLevelColumnProperty = 
+            DependencyProperty.Register("ShowLevelColumn", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true, OnColumnVisibilityChanged));
+
+        /// <summary>
+        /// Controls the visibility of the TimeStamp column
+        /// </summary>
+        [Category("NLogViewerColumns")]
+        public bool ShowTimeStampColumn
+        {
+            get => (bool)GetValue(ShowTimeStampColumnProperty);
+            set => SetValue(ShowTimeStampColumnProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowTimeStampColumn"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowTimeStampColumnProperty = 
+            DependencyProperty.Register("ShowTimeStampColumn", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true, OnColumnVisibilityChanged));
+
+        /// <summary>
+        /// Controls the visibility of the LoggerName column
+        /// </summary>
+        [Category("NLogViewerColumns")]
+        public bool ShowLoggerNameColumn
+        {
+            get => (bool)GetValue(ShowLoggerNameColumnProperty);
+            set => SetValue(ShowLoggerNameColumnProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowLoggerNameColumn"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowLoggerNameColumnProperty = 
+            DependencyProperty.Register("ShowLoggerNameColumn", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true, OnColumnVisibilityChanged));
+
+
+        private static void OnColumnVisibilityChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
+        {
+            if (d is NLogViewer instance)
+            {
+                instance.UpdateColumnVisibility();
+            }
+        }
+
+        #endregion
+
 
         #endregion
 
@@ -448,6 +565,12 @@ namespace DJ
         private ObservableCollection<LogEventInfo> _LogEventInfos { get; } = new ObservableCollection<LogEventInfo>();
         private IDisposable _Subscription;
         private Window _ParentWindow;
+        
+        // Store original column widths for restoration
+        private double _originalIdColumnWidth = 40;
+        private double _originalLevelColumnWidth = double.NaN; // Auto
+        private double _originalTimeStampColumnWidth = double.NaN; // Auto
+        private double _originalLoggerNameColumnWidth = double.NaN; // Auto
         
         #endregion
 
@@ -511,6 +634,20 @@ namespace DJ
             }
 
             ListView.ScrollToEnd();
+            
+            // Store original column widths for visibility management
+            if (ListView.View is AutoSizedGridView gridView)
+            {
+                if (gridView.Columns.Count > 0) _originalIdColumnWidth = gridView.Columns[0].Width;
+                if (gridView.Columns.Count > 1) _originalLevelColumnWidth = gridView.Columns[1].Width;
+                if (gridView.Columns.Count > 2) _originalTimeStampColumnWidth = gridView.Columns[2].Width;
+                if (gridView.Columns.Count > 3) _originalLoggerNameColumnWidth = gridView.Columns[3].Width;
+                // Message column (index 4) is always visible, no need to store its width
+                
+                // Apply initial column visibility
+                UpdateColumnVisibility();
+            }
+            
             var target = CacheTarget.GetInstance(targetName: TargetName);
             
             _Subscription = target.Cache.SubscribeOn(Scheduler.Default).Buffer(TimeSpan.FromMilliseconds(100)).Where (x => x.Any()).ObserveOn(new DispatcherSynchronizationContext(_ParentWindow.Dispatcher)).Subscribe(infos =>
