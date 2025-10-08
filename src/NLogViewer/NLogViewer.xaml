@@ -8,9 +8,14 @@
              xmlns:listViewLayoutManager="clr-namespace:DJ.Helper.ListViewLayoutManager"
              xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter"
              xmlns:helper="clr-namespace:DJ.Helper"
+             xmlns:xamlConverter="clr-namespace:DJ.XamlConverter"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance dj:NLogViewer}">
+    <UserControl.Resources>
+        <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -22,44 +27,155 @@
             Grid.Row="1"
             Orientation="Horizontal"
             Margin="0,5,0,5">
-            <ToggleButton
-                Width="120"
-                Height="20"
-                IsChecked="{Binding Path=AutoScroll, Mode=TwoWay}">
-                <ToggleButton.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="Images/Small/ScrollDown.png"
-                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
-                        <TextBlock Text="Auto-Scroll" VerticalAlignment="Center" Margin="5,0,0,0" />
-                    </StackPanel>
-                </ToggleButton.Content>
-            </ToggleButton>
-            <Button
-                Margin="5,0,0,0"
-                Width="120"
-                Height="20"
-                Command="{Binding Path=ClearCommand}">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="Images/Small/Clear.png"
-                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
-                        <TextBlock Text="Clear" VerticalAlignment="Center" Margin="5,0,0,0" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <ToggleButton
-                Margin="5,0,0,0"
-                Width="120"
-                Height="20"
-                IsChecked="{Binding Path=Pause, Mode=TwoWay}">
-                <ToggleButton.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="Images/Small/Pause.png"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" />
-                        <TextBlock Text="Pause" VerticalAlignment="Center" Margin="5,0,0,0" />
-                    </StackPanel>
-                </ToggleButton.Content>
-            </ToggleButton>
+            
+            <!-- Control GroupBox -->
+            <GroupBox
+                Header="Controls"
+                Padding="5"
+                Visibility="{Binding Path=ShowControlButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <ToggleButton
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=AutoScroll, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Small/ScrollDown.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Auto-Scroll" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    <Button
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        Command="{Binding Path=ClearCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Small/Clear.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Clear" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <ToggleButton
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=Pause, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Small/Pause.png"
+                                       RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Pause" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                </StackPanel>
+            </GroupBox>
+            
+            <!-- Filter GroupBox -->
+            <GroupBox
+                Margin="10,0,0,0"
+                Header="Filter"
+                Padding="5"
+                Visibility="{Binding Path=ShowFilterButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <ToggleButton
+                        Margin="0,0,2,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=TraceFilter, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Large/Trace.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Trace" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    
+                    <ToggleButton
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=DebugFilter, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Large/Debug.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Debug" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    
+                    <ToggleButton
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=InfoFilter, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Large/Info.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Info" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    
+                    <ToggleButton
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=WarnFilter, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Large/Warning.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Warn" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    
+                    <ToggleButton
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=ErrorFilter, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Large/Error.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Error" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    
+                    <ToggleButton
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=FatalFilter, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Large/Fatal.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Fatal" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                </StackPanel>
+            </GroupBox>
         </StackPanel>
 
         <ListView

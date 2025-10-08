@@ -282,7 +282,9 @@ namespace DJ
         /// <summary>
         /// Automatically scroll to the newest entry
         /// </summary>
-        [Category("NLogViewer")]
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Automatically scroll to the newest log entry when new entries are added")]
         public bool AutoScroll
         {
             get => (bool)GetValue(AutoScrollProperty);
@@ -338,11 +340,37 @@ namespace DJ
 
             // Message column is always visible (no visibility control)
         }
+
+        private void UpdateFilter()
+        {
+            if (LogEvents?.View is not CollectionView collectionView) return;
+
+            collectionView.Filter = item =>
+            {
+                if (item is not LogEventInfo logEvent) return true;
+
+                return logEvent.Level.Name switch
+                {
+                    "Trace" => !TraceFilter,  // If TraceFilter is true, hide Trace entries (!true = false)
+                    "Debug" => !DebugFilter,  // If DebugFilter is true, hide Debug entries (!true = false)
+                    "Info" => !InfoFilter,    // If InfoFilter is true, hide Info entries (!true = false)
+                    "Warn" => !WarnFilter,     // If WarnFilter is true, hide Warn entries (!true = false)
+                    "Error" => !ErrorFilter,   // If ErrorFilter is true, hide Error entries (!true = false)
+                    "Fatal" => !FatalFilter,   // If FatalFilter is true, hide Fatal entries (!true = false)
+                    _ => true
+                };
+            };
+            
+            // Refresh the view to apply the filter
+            collectionView.Refresh();
+        }
         
         /// <summary>
-        /// Delele all entries
+        /// Delete all entries
         /// </summary>
-        [Category("NLogViewer")]
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to clear all log entries from the viewer")]
         public ICommand ClearCommand
         {
             get => (ICommand) GetValue(ClearCommandProperty);
@@ -358,7 +386,9 @@ namespace DJ
         /// <summary>
         /// Stop logging
         /// </summary>
-        [Category("NLogViewer")]
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Pause or resume logging to improve performance when not actively monitoring")]
         public bool Pause
         {
             get => (bool)GetValue(PauseProperty);
@@ -560,6 +590,189 @@ namespace DJ
 
         #endregion
 
+        // ##########################################################################################
+        // Filter Properties
+        // ##########################################################################################
+
+        #region Filter Properties
+
+        /// <summary>
+        /// Filter for Trace log level
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Trace level log entries")]
+        public bool TraceFilter
+        {
+            get => (bool)GetValue(TraceFilterProperty);
+            set => SetValue(TraceFilterProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="TraceFilter"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty TraceFilterProperty = 
+            DependencyProperty.Register("TraceFilter", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(false, OnFilterChanged));
+
+        /// <summary>
+        /// Filter for Debug log level
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Debug level log entries")]
+        public bool DebugFilter
+        {
+            get => (bool)GetValue(DebugFilterProperty);
+            set => SetValue(DebugFilterProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="DebugFilter"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty DebugFilterProperty = 
+            DependencyProperty.Register("DebugFilter", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(false, OnFilterChanged));
+
+        /// <summary>
+        /// Filter for Info log level
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Info level log entries")]
+        public bool InfoFilter
+        {
+            get => (bool)GetValue(InfoFilterProperty);
+            set => SetValue(InfoFilterProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="InfoFilter"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty InfoFilterProperty = 
+            DependencyProperty.Register("InfoFilter", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(false, OnFilterChanged));
+
+        /// <summary>
+        /// Filter for Warn log level
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Warn level log entries")]
+        public bool WarnFilter
+        {
+            get => (bool)GetValue(WarnFilterProperty);
+            set => SetValue(WarnFilterProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="WarnFilter"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty WarnFilterProperty = 
+            DependencyProperty.Register("WarnFilter", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(false, OnFilterChanged));
+
+        /// <summary>
+        /// Filter for Error log level
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Error level log entries")]
+        public bool ErrorFilter
+        {
+            get => (bool)GetValue(ErrorFilterProperty);
+            set => SetValue(ErrorFilterProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ErrorFilter"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ErrorFilterProperty = 
+            DependencyProperty.Register("ErrorFilter", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(false, OnFilterChanged));
+
+        /// <summary>
+        /// Filter for Fatal log level
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Fatal level log entries")]
+        public bool FatalFilter
+        {
+            get => (bool)GetValue(FatalFilterProperty);
+            set => SetValue(FatalFilterProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="FatalFilter"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty FatalFilterProperty = 
+            DependencyProperty.Register("FatalFilter", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(false, OnFilterChanged));
+
+        private static void OnFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
+        {
+            if (d is NLogViewer instance)
+            {
+                instance.UpdateFilter();
+            }
+        }
+
+        #endregion
+
+        // ##########################################################################################
+        // Filter Visibility
+        // ##########################################################################################
+
+        #region Filter Visibility
+
+        /// <summary>
+        /// Controls the visibility of the filter buttons
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Show/hide the filter buttons")]
+        public bool ShowFilterButtons
+        {
+            get => (bool)GetValue(ShowFilterButtonsProperty);
+            set => SetValue(ShowFilterButtonsProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowFilterButtons"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowFilterButtonsProperty = 
+            DependencyProperty.Register("ShowFilterButtons", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true));
+
+        #endregion
+
+        // ##########################################################################################
+        // Controls Visibility
+        // ##########################################################################################
+
+        #region Controls Visibility
+
+        /// <summary>
+        /// Controls the visibility of the control buttons (Auto-Scroll, Clear, Pause)
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Show/hide the control buttons (Auto-Scroll, Clear, Pause)")]
+        public bool ShowControlButtons
+        {
+            get => (bool)GetValue(ShowControlButtonsProperty);
+            set => SetValue(ShowControlButtonsProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowControlButtons"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowControlButtonsProperty = 
+            DependencyProperty.Register("ShowControlButtons", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true));
+
+        #endregion
 
         #endregion
 
@@ -689,10 +902,13 @@ namespace DJ
                 return;
 
             LogEvents = new CollectionViewSource {Source = _LogEventInfos};
+            UpdateFilter(); // Initialize filter
             
             Loaded += _OnLoaded;
             Unloaded += _OnUnloaded;
             ClearCommand = new ActionCommand(_LogEventInfos.Clear);
+            
+            // Filter commands are no longer needed - ToggleButtons handle the binding directly
         }
 
         private void _OnUnloaded(object sender, RoutedEventArgs e)
