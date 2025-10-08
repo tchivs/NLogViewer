@@ -9,7 +9,8 @@
              xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter"
              xmlns:helper="clr-namespace:DJ.Helper"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance dj:NLogViewer}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -72,7 +73,7 @@
                 <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
             </ListView.Resources>
             <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
+                <Style TargetType="ListViewItem" d:DataContext="{d:DesignInstance nLog:LogEventInfo}">
                     <Setter Property="BorderBrush" Value="Black" />
                     <Setter Property="BorderThickness" Value="1" />
                     <Style.Triggers>
@@ -131,7 +132,7 @@
                             </MultiBinding>
                         </GridViewColumn.DisplayMemberBinding>
                     </GridViewColumn>
-                    <GridViewColumn Header="Level" Width="Auto">
+                    <GridViewColumn Header="Level" Width="Auto" d:DataContext="{d:DesignInstance nLog:LogEventInfo}">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Image x:Name="Image" RenderOptions.BitmapScalingMode="Linear"
