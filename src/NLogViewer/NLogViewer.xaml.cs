@@ -608,8 +608,12 @@ namespace DJ
             if (_isListening || DesignerProperties.GetIsInDesignMode(this))
                 return;
 
-            // Ensure we have a parent window reference
-            if (_ParentWindow == null && Window.GetWindow(this) is { } window)
+			// Ensure we have a parent window reference
+			// add hook to parent window to dispose subscription
+			// use case:
+			// NLogViewer is used in a new window inside of a TabControl. If you switch the TabItems,
+			// the unloaded event is called and would dispose the subscription, even if the control is still alive.
+			if (_ParentWindow == null && Window.GetWindow(this) is { } window)
             {
                 _ParentWindow = window;
                 _ParentWindow.Closed += _ParentWindowOnClosed;
