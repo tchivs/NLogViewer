@@ -8,6 +8,8 @@
 [p4]: doc/images/openpopup.gif "NLogViewer"
 [p5]: doc/images/newtask.gif "NLogViewer"
 [p6]: doc/images/nlogviewercolumns.png "Column Visibility Properties"
+[p7]: doc/images/filters1.png "Filter Buttons - All Visible"
+[p8]: doc/images/filters2.png "Filter Buttons - Some Hidden"
 
 [nuget]: https://nuget.org/packages/Sentinel.NlogViewer/
 
@@ -131,6 +133,54 @@ nLogViewer.ShowLevelColumn = true;
 ```xaml
 <dj:NLogViewer ShowIdColumn="{Binding IsIdColumnVisible}" ShowLevelColumn="{Binding IsLevelColumnVisible}" />
 ```
+
+### Filter Buttons
+
+The NLogViewer includes filter buttons that allow you to hide/show specific log levels. The filter buttons are organized in a GroupBox and can be controlled programmatically.
+
+![Filter Buttons - All Visible][p7]
+
+![Filter Buttons - Some Hidden][p8]
+
+**Filter Properties:**
+- `TraceFilter` - Hide/show Trace level log entries
+- `DebugFilter` - Hide/show Debug level log entries  
+- `InfoFilter` - Hide/show Info level log entries
+- `WarnFilter` - Hide/show Warn level log entries
+- `ErrorFilter` - Hide/show Error level log entries
+- `FatalFilter` - Hide/show Fatal level log entries
+- `ShowFilterButtons` - Controls the visibility of the entire filter button group
+
+**Usage:**
+
+```csharp
+// Hide specific log levels
+nLogViewer.TraceFilter = true;  // Hide Trace entries
+nLogViewer.DebugFilter = true;  // Hide Debug entries
+nLogViewer.InfoFilter = true;   // Hide Info entries
+
+// Show log levels again
+nLogViewer.TraceFilter = false; // Show Trace entries
+nLogViewer.DebugFilter = false; // Show Debug entries
+
+// Hide the entire filter button group
+nLogViewer.ShowFilterButtons = false;
+```
+
+**XAML Binding:**
+
+```xaml
+<dj:NLogViewer 
+    TraceFilter="{Binding HideTraceLogs}" 
+    DebugFilter="{Binding HideDebugLogs}"
+    ShowFilterButtons="{Binding ShowFilters}" />
+```
+
+**Filter Logic:**
+- When a filter property is set to `true`, entries of that log level are **hidden**
+- When a filter property is set to `false`, entries of that log level are **shown**
+- The filter buttons are ToggleButtons that automatically bind to these properties
+- The entire filter group can be hidden using `ShowFilterButtons = false`
 
 ### Format output (ILogEventInfoResolver)
 
