@@ -714,7 +714,32 @@ namespace DJ
 
         #endregion
 
+        // ##########################################################################################
+        // Filter Visibility
+        // ##########################################################################################
 
+        #region Filter Visibility
+
+        /// <summary>
+        /// Controls the visibility of the filter buttons
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Show/hide the filter buttons")]
+        public bool ShowFilterButtons
+        {
+            get => (bool)GetValue(ShowFilterButtonsProperty);
+            set => SetValue(ShowFilterButtonsProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowFilterButtons"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowFilterButtonsProperty = 
+            DependencyProperty.Register("ShowFilterButtons", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true));
+
+        #endregion
 
         #endregion
 
