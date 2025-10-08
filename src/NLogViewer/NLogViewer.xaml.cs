@@ -21,9 +21,9 @@ using NLog;
 namespace DJ
 {
     /// <summary>
-    /// Interaktionslogik für NLogViewer.xaml
+    /// A customizable control for viewing NLog events with filtering and styling capabilities.
     /// </summary>
-    public partial class NLogViewer : UserControl
+    public partial class NLogViewer : Control
     {
         // ##############################################################################################################################
         // Dependency Properties
@@ -307,12 +307,12 @@ namespace DJ
         protected virtual void OnAutoScrollChanged()
         {
             if (AutoScroll)
-                ListView?.ScrollToEnd();
+                PART_ListView?.ScrollToEnd();
         }
 
         private void UpdateColumnVisibility()
         {
-            if (ListView?.View is not AutoSizedGridView gridView) return;
+            if (PART_ListView?.View is not AutoSizedGridView gridView) return;
 
             // Update ID column visibility
             if (gridView.Columns.Count > 0)
@@ -803,6 +803,11 @@ namespace DJ
         private double _originalTimeStampColumnWidth = double.NaN; // Auto
         private double _originalLoggerNameColumnWidth = double.NaN; // Auto
         
+        /// <summary>
+        /// Reference to the ListView template part for programmatic access
+        /// </summary>
+        private ListView PART_ListView => GetTemplateChild("PART_ListView") as ListView;
+        
         #endregion
 
         // ##############################################################################################################################
@@ -860,7 +865,7 @@ namespace DJ
 
                     if (AutoScroll)
                     {
-                        ListView?.ScrollToEnd();
+                        PART_ListView?.ScrollToEnd();
                     }
                 });
 
@@ -890,9 +895,13 @@ namespace DJ
 
         #region Constructor
 
+        static NLogViewer()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(NLogViewer), new FrameworkPropertyMetadata(typeof(NLogViewer)));
+        }
+
         public NLogViewer()
         {
-            InitializeComponent();
             DataContext = this;
             
             // save instance UID
@@ -936,10 +945,10 @@ namespace DJ
             // removed loaded handler to prevent duplicate subscribing
             Loaded -= _OnLoaded;
 
-            ListView.ScrollToEnd();
+            PART_ListView?.ScrollToEnd();
             
             // Store original column widths for visibility management
-            if (ListView.View is AutoSizedGridView gridView)
+            if (PART_ListView?.View is AutoSizedGridView gridView)
             {
                 if (gridView.Columns.Count > 0) _originalIdColumnWidth = gridView.Columns[0].Width;
                 if (gridView.Columns.Count > 1) _originalLevelColumnWidth = gridView.Columns[1].Width;

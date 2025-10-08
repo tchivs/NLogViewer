@@ -1,8 +1,14 @@
 ﻿<Application x:Class="TestApplication.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer"
+             xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <!-- Converters -->
+            <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
