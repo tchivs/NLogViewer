@@ -73,7 +73,10 @@
                 <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
             </ListView.Resources>
             <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem" d:DataContext="{d:DesignInstance nLog:LogEventInfo}">
+                <Style TargetType="ListViewItem">
+                    <d:Style.DataContext>
+                        <x:Type Type="nLog:LogEventInfo" />
+                    </d:Style.DataContext>
                     <Setter Property="BorderBrush" Value="Black" />
                     <Setter Property="BorderThickness" Value="1" />
                     <Style.Triggers>
@@ -132,7 +135,7 @@
                             </MultiBinding>
                         </GridViewColumn.DisplayMemberBinding>
                     </GridViewColumn>
-                    <GridViewColumn Header="Level" Width="Auto" d:DataContext="{d:DesignInstance nLog:LogEventInfo}">
+                    <GridViewColumn Header="Level" Width="Auto">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Image x:Name="Image" RenderOptions.BitmapScalingMode="Linear"
