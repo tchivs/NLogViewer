@@ -368,7 +368,24 @@ namespace DJ
         /// <summary>
         /// The <see cref="Pause"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty PauseProperty = DependencyProperty.Register("Pause", typeof(bool), typeof(NLogViewer), new PropertyMetadata(false));
+        public static readonly DependencyProperty PauseProperty = DependencyProperty.Register("Pause", typeof(bool), typeof(NLogViewer), new PropertyMetadata(false, OnPauseChanged));
+
+        private static void OnPauseChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is NLogViewer viewer && !DesignerProperties.GetIsInDesignMode(viewer))
+            {
+                if ((bool)e.NewValue)
+                {
+                    // Pause: Stop listening for better performance
+                    viewer.StopListen();
+                }
+                else
+                {
+                    // Resume: Start listening again
+                    viewer.StartListen();
+                }
+            }
+        }
         
         /// <summary>
         /// The maximum number of entries before automatic cleaning is performed. There is a hysteresis of 100 entries which must be exceeded.
@@ -565,6 +582,7 @@ namespace DJ
         private ObservableCollection<LogEventInfo> _LogEventInfos { get; } = new ObservableCollection<LogEventInfo>();
         private IDisposable _Subscription;
         private Window _ParentWindow;
+        private bool _isListening = false;
         
         // Store original column widths for restoration
         private double _originalIdColumnWidth = 40;
@@ -572,6 +590,81 @@ namespace DJ
         private double _originalTimeStampColumnWidth = double.NaN; // Auto
         private double _originalLoggerNameColumnWidth = double.NaN; // Auto
         
+        #endregion
+
+        // ##############################################################################################################################
+        // Public Methods
+        // ##############################################################################################################################
+
+        #region Public Methods
+
+        /// <summary>
+        /// Starts listening for log events by subscribing to the cache target.
+        /// This method should be called when the control needs to resume listening for logs,
+        /// such as when undocking from a docking system or when the window loads again.
+        /// </summary>
+        public void StartListen()
+        {
+            if (_isListening || DesignerProperties.GetIsInDesignMode(this))
+                return;
+
+            // Ensure we have a parent window reference
+            if (_ParentWindow == null && Window.GetWindow(this) is { } window)
+            {
+                _ParentWindow = window;
+                _ParentWindow.Closed += _ParentWindowOnClosed;
+            }
+
+            if (_ParentWindow == null)
+                return;
+
+            var target = CacheTarget.GetInstance(targetName: TargetName);
+            
+            _Subscription = target.Cache.SubscribeOn(Scheduler.Default)
+                .Buffer(TimeSpan.FromMilliseconds(100))
+                .Where(x => x.Any())
+                .ObserveOn(new DispatcherSynchronizationContext(_ParentWindow.Dispatcher))
+                .Subscribe(infos =>
+                {
+                    using (LogEvents.DeferRefresh())
+                    {
+                        foreach (LogEventInfo info in infos)
+                        {
+                            _LogEventInfos.Add(info);
+                        }
+                        if (MaxCount >= 0 & _LogEventInfos.Count - 100 > MaxCount)
+                        {
+                            for (int i = 0; i < _LogEventInfos.Count - MaxCount; i++)
+                            {
+                                _LogEventInfos.RemoveAt(0);
+                            }
+                        }   
+                    }
+
+                    if (AutoScroll)
+                    {
+                        ListView?.ScrollToEnd();
+                    }
+                });
+
+            _isListening = true;
+        }
+
+        /// <summary>
+        /// Stops listening for log events by disposing the subscription.
+        /// This method should be called when the control needs to stop listening for logs,
+        /// such as when docking in a docking system or when the window is unloaded.
+        /// </summary>
+        public void StopListen()
+        {
+            if (!_isListening)
+                return;
+
+            _Subscription?.Dispose();
+            _Subscription = null;
+            _isListening = false;
+        }
+
         #endregion
 
         // ##############################################################################################################################
@@ -615,23 +708,13 @@ namespace DJ
 
         private void _Dispose()
         {
-            _Subscription?.Dispose();
+            StopListen();
         }
         
         private void _OnLoaded(object sender, RoutedEventArgs e)
         {
             // removed loaded handler to prevent duplicate subscribing
             Loaded -= _OnLoaded;
-
-            // add hook to parent window to dispose subscription
-            // use case:
-            // NLogViewer is used in a new window inside of a TabControl. If you switch the TabItems,
-            // the unloaded event is called and would dispose the subscription, even if the control is still alive.
-            if (Window.GetWindow(this) is { } window)
-            {
-                _ParentWindow = window;
-                _ParentWindow.Closed += _ParentWindowOnClosed;
-            }
 
             ListView.ScrollToEnd();
             
@@ -648,31 +731,8 @@ namespace DJ
                 UpdateColumnVisibility();
             }
             
-            var target = CacheTarget.GetInstance(targetName: TargetName);
-            
-            _Subscription = target.Cache.SubscribeOn(Scheduler.Default).Buffer(TimeSpan.FromMilliseconds(100)).Where (x => x.Any()).ObserveOn(new DispatcherSynchronizationContext(_ParentWindow.Dispatcher)).Subscribe(infos =>
-            {
-                if (Pause) return;
-                using (LogEvents.DeferRefresh())
-                {
-                    foreach (LogEventInfo info in infos)
-                    {
-                        _LogEventInfos.Add(info);
-                    }
-                    if (MaxCount >= 0 & _LogEventInfos.Count - 100 > MaxCount)
-                    {
-                        for (int i = 0; i < _LogEventInfos.Count - MaxCount; i++)
-                        {
-                            _LogEventInfos.RemoveAt(0);
-                        }
-                    }   
-                }
-
-                if (AutoScroll)
-                {
-                    ListView?.ScrollToEnd();
-                }
-            });
+            // Start listening for log events
+            StartListen();
         }
 
         #endregion
