@@ -594,6 +594,8 @@ namespace DJ
         /// Filter for Trace log level
         /// </summary>
         [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Trace level log entries")]
         public bool TraceFilter
         {
             get => (bool)GetValue(TraceFilterProperty);
@@ -611,6 +613,8 @@ namespace DJ
         /// Filter for Debug log level
         /// </summary>
         [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Debug level log entries")]
         public bool DebugFilter
         {
             get => (bool)GetValue(DebugFilterProperty);
@@ -628,6 +632,8 @@ namespace DJ
         /// Filter for Info log level
         /// </summary>
         [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Info level log entries")]
         public bool InfoFilter
         {
             get => (bool)GetValue(InfoFilterProperty);
@@ -645,6 +651,8 @@ namespace DJ
         /// Filter for Warn log level
         /// </summary>
         [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Warn level log entries")]
         public bool WarnFilter
         {
             get => (bool)GetValue(WarnFilterProperty);
@@ -662,6 +670,8 @@ namespace DJ
         /// Filter for Error log level
         /// </summary>
         [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Error level log entries")]
         public bool ErrorFilter
         {
             get => (bool)GetValue(ErrorFilterProperty);
@@ -679,6 +689,8 @@ namespace DJ
         /// Filter for Fatal log level
         /// </summary>
         [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Hide/show Fatal level log entries")]
         public bool FatalFilter
         {
             get => (bool)GetValue(FatalFilterProperty);
