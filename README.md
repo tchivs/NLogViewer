@@ -10,6 +10,8 @@
 [p6]: doc/images/nlogviewercolumns.png "Column Visibility Properties"
 [p7]: doc/images/filters1.png "Filter Buttons - All Visible"
 [p8]: doc/images/filters2.png "Filter Buttons - Some Hidden"
+[p9]: doc/images/controls1.png "Control Buttons - All Visible"
+[p10]: doc/images/controls2.png "Control Buttons - Hidden"
 
 [nuget]: https://nuget.org/packages/Sentinel.NlogViewer/
 
@@ -71,6 +73,50 @@ If you want to customize the `loggingPattern` and `LogLevel`, add the following 
 ```
 
 ## Customize
+
+### Control Buttons
+
+The NLogViewer includes control buttons that allow you to manage log viewing behavior. The control buttons are organized in a GroupBox and can be controlled programmatically.
+
+![Control Buttons - All Visible][p9]
+
+![Control Buttons - Hidden][p10]
+
+**Control Properties:**
+- `AutoScroll` - Automatically scroll to the newest log entry when new entries are added
+- `ClearCommand` - Command to clear all log entries from the viewer
+- `Pause` - Pause or resume logging to improve performance when not actively monitoring
+- `ShowControlButtons` - Controls the visibility of the entire control button group
+
+**Usage:**
+
+```csharp
+// Control auto-scroll behavior
+nLogViewer.AutoScroll = true;  // Enable auto-scroll
+nLogViewer.AutoScroll = false; // Disable auto-scroll
+
+// Pause/resume logging
+nLogViewer.Pause = true;  // Pause logging
+nLogViewer.Pause = false; // Resume logging
+
+// Hide the entire control button group
+nLogViewer.ShowControlButtons = false;
+```
+
+**XAML Binding:**
+
+```xaml
+<dj:NLogViewer 
+    AutoScroll="{Binding IsAutoScrollEnabled}" 
+    Pause="{Binding IsLoggingPaused}"
+    ShowControlButtons="{Binding ShowControls}" />
+```
+
+**Control Logic:**
+- `AutoScroll` automatically scrolls to the bottom when new log entries are added
+- `ClearCommand` removes all log entries from the viewer
+- `Pause` stops listening for new log events to improve performance
+- The entire control group can be hidden using `ShowControlButtons = false`
 
 ### Colors
 
