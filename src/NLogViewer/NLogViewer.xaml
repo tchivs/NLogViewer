@@ -60,6 +60,97 @@
                     </StackPanel>
                 </ToggleButton.Content>
             </ToggleButton>
+            
+            <!-- Filter Buttons -->
+            <ToggleButton
+                Margin="10,0,0,0"
+                Width="60"
+                Height="40"
+                IsChecked="{Binding Path=TraceFilter, Mode=TwoWay}">
+                <ToggleButton.Content>
+                    <StackPanel Orientation="Vertical">
+                        <Image Source="Images/Large/Trace.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                               Height="18" Width="18" />
+                        <TextBlock Text="Trace" HorizontalAlignment="Center" FontSize="10" />
+                    </StackPanel>
+                </ToggleButton.Content>
+            </ToggleButton>
+            
+            <ToggleButton
+                Margin="2,0,0,0"
+                Width="60"
+                Height="40"
+                IsChecked="{Binding Path=DebugFilter, Mode=TwoWay}">
+                <ToggleButton.Content>
+                    <StackPanel Orientation="Vertical">
+                        <Image Source="Images/Large/Debug.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                               Height="18" Width="18" />
+                        <TextBlock Text="Debug" HorizontalAlignment="Center" FontSize="10" />
+                    </StackPanel>
+                </ToggleButton.Content>
+            </ToggleButton>
+            
+            <ToggleButton
+                Margin="2,0,0,0"
+                Width="60"
+                Height="40"
+                IsChecked="{Binding Path=InfoFilter, Mode=TwoWay}">
+                <ToggleButton.Content>
+                    <StackPanel Orientation="Vertical">
+                        <Image Source="Images/Large/Info.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                               Height="18" Width="18" />
+                        <TextBlock Text="Info" HorizontalAlignment="Center" FontSize="10" />
+                    </StackPanel>
+                </ToggleButton.Content>
+            </ToggleButton>
+            
+            <ToggleButton
+                Margin="2,0,0,0"
+                Width="60"
+                Height="40"
+                IsChecked="{Binding Path=WarnFilter, Mode=TwoWay}">
+                <ToggleButton.Content>
+                    <StackPanel Orientation="Vertical">
+                        <Image Source="Images/Large/Warning.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                               Height="18" Width="18" />
+                        <TextBlock Text="Warn" HorizontalAlignment="Center" FontSize="10" />
+                    </StackPanel>
+                </ToggleButton.Content>
+            </ToggleButton>
+            
+            <ToggleButton
+                Margin="2,0,0,0"
+                Width="60"
+                Height="40"
+                IsChecked="{Binding Path=ErrorFilter, Mode=TwoWay}">
+                <ToggleButton.Content>
+                    <StackPanel Orientation="Vertical">
+                        <Image Source="Images/Large/Error.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                               Height="18" Width="18" />
+                        <TextBlock Text="Error" HorizontalAlignment="Center" FontSize="10" />
+                    </StackPanel>
+                </ToggleButton.Content>
+            </ToggleButton>
+            
+            <ToggleButton
+                Margin="2,0,0,0"
+                Width="60"
+                Height="40"
+                IsChecked="{Binding Path=FatalFilter, Mode=TwoWay}">
+                <ToggleButton.Content>
+                    <StackPanel Orientation="Vertical">
+                        <Image Source="Images/Large/Fatal.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                               Height="18" Width="18" />
+                        <TextBlock Text="Fatal" HorizontalAlignment="Center" FontSize="10" />
+                    </StackPanel>
+                </ToggleButton.Content>
+            </ToggleButton>
         </StackPanel>
 
         <ListView
