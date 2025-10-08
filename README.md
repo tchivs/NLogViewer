@@ -153,6 +153,69 @@ public class FooTimeStampResolver : ILogEventInfoResolver
 NLogViewer1.TimeStampResolver = new FooTimeStampResolver();
 ```
 
+### Subscription Management (StartListen/StopListen)
+
+The `NLogViewer` provides manual control over log event subscriptions through the `StartListen()` and `StopListen()` methods. These methods are particularly useful in docking systems or scenarios where the control's lifecycle needs to be managed manually.
+
+**Purpose:**
+These methods were implemented to address [Issue #90](https://github.com/dojo90/NLogViewer/issues/90) - subscription disposal when undocking the viewer parent container. The issue occurred when NLogViewer controls were used in docking systems where the control would be moved between different parent windows, causing subscription leaks and improper disposal.
+
+**Root Cause:**
+When undocking a control from a docking system, the `Unloaded` event is triggered, which automatically disposes the subscription. This means that after undocking, the control is no longer listening for log events. Therefore, `StartListen()` must always be called in the `DockChanged` event handler to restore the subscription after undocking.
+
+**Method Details:**
+
+#### `StartListen()`
+- **Purpose:** Starts listening for log events by subscribing to the cache target
+- **When to use:** 
+  - When undocking from a docking system
+  - When the window loads again after being hidden
+  - When resuming log monitoring after pausing
+- **Behavior:** 
+  - Subscribes to the CacheTarget's observable stream
+  - Buffers log events for 100ms intervals for better performance
+  - Automatically manages parent window references for proper disposal
+  - Prevents duplicate subscriptions if already listening
+
+#### `StopListen()`
+- **Purpose:** Stops listening for log events by disposing the subscription
+- **When to use:**
+  - When docking in a docking system
+  - When the window is being unloaded
+  - When pausing log monitoring temporarily
+- **Behavior:**
+  - Disposes the current subscription
+  - Clears the listening state
+  - Prevents memory leaks from orphaned subscriptions
+
+**Usage Example:**
+
+```csharp
+// Manual control in docking scenarios
+private void OnDockChanged(object sender, DockChangedEventArgs e)
+{
+    // Control is being undocked - MUST call StartListen() because 
+    // the Unloaded event was triggered and disposed the subscription
+    nLogViewer.StartListen();
+}
+
+// Pause/Resume functionality
+private void ToggleLogging()
+{
+    if (nLogViewer.IsListening)
+    {
+        nLogViewer.StopListen();
+    }
+    else
+    {
+        nLogViewer.StartListen();
+    }
+}
+```
+
+**Automatic Management:**
+The control automatically calls `StartListen()` when loaded and `StopListen()` when properly disposed. The methods are designed to be safe to call multiple times and handle edge cases like design-time mode and missing parent windows.
+
 ## Samples
 
 ### open on a new window
