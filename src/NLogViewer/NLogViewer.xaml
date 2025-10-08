@@ -27,44 +27,56 @@
             Grid.Row="1"
             Orientation="Horizontal"
             Margin="0,5,0,5">
-            <ToggleButton
-                Width="120"
-                Height="20"
-                IsChecked="{Binding Path=AutoScroll, Mode=TwoWay}">
-                <ToggleButton.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="Images/Small/ScrollDown.png"
-                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
-                        <TextBlock Text="Auto-Scroll" VerticalAlignment="Center" Margin="5,0,0,0" />
-                    </StackPanel>
-                </ToggleButton.Content>
-            </ToggleButton>
-            <Button
-                Margin="5,0,0,0"
-                Width="120"
-                Height="20"
-                Command="{Binding Path=ClearCommand}">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="Images/Small/Clear.png"
-                               RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
-                        <TextBlock Text="Clear" VerticalAlignment="Center" Margin="5,0,0,0" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <ToggleButton
-                Margin="5,0,0,0"
-                Width="120"
-                Height="20"
-                IsChecked="{Binding Path=Pause, Mode=TwoWay}">
-                <ToggleButton.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="Images/Small/Pause.png"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" />
-                        <TextBlock Text="Pause" VerticalAlignment="Center" Margin="5,0,0,0" />
-                    </StackPanel>
-                </ToggleButton.Content>
-            </ToggleButton>
+            
+            <!-- Control GroupBox -->
+            <GroupBox
+                Header="Controls"
+                Padding="5"
+                Visibility="{Binding Path=ShowControlButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <ToggleButton
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=AutoScroll, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Small/ScrollDown.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Auto-Scroll" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    <Button
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        Command="{Binding Path=ClearCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Small/Clear.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Clear" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <ToggleButton
+                        Margin="2,0,0,0"
+                        Width="60"
+                        Height="40"
+                        IsChecked="{Binding Path=Pause, Mode=TwoWay}">
+                        <ToggleButton.Content>
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="Images/Small/Pause.png"
+                                       RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" 
+                                       Height="18" Width="18" />
+                                <TextBlock Text="Pause" HorizontalAlignment="Center" FontSize="10" />
+                            </StackPanel>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                </StackPanel>
+            </GroupBox>
             
             <!-- Filter GroupBox -->
             <GroupBox

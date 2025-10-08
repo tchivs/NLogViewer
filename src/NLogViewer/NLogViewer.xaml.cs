@@ -282,7 +282,9 @@ namespace DJ
         /// <summary>
         /// Automatically scroll to the newest entry
         /// </summary>
-        [Category("NLogViewer")]
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Automatically scroll to the newest log entry when new entries are added")]
         public bool AutoScroll
         {
             get => (bool)GetValue(AutoScrollProperty);
@@ -364,9 +366,11 @@ namespace DJ
         }
         
         /// <summary>
-        /// Delele all entries
+        /// Delete all entries
         /// </summary>
-        [Category("NLogViewer")]
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to clear all log entries from the viewer")]
         public ICommand ClearCommand
         {
             get => (ICommand) GetValue(ClearCommandProperty);
@@ -382,7 +386,9 @@ namespace DJ
         /// <summary>
         /// Stop logging
         /// </summary>
-        [Category("NLogViewer")]
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Pause or resume logging to improve performance when not actively monitoring")]
         public bool Pause
         {
             get => (bool)GetValue(PauseProperty);
@@ -737,6 +743,33 @@ namespace DJ
         /// </summary>
         public static readonly DependencyProperty ShowFilterButtonsProperty = 
             DependencyProperty.Register("ShowFilterButtons", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true));
+
+        #endregion
+
+        // ##########################################################################################
+        // Controls Visibility
+        // ##########################################################################################
+
+        #region Controls Visibility
+
+        /// <summary>
+        /// Controls the visibility of the control buttons (Auto-Scroll, Clear, Pause)
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Show/hide the control buttons (Auto-Scroll, Clear, Pause)")]
+        public bool ShowControlButtons
+        {
+            get => (bool)GetValue(ShowControlButtonsProperty);
+            set => SetValue(ShowControlButtonsProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowControlButtons"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowControlButtonsProperty = 
+            DependencyProperty.Register("ShowControlButtons", typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true));
 
         #endregion
