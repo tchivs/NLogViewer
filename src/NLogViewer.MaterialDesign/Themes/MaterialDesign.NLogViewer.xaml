@@ -104,7 +104,7 @@
                                                   ToolTip="Hide/show Trace level log entries"
                                                   Width="36" Height="36"
                                                   Margin="1">
-                                        <materialDesign:PackIcon Kind="Bug" Width="18" Height="18"/>
+                                        <materialDesign:PackIcon Kind="FootPrint" Width="18" Height="18"/>
                                         <ToggleButton.Style>
                                             <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconForegroundButton}">
                                                 <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TraceBackground}"/>
@@ -215,8 +215,7 @@
                             <ListView x:Name="PART_ListView" 
                                       ItemsSource="{Binding LogEvents.View, RelativeSource={RelativeSource TemplatedParent}}" 
                                       BorderThickness="0"
-                                      ScrollViewer.CanContentScroll="True"
-                                      Style="{StaticResource MaterialDesignListView}">
+                                      ScrollViewer.CanContentScroll="True">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
                                         <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />

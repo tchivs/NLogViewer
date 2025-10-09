@@ -6,6 +6,10 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- NLogViewer Design Styles -->
+                <ResourceDictionary Source="pack://application:,,,/NLogViewer;component/Themes/Generic.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
             <!-- Converters -->
             <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>

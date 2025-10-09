@@ -33,7 +33,7 @@
                                         IsChecked="{Binding Path=AutoScroll, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Small/ScrollDown.png"
+                                                <Image Source="../Images/Small/ScrollDown.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Auto-Scroll" HorizontalAlignment="Center" FontSize="10" />
@@ -47,7 +47,7 @@
                                         Command="{Binding Path=ClearCommand, RelativeSource={RelativeSource TemplatedParent}}">
                                         <Button.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Small/Clear.png"
+                                                <Image Source="../Images/Small/Clear.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Clear" HorizontalAlignment="Center" FontSize="10" />
@@ -61,7 +61,7 @@
                                         IsChecked="{Binding Path=Pause, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Small/Pause.png"
+                                                <Image Source="../Images/Small/Pause.png"
                                                        RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Pause" HorizontalAlignment="Center" FontSize="10" />
@@ -81,7 +81,7 @@
                                         IsChecked="{Binding Path=TraceFilter, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Large/Trace.png"
+                                                <Image Source="../Images/Large/Trace.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Trace" HorizontalAlignment="Center" FontSize="10" />
@@ -96,7 +96,7 @@
                                         IsChecked="{Binding Path=DebugFilter, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Large/Debug.png"
+                                                <Image Source="../Images/Large/Debug.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Debug" HorizontalAlignment="Center" FontSize="10" />
@@ -111,7 +111,7 @@
                                         IsChecked="{Binding Path=InfoFilter, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Large/Info.png"
+                                                <Image Source="../Images/Large/Info.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Info" HorizontalAlignment="Center" FontSize="10" />
@@ -126,7 +126,7 @@
                                         IsChecked="{Binding Path=WarnFilter, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Large/Warning.png"
+                                                <Image Source="../Images/Large/Warning.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Warn" HorizontalAlignment="Center" FontSize="10" />
@@ -141,7 +141,7 @@
                                         IsChecked="{Binding Path=ErrorFilter, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Large/Error.png"
+                                                <Image Source="../Images/Large/Error.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Error" HorizontalAlignment="Center" FontSize="10" />
@@ -156,7 +156,7 @@
                                         IsChecked="{Binding Path=FatalFilter, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                         <ToggleButton.Content>
                                             <StackPanel Orientation="Vertical">
-                                                <Image Source="Images/Large/Fatal.png"
+                                                <Image Source="../Images/Large/Fatal.png"
                                                        RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" 
                                                        Height="18" Width="18" />
                                                 <TextBlock Text="Fatal" HorizontalAlignment="Center" FontSize="10" />
@@ -243,32 +243,32 @@
                                                     <DataTrigger Binding="{Binding Path=Level}"
                                                                  Value="{x:Static nLog:LogLevel.Trace}">
                                                         <Setter TargetName="Image" Property="Source"
-                                                                Value="Images/Small/Trace.png" />
+                                                                Value="../Images/Small/Trace.png" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Path=Level}"
                                                                  Value="{x:Static nLog:LogLevel.Debug}">
                                                         <Setter TargetName="Image" Property="Source"
-                                                                Value="Images/Small/Debug.png" />
+                                                                Value="../Images/Small/Debug.png" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Path=Level}"
                                                                  Value="{x:Static nLog:LogLevel.Info}">
                                                         <Setter TargetName="Image" Property="Source"
-                                                                Value="Images/Small/Info.png" />
+                                                                Value="../Images/Small/Info.png" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Path=Level}"
                                                                  Value="{x:Static nLog:LogLevel.Warn}">
                                                         <Setter TargetName="Image" Property="Source"
-                                                                Value="Images/Small/Warning.png" />
+                                                                Value="../Images/Small/Warning.png" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Path=Level}"
                                                                  Value="{x:Static nLog:LogLevel.Error}">
                                                         <Setter TargetName="Image" Property="Source"
-                                                                Value="Images/Small/Error.png" />
+                                                                Value="../Images/Small/Error.png" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Path=Level}"
                                                                  Value="{x:Static nLog:LogLevel.Fatal}">
                                                         <Setter TargetName="Image" Property="Source"
-                                                                Value="Images/Small/Fatal.png" />
+                                                                Value="../Images/Small/Fatal.png" />
                                                     </DataTrigger>
                                                 </DataTemplate.Triggers>
                                             </DataTemplate>
