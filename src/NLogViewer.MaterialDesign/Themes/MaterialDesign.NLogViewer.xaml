@@ -27,58 +27,191 @@
                         </Grid.RowDefinitions>
 
                         <!-- Material Controls -->
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,8">
-                            <materialDesign:Card Padding="8" Margin="0,0,8,0"
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+                            <materialDesign:Card Padding="4" Margin="0,0,8,0"
                                                  Visibility="{Binding ShowControlButtons, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <StackPanel Orientation="Horizontal" Margin="8">
-                                    <ToggleButton Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding AutoScroll, RelativeSource={RelativeSource TemplatedParent}}">
-                                        <StackPanel Orientation="Horizontal" Margin="4">
-                                            <materialDesign:PackIcon Kind="ArrowDownBold" />
-                                            <TextBlock Text="AutoScroll"/>
-                                        </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="2">
+                                    <!-- Auto Scroll Toggle Button -->
+                                    <ToggleButton IsChecked="{Binding AutoScroll, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Automatically scroll to newest log entries"
+                                                  Width="40" Height="40"
+                                                  Margin="2"
+                                                  materialDesign:ElevationAssist.Elevation="Dp2">
+                                        <materialDesign:PackIcon Kind="ArrowDownBold" Width="20" Height="20"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignFlatButtonForegroundBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
                                     </ToggleButton>
 
-                                    <Button Style="{StaticResource MaterialDesignOutlinedButton}"
-                                            Command="{Binding ClearCommand, RelativeSource={RelativeSource TemplatedParent}}">
-                                        <StackPanel Orientation="Horizontal" Margin="4">
-                                            <materialDesign:PackIcon Kind="DeleteSweepOutline"/>
-                                            <TextBlock Text="Clear"/>
-                                        </StackPanel>
+                                    <!-- Clear Button -->
+                                    <Button Command="{Binding ClearCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                            ToolTip="Clear all log entries"
+                                            Width="40" Height="40"
+                                            Margin="2">
+                                        <materialDesign:PackIcon Kind="DeleteSweepOutline" Width="18" Height="18"/>
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                                <Setter Property="BorderThickness" Value="0"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignFlatButtonForegroundBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
                                     </Button>
 
-                                    <ToggleButton Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding Pause, RelativeSource={RelativeSource TemplatedParent}}">
-                                        <StackPanel Orientation="Horizontal" Margin="4">
-                                            <materialDesign:PackIcon Kind="PauseCircleOutline"/>
-                                            <TextBlock Text="Pause"/>
-                                        </StackPanel>
+                                    <!-- Pause Toggle Button -->
+                                    <ToggleButton IsChecked="{Binding Pause, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Pause/resume log monitoring"
+                                                  Width="40" Height="40"
+                                                  Margin="2">
+                                        <materialDesign:PackIcon Kind="PauseCircleOutline" Width="20" Height="20"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignFlatButtonForegroundBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
                                     </ToggleButton>
                                 </StackPanel>
                             </materialDesign:Card>
 
                             <!-- Filter Controls -->
-                            <materialDesign:Card Padding="8"
+                            <materialDesign:Card Padding="4"
                                                  Visibility="{Binding ShowFilterButtons, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <StackPanel Orientation="Horizontal" Margin="6">
-                                    <ToggleButton Content="Trace" Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding TraceFilter, RelativeSource={RelativeSource TemplatedParent}}"/>
-                                    <ToggleButton Content="Debug" Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding DebugFilter, RelativeSource={RelativeSource TemplatedParent}}"/>
-                                    <ToggleButton Content="Info" Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding InfoFilter, RelativeSource={RelativeSource TemplatedParent}}"/>
-                                    <ToggleButton Content="Warn" Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding WarnFilter, RelativeSource={RelativeSource TemplatedParent}}"/>
-                                    <ToggleButton Content="Error" Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding ErrorFilter, RelativeSource={RelativeSource TemplatedParent}}"/>
-                                    <ToggleButton Content="Fatal" Style="{StaticResource MaterialDesignFlatToggleButton}"
-                                                  IsChecked="{Binding FatalFilter, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                <StackPanel Orientation="Horizontal" Margin="2">
+                                    <!-- Trace Filter -->
+                                    <ToggleButton IsChecked="{Binding TraceFilter, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Hide/show Trace level log entries"
+                                                  Width="36" Height="36"
+                                                  Margin="1">
+                                        <materialDesign:PackIcon Kind="Bug" Width="18" Height="18"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconForegroundButton}">
+                                                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TraceBackground}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                    
+                                    <!-- Debug Filter -->
+                                    <ToggleButton IsChecked="{Binding DebugFilter, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Hide/show Debug level log entries"
+                                                  Width="36" Height="36"
+                                                  Margin="1">
+                                        <materialDesign:PackIcon Kind="BugOutline" Width="18" Height="18"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=DebugBackground}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                    
+                                    <!-- Info Filter -->
+                                    <ToggleButton IsChecked="{Binding InfoFilter, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Hide/show Info level log entries"
+                                                  Width="36" Height="36"
+                                                  Margin="1">
+                                        <materialDesign:PackIcon Kind="Information" Width="18" Height="18"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=InfoBackground}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                    
+                                    <!-- Warn Filter -->
+                                    <ToggleButton IsChecked="{Binding WarnFilter, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Hide/show Warning level log entries"
+                                                  Width="36" Height="36"
+                                                  Margin="1">
+                                        <materialDesign:PackIcon Kind="Alert" Width="18" Height="18"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=WarnBackground}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                    
+                                    <!-- Error Filter -->
+                                    <ToggleButton IsChecked="{Binding ErrorFilter, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Hide/show Error level log entries"
+                                                  Width="36" Height="36"
+                                                  Margin="1">
+                                        <materialDesign:PackIcon Kind="AlertCircle" Width="18" Height="18"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=ErrorBackground}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                    
+                                    <!-- Fatal Filter -->
+                                    <ToggleButton IsChecked="{Binding FatalFilter, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ToolTip="Hide/show Fatal level log entries"
+                                                  Width="36" Height="36"
+                                                  Margin="1">
+                                        <materialDesign:PackIcon Kind="AlertCircleOutline" Width="18" Height="18"/>
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+                                                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=FatalBackground}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
                                 </StackPanel>
                             </materialDesign:Card>
                         </StackPanel>
 
                         <!-- Log List -->
-                        <materialDesign:Card Grid.Row="2" Margin="8">
+                        <materialDesign:Card Grid.Row="2">
                             <ListView x:Name="PART_ListView" 
                                       ItemsSource="{Binding LogEvents.View, RelativeSource={RelativeSource TemplatedParent}}" 
                                       BorderThickness="0"
