@@ -35,8 +35,7 @@
                                     <ToggleButton IsChecked="{Binding AutoScroll, RelativeSource={RelativeSource TemplatedParent}}"
                                                   ToolTip="Automatically scroll to newest log entries"
                                                   Width="40" Height="40"
-                                                  Margin="2"
-                                                  materialDesign:ElevationAssist.Elevation="Dp2">
+                                                  Margin="2">
                                         <materialDesign:PackIcon Kind="ArrowDownBold" Width="20" Height="20"/>
                                         <ToggleButton.Style>
                                             <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
@@ -104,7 +103,7 @@
                                                   ToolTip="Hide/show Trace level log entries"
                                                   Width="36" Height="36"
                                                   Margin="1">
-                                        <materialDesign:PackIcon Kind="FootPrint" Width="18" Height="18"/>
+                                        <materialDesign:PackIcon Kind="Footprints" Width="18" Height="18"/>
                                         <ToggleButton.Style>
                                             <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconForegroundButton}">
                                                 <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TraceBackground}"/>
@@ -215,60 +214,63 @@
                             <ListView x:Name="PART_ListView" 
                                       ItemsSource="{Binding LogEvents.View, RelativeSource={RelativeSource TemplatedParent}}" 
                                       BorderThickness="0"
-                                      ScrollViewer.CanContentScroll="True">
+                                      ScrollViewer.CanContentScroll="True"
+                                      listViewLayoutManager:ListViewLayoutManager.Enabled="true">
                                 <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                                    <Style TargetType="ListViewItem">
                                         <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                        <!--<Setter Property="BorderBrush" Value="Black" />-->
                                         <Setter Property="BorderThickness" Value="0,0,0,1" />
+                                        <!--<Setter Property="BorderThickness" Value="1" />-->
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Path=Level}"
-                                                         Value="{x:Static nLog:LogLevel.Trace}">
+                                                     Value="{x:Static nLog:LogLevel.Trace}">
                                                 <Setter Property="Background"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TraceBackground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TraceBackground}" />
                                                 <Setter Property="Foreground"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TraceForeground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TraceForeground}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=Level}"
-                                                         Value="{x:Static nLog:LogLevel.Debug}">
+                                                     Value="{x:Static nLog:LogLevel.Debug}">
                                                 <Setter Property="Foreground"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=DebugForeground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=DebugForeground}" />
                                                 <Setter Property="Background"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=DebugBackground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=DebugBackground}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=Level}"
-                                                         Value="{x:Static nLog:LogLevel.Info}">
+                                                     Value="{x:Static nLog:LogLevel.Info}">
                                                 <Setter Property="Foreground"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=InfoForeground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=InfoForeground}" />
                                                 <Setter Property="Background"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=InfoBackground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=InfoBackground}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=Level}"
-                                                         Value="{x:Static nLog:LogLevel.Warn}">
+                                                     Value="{x:Static nLog:LogLevel.Warn}">
                                                 <Setter Property="Foreground"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=WarnForeground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=WarnForeground}" />
                                                 <Setter Property="Background"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=WarnBackground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=WarnBackground}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=Level}"
-                                                         Value="{x:Static nLog:LogLevel.Error}">
+                                                     Value="{x:Static nLog:LogLevel.Error}">
                                                 <Setter Property="Foreground"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=ErrorForeground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=ErrorForeground}" />
                                                 <Setter Property="Background"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=ErrorBackground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=ErrorBackground}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=Level}"
-                                                         Value="{x:Static nLog:LogLevel.Fatal}">
+                                                     Value="{x:Static nLog:LogLevel.Fatal}">
                                                 <Setter Property="Foreground"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=FatalForeground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=FatalForeground}" />
                                                 <Setter Property="Background"
-                                                        Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=FatalBackground}" />
+                                                    Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=FatalBackground}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </ListView.ItemContainerStyle>
                                 <ListView.View>
                                     <helper:AutoSizedGridView>
-                                        <GridViewColumn Header="ID" Width="40">
+                                        <GridViewColumn Header="ID" Width="Auto">
                                             <GridViewColumn.DisplayMemberBinding>
                                                 <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
                                                     <Binding Path="."/>
@@ -286,7 +288,7 @@
                                                     <DataTemplate.Triggers>
                                                         <DataTrigger Binding="{Binding Path=Level}"
                                                                      Value="{x:Static nLog:LogLevel.Trace}">
-                                                            <Setter TargetName="LevelIcon" Property="Kind" Value="Bug"/>
+                                                            <Setter TargetName="LevelIcon" Property="Kind" Value="Footprints"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Path=Level}"
                                                                      Value="{x:Static nLog:LogLevel.Debug}">
