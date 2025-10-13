@@ -37,19 +37,6 @@ namespace TestApplication
             
             NLogViewer1.TimeStampResolver = new FooTimeStampResolver();
             
-            // Bind CheckBoxes to NLogViewer column visibility properties
-            CheckBoxShowId.Checked += (s, e) => NLogViewer1.ShowIdColumn = true;
-            CheckBoxShowId.Unchecked += (s, e) => NLogViewer1.ShowIdColumn = false;
-            
-            CheckBoxShowLevel.Checked += (s, e) => NLogViewer1.ShowLevelColumn = true;
-            CheckBoxShowLevel.Unchecked += (s, e) => NLogViewer1.ShowLevelColumn = false;
-            
-            CheckBoxShowTimeStamp.Checked += (s, e) => NLogViewer1.ShowTimeStampColumn = true;
-            CheckBoxShowTimeStamp.Unchecked += (s, e) => NLogViewer1.ShowTimeStampColumn = false;
-            
-            CheckBoxShowLoggerName.Checked += (s, e) => NLogViewer1.ShowLoggerNameColumn = true;
-            CheckBoxShowLoggerName.Unchecked += (s, e) => NLogViewer1.ShowLoggerNameColumn = false;
-            
             Stopwatch stopwatch = Stopwatch.StartNew();
             Random random = new Random();
             Observable.Interval(TimeSpan.FromMilliseconds(200)).ObserveOn(SynchronizationContext.Current).Subscribe(l =>

@@ -17,10 +17,10 @@
             <!-- Column Visibility Controls -->
             <Separator Margin="10,0" />
             <TextBlock Text="Column Visibility:" VerticalAlignment="Center" Margin="5,0,5,0" />
-            <CheckBox x:Name="CheckBoxShowId" Content="ID" IsChecked="True" Margin="2,0" VerticalAlignment="Center" />
-            <CheckBox x:Name="CheckBoxShowLevel" Content="Level" IsChecked="True" Margin="2,0" VerticalAlignment="Center" />
-            <CheckBox x:Name="CheckBoxShowTimeStamp" Content="TimeStamp" IsChecked="True" Margin="2,0" VerticalAlignment="Center" />
-            <CheckBox x:Name="CheckBoxShowLoggerName" Content="LoggerName" IsChecked="True" Margin="2,0" VerticalAlignment="Center" />
+            <CheckBox Content="ID" IsChecked="{Binding ElementName=NLogViewer1, Path=ShowIdColumn}" Margin="2,0" VerticalAlignment="Center" />
+            <CheckBox Content="Level" IsChecked="{Binding ElementName=NLogViewer1, Path=ShowLevelColumn}" Margin="2,0" VerticalAlignment="Center" />
+            <CheckBox Content="TimeStamp" IsChecked="{Binding ElementName=NLogViewer1, Path=ShowTimeStampColumn}" Margin="2,0" VerticalAlignment="Center" />
+            <CheckBox Content="LoggerName" IsChecked="{Binding ElementName=NLogViewer1, Path=ShowLoggerNameColumn}" Margin="2,0" VerticalAlignment="Center" />
         </WrapPanel>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>

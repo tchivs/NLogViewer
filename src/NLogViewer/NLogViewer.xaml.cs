@@ -309,38 +309,7 @@ namespace DJ
             if (AutoScroll)
                 PART_ListView?.ScrollToEnd();
         }
-
-        private void UpdateColumnVisibility()
-        {
-            if (PART_ListView?.View is not AutoSizedGridView gridView) return;
-
-            // Update ID column visibility
-            if (gridView.Columns.Count > 0)
-            {
-                gridView.Columns[0].Width = ShowIdColumn ? _originalIdColumnWidth : 0;
-            }
-
-            // Update Level column visibility
-            if (gridView.Columns.Count > 1)
-            {
-                gridView.Columns[1].Width = ShowLevelColumn ? _originalLevelColumnWidth : 0;
-            }
-
-            // Update TimeStamp column visibility
-            if (gridView.Columns.Count > 2)
-            {
-                gridView.Columns[2].Width = ShowTimeStampColumn ? _originalTimeStampColumnWidth : 0;
-            }
-
-            // Update LoggerName column visibility
-            if (gridView.Columns.Count > 3)
-            {
-                gridView.Columns[3].Width = ShowLoggerNameColumn ? _originalLoggerNameColumnWidth : 0;
-            }
-
-            // Message column is always visible (no visibility control)
-        }
-
+		
         private void UpdateFilter()
         {
             if (LogEvents?.View is not CollectionView collectionView) return;
@@ -588,18 +557,49 @@ namespace DJ
             }
         }
 
-        #endregion
+        private void UpdateColumnVisibility()
+        {
+	        if (PART_ListView?.View is not AutoSizedGridView gridView) return;
 
-        // ##########################################################################################
-        // Filter Properties
-        // ##########################################################################################
+	        // Update ID column visibility
+	        if (gridView.Columns.Count > 0)
+	        {
+		        gridView.Columns[0].Width = ShowIdColumn ? _originalIdColumnWidth : 0;
+	        }
 
-        #region Filter Properties
+	        // Update Level column visibility
+	        if (gridView.Columns.Count > 1)
+	        {
+		        gridView.Columns[1].Width = ShowLevelColumn ? _originalLevelColumnWidth : 0;
+	        }
 
-        /// <summary>
-        /// Filter for Trace log level
-        /// </summary>
-        [Category("NLogViewerFilters")]
+	        // Update TimeStamp column visibility
+	        if (gridView.Columns.Count > 2)
+	        {
+		        gridView.Columns[2].Width = ShowTimeStampColumn ? _originalTimeStampColumnWidth : 0;
+	        }
+
+	        // Update LoggerName column visibility
+	        if (gridView.Columns.Count > 3)
+	        {
+		        gridView.Columns[3].Width = ShowLoggerNameColumn ? _originalLoggerNameColumnWidth : 0;
+	        }
+
+	        // Message column is always visible (no visibility control)
+        }
+
+		#endregion
+
+		// ##########################################################################################
+		// Filter Properties
+		// ##########################################################################################
+
+		#region Filter Properties
+
+		/// <summary>
+		/// Filter for Trace log level
+		/// </summary>
+		[Category("NLogViewerFilters")]
         [Browsable(true)]
         [Description("Hide/show Trace level log entries")]
         public bool TraceFilter
