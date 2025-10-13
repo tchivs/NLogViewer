@@ -8,9 +8,6 @@
     xmlns:listViewLayoutManager="clr-namespace:DJ.Helper.ListViewLayoutManager;assembly=NLogViewer"
     xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
     xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer">
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
-    </ResourceDictionary.MergedDictionaries>
     <!-- Converter Resources -->
     <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
@@ -216,6 +213,20 @@
                                       BorderThickness="0"
                                       ScrollViewer.CanContentScroll="True"
                                       listViewLayoutManager:ListViewLayoutManager.Enabled="true">
+                                <!-- Custom GridViewColumnHeader Style for reduced height -->
+                                <ListView.Resources>
+                                    <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                                        <Setter Property="Height" Value="32"/>
+                                        <Setter Property="Padding" Value="8,4"/>
+                                        <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="FontWeight" Value="Medium"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}"/>
+                                        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                    </Style>
+                                </ListView.Resources>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
@@ -277,7 +288,7 @@
                                                     <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}" Path="IdResolver"/>
                                                 </MultiBinding>
                                             </GridViewColumn.DisplayMemberBinding>
-                                        </GridViewColumn>
+                                        </GridViewColumn>   
                                         <GridViewColumn Header="Level" Width="Auto">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
