@@ -21,9 +21,9 @@ using NLog;
 namespace DJ
 {
     /// <summary>
-    /// Interaktionslogik für NLogViewer.xaml
+    /// A customizable control for viewing NLog events with filtering and styling capabilities.
     /// </summary>
-    public partial class NLogViewer : UserControl
+    public partial class NLogViewer : Control
     {
         // ##############################################################################################################################
         // Dependency Properties
@@ -307,40 +307,9 @@ namespace DJ
         protected virtual void OnAutoScrollChanged()
         {
             if (AutoScroll)
-                ListView?.ScrollToEnd();
+                PART_ListView?.ScrollToEnd();
         }
-
-        private void UpdateColumnVisibility()
-        {
-            if (ListView?.View is not AutoSizedGridView gridView) return;
-
-            // Update ID column visibility
-            if (gridView.Columns.Count > 0)
-            {
-                gridView.Columns[0].Width = ShowIdColumn ? _originalIdColumnWidth : 0;
-            }
-
-            // Update Level column visibility
-            if (gridView.Columns.Count > 1)
-            {
-                gridView.Columns[1].Width = ShowLevelColumn ? _originalLevelColumnWidth : 0;
-            }
-
-            // Update TimeStamp column visibility
-            if (gridView.Columns.Count > 2)
-            {
-                gridView.Columns[2].Width = ShowTimeStampColumn ? _originalTimeStampColumnWidth : 0;
-            }
-
-            // Update LoggerName column visibility
-            if (gridView.Columns.Count > 3)
-            {
-                gridView.Columns[3].Width = ShowLoggerNameColumn ? _originalLoggerNameColumnWidth : 0;
-            }
-
-            // Message column is always visible (no visibility control)
-        }
-
+		
         private void UpdateFilter()
         {
             if (LogEvents?.View is not CollectionView collectionView) return;
@@ -588,18 +557,112 @@ namespace DJ
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Updates column visibility by removing or adding columns based on the Show properties.
+        /// When a column is hidden, it's removed from the grid. When shown again, it's added back at its original position.
+        /// </summary>
+        private void UpdateColumnVisibility()
+        {
+	        if (PART_ListView?.View is not AutoSizedGridView gridView) return;
 
-        // ##########################################################################################
-        // Filter Properties
-        // ##########################################################################################
+	        // Update ID column visibility (original index 0)
+	        UpdateColumnVisibility(gridView, _originalIdColumn, ShowIdColumn, _originalIdColumnWidth, 0);
 
-        #region Filter Properties
+	        // Update Level column visibility (original index 1)
+	        UpdateColumnVisibility(gridView, _originalLevelColumn, ShowLevelColumn, _originalLevelColumnWidth, 1);
+
+	        // Update TimeStamp column visibility (original index 2)
+	        UpdateColumnVisibility(gridView, _originalTimeStampColumn, ShowTimeStampColumn, _originalTimeStampColumnWidth, 2);
+
+	        // Update LoggerName column visibility (original index 3)
+	        UpdateColumnVisibility(gridView, _originalLoggerNameColumn, ShowLoggerNameColumn, _originalLoggerNameColumnWidth, 3);
+
+	        // Message column is always visible (no visibility control)
+        }
 
         /// <summary>
-        /// Filter for Trace log level
+        /// Helper method to update individual column visibility by removing or adding the column.
+        /// Calculates the correct insertion position based on which columns are currently visible.
         /// </summary>
-        [Category("NLogViewerFilters")]
+        /// <param name="gridView">The GridView containing the columns</param>
+        /// <param name="originalColumn">The original column reference to add/remove</param>
+        /// <param name="showColumn">Whether the column should be visible</param>
+        /// <param name="originalWidth">The original width of the column</param>
+        /// <param name="originalIndex">The original index of the column (0=ID, 1=Level, 2=TimeStamp, 3=LoggerName)</param>
+        private void UpdateColumnVisibility(AutoSizedGridView gridView, GridViewColumn originalColumn, bool showColumn, double originalWidth, int originalIndex)
+        {
+	        if (originalColumn == null) return;
+
+	        // Check if column is currently in the grid
+	        bool columnExists = gridView.Columns.Contains(originalColumn);
+
+	        if (showColumn && !columnExists)
+	        {
+		        // Column should be visible but is not in the grid - add it back
+		        originalColumn.Width = originalWidth;
+		        
+		        // Calculate the correct insertion index based on which columns are currently visible
+		        int insertionIndex = CalculateInsertionIndex(gridView, originalIndex);
+		        gridView.Columns.Insert(insertionIndex, originalColumn);
+	        }
+	        else if (!showColumn && columnExists)
+	        {
+		        // Column should be hidden but is in the grid - remove it
+		        gridView.Columns.Remove(originalColumn);
+	        }
+        }
+
+        /// <summary>
+        /// Calculates the correct insertion index for a column based on its original position
+        /// and which columns are currently visible.
+        /// </summary>
+        /// <param name="gridView">The GridView containing the columns</param>
+        /// <param name="originalIndex">The original index of the column to insert</param>
+        /// <returns>The correct insertion index</returns>
+        private int CalculateInsertionIndex(AutoSizedGridView gridView, int originalIndex)
+        {
+	        // Count how many visible columns come before this one in the original order
+	        int insertionIndex = 0;
+	        
+	        // Check ID column (original index 0)
+	        if (originalIndex > 0 && ShowIdColumn && gridView.Columns.Contains(_originalIdColumn))
+	        {
+		        insertionIndex++;
+	        }
+	        
+	        // Check Level column (original index 1)
+	        if (originalIndex > 1 && ShowLevelColumn && gridView.Columns.Contains(_originalLevelColumn))
+	        {
+		        insertionIndex++;
+	        }
+	        
+	        // Check TimeStamp column (original index 2)
+	        if (originalIndex > 2 && ShowTimeStampColumn && gridView.Columns.Contains(_originalTimeStampColumn))
+	        {
+		        insertionIndex++;
+	        }
+	        
+	        // Check LoggerName column (original index 3)
+	        if (originalIndex > 3 && ShowLoggerNameColumn && gridView.Columns.Contains(_originalLoggerNameColumn))
+	        {
+		        insertionIndex++;
+	        }
+	        
+	        return insertionIndex;
+        }
+
+		#endregion
+
+		// ##########################################################################################
+		// Filter Properties
+		// ##########################################################################################
+
+		#region Filter Properties
+
+		/// <summary>
+		/// Filter for Trace log level
+		/// </summary>
+		[Category("NLogViewerFilters")]
         [Browsable(true)]
         [Description("Hide/show Trace level log entries")]
         public bool TraceFilter
@@ -797,11 +860,20 @@ namespace DJ
         private Window _ParentWindow;
         private bool _isListening = false;
         
-        // Store original column widths for restoration
+        // Store original column references and widths for restoration
+        private GridViewColumn _originalIdColumn;
+        private GridViewColumn _originalLevelColumn;
+        private GridViewColumn _originalTimeStampColumn;
+        private GridViewColumn _originalLoggerNameColumn;
         private double _originalIdColumnWidth = 40;
         private double _originalLevelColumnWidth = double.NaN; // Auto
         private double _originalTimeStampColumnWidth = double.NaN; // Auto
         private double _originalLoggerNameColumnWidth = double.NaN; // Auto
+        
+        /// <summary>
+        /// Reference to the ListView template part for programmatic access
+        /// </summary>
+        private ListView PART_ListView => GetTemplateChild("PART_ListView") as ListView;
         
         #endregion
 
@@ -860,7 +932,7 @@ namespace DJ
 
                     if (AutoScroll)
                     {
-                        ListView?.ScrollToEnd();
+                        PART_ListView?.ScrollToEnd();
                     }
                 });
 
@@ -890,9 +962,13 @@ namespace DJ
 
         #region Constructor
 
+        static NLogViewer()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(NLogViewer), new FrameworkPropertyMetadata(typeof(NLogViewer)));
+        }
+
         public NLogViewer()
         {
-            InitializeComponent();
             DataContext = this;
             
             // save instance UID
@@ -936,16 +1012,32 @@ namespace DJ
             // removed loaded handler to prevent duplicate subscribing
             Loaded -= _OnLoaded;
 
-            ListView.ScrollToEnd();
+            PART_ListView?.ScrollToEnd();
             
-            // Store original column widths for visibility management
-            if (ListView.View is AutoSizedGridView gridView)
+            // Store original column references and widths for visibility management
+            if (PART_ListView?.View is AutoSizedGridView gridView)
             {
-                if (gridView.Columns.Count > 0) _originalIdColumnWidth = gridView.Columns[0].Width;
-                if (gridView.Columns.Count > 1) _originalLevelColumnWidth = gridView.Columns[1].Width;
-                if (gridView.Columns.Count > 2) _originalTimeStampColumnWidth = gridView.Columns[2].Width;
-                if (gridView.Columns.Count > 3) _originalLoggerNameColumnWidth = gridView.Columns[3].Width;
-                // Message column (index 4) is always visible, no need to store its width
+                if (gridView.Columns.Count > 0) 
+                {
+                    _originalIdColumn = gridView.Columns[0];
+                    _originalIdColumnWidth = gridView.Columns[0].Width;
+                }
+                if (gridView.Columns.Count > 1) 
+                {
+                    _originalLevelColumn = gridView.Columns[1];
+                    _originalLevelColumnWidth = gridView.Columns[1].Width;
+                }
+                if (gridView.Columns.Count > 2) 
+                {
+                    _originalTimeStampColumn = gridView.Columns[2];
+                    _originalTimeStampColumnWidth = gridView.Columns[2].Width;
+                }
+                if (gridView.Columns.Count > 3) 
+                {
+                    _originalLoggerNameColumn = gridView.Columns[3];
+                    _originalLoggerNameColumnWidth = gridView.Columns[3].Width;
+                }
+                // Message column (index 4) is always visible, no need to store its reference
                 
                 // Apply initial column visibility
                 UpdateColumnVisibility();

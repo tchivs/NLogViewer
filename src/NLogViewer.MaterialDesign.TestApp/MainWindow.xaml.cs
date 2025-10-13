@@ -13,7 +13,7 @@ using NLog;
 using NLog.Config;
 using NLog.Filters;
 
-namespace TestApplication
+namespace NLogViewer.MaterialDesign.TestApp
 {
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
@@ -135,7 +135,7 @@ namespace TestApplication
             LogManager.Configuration = config;
 
             // create a new NLogViewer Control with the unique logger target name
-            NLogViewer nLogViewer = new NLogViewer
+            DJ.NLogViewer nLogViewer = new DJ.NLogViewer
             {
                 TargetName = targetName,
             };
