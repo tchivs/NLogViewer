@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +21,97 @@ using NLog;
 
 namespace DJ
 {
+    /// <summary>
+    /// Base class for search terms that can match against text
+    /// </summary>
+    public abstract class SearchTerm
+    {
+        public string Text { get; protected set; }
+        
+        protected SearchTerm(string text)
+        {
+            Text = text ?? throw new ArgumentNullException(nameof(text));
+        }
+        
+        /// <summary>
+        /// Determines if the search term matches the given text
+        /// </summary>
+        /// <param name="text">The text to match against</param>
+        /// <returns>True if the text matches the search term</returns>
+        public abstract bool Match(string text);
+        
+        /// <summary>
+        /// Determines if the search term matches any of the given texts
+        /// </summary>
+        /// <param name="texts">The texts to match against</param>
+        /// <returns>True if any text matches the search term</returns>
+        public bool MatchAny(params string[] texts)
+        {
+            if (texts == null) return false;
+            return texts.Any(text => !string.IsNullOrEmpty(text) && Match(text));
+        }
+        
+        public override string ToString()
+        {
+            return Text;
+        }
+    }
+
+    /// <summary>
+    /// A search term that performs case-insensitive substring matching
+    /// </summary>
+    public class TextSearchTerm : SearchTerm
+    {
+        private readonly string _lowercaseText;
+        
+        public TextSearchTerm(string text) : base(text)
+        {
+            _lowercaseText = text.ToLowerInvariant();
+        }
+        
+        public override bool Match(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return false;
+            return text.ToLowerInvariant().Contains(_lowercaseText);
+        }
+        
+        public override string ToString()
+        {
+            return Text;
+        }
+    }
+
+    /// <summary>
+    /// A search term that performs regex pattern matching
+    /// </summary>
+    public class RegexSearchTerm : SearchTerm
+    {
+        private readonly Regex _regex;
+        
+        public RegexSearchTerm(string pattern) : base(pattern)
+        {
+            try
+            {
+                _regex = new Regex(pattern, RegexOptions.Compiled);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException($"Invalid regex pattern: {ex.Message}", nameof(pattern), ex);
+            }
+        }
+        
+        public override bool Match(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return false;
+            return _regex.IsMatch(text);
+        }
+        
+        public override string ToString()
+        {
+            return $"/{Text}/";
+        }
+    }
+
     /// <summary>
     /// A customizable control for viewing NLog events with filtering and styling capabilities.
     /// </summary>
@@ -318,7 +410,8 @@ namespace DJ
             {
                 if (item is not LogEventInfo logEvent) return true;
 
-                return logEvent.Level.Name switch
+                // Apply level filters first
+                bool levelFilterPassed = logEvent.Level.Name switch
                 {
                     "Trace" => !TraceFilter,  // If TraceFilter is true, hide Trace entries (!true = false)
                     "Debug" => !DebugFilter,  // If DebugFilter is true, hide Debug entries (!true = false)
@@ -328,6 +421,27 @@ namespace DJ
                     "Fatal" => !FatalFilter,   // If FatalFilter is true, hide Fatal entries (!true = false)
                     _ => true
                 };
+
+                if (!levelFilterPassed) return false;
+
+                // Apply search filters if any active search terms exist
+                if (ActiveSearchTerms?.Count > 0)
+                {
+                    string loggerName = logEvent.LoggerName ?? string.Empty;
+                    string message = MessageResolver?.Resolve(logEvent) ?? string.Empty;
+                    
+                    // OR logic: match if ANY search term matches
+                    foreach (var searchTerm in ActiveSearchTerms)
+                    {
+                        if (searchTerm.MatchAny(loggerName, message))
+                            return true;
+                    }
+                    
+                    // No search term matched
+                    return false;
+                }
+
+                return true;
             };
             
             // Refresh the view to apply the filter
@@ -350,6 +464,60 @@ namespace DJ
         /// The <see cref="ClearCommand"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ClearCommandProperty = DependencyProperty.Register("ClearCommand",
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to add a new search term
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to add a new search term")]
+        public ICommand AddSearchTermCommand
+        {
+            get => (ICommand) GetValue(AddSearchTermCommandProperty);
+            set => SetValue(AddSearchTermCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="AddSearchTermCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty AddSearchTermCommandProperty = DependencyProperty.Register("AddSearchTermCommand",
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to clear all search terms
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to clear all search terms")]
+        public ICommand ClearAllSearchTermsCommand
+        {
+            get => (ICommand) GetValue(ClearAllSearchTermsCommandProperty);
+            set => SetValue(ClearAllSearchTermsCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ClearAllSearchTermsCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ClearAllSearchTermsCommandProperty = DependencyProperty.Register("ClearAllSearchTermsCommand",
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to remove a specific search term
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to remove a specific search term")]
+        public ICommand RemoveSearchTermCommand
+        {
+            get => (ICommand) GetValue(RemoveSearchTermCommandProperty);
+            set => SetValue(RemoveSearchTermCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="RemoveSearchTermCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty RemoveSearchTermCommandProperty = DependencyProperty.Register("RemoveSearchTermCommand",
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
@@ -773,12 +941,125 @@ namespace DJ
             DependencyProperty.Register("FatalFilter", typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false, OnFilterChanged));
 
+        /// <summary>
+        /// Current search text being typed (not yet activated)
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Current search text being typed (activated with Enter key)")]
+        public string CurrentSearchText
+        {
+            get => (string)GetValue(CurrentSearchTextProperty);
+            set => SetValue(CurrentSearchTextProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="CurrentSearchText"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty CurrentSearchTextProperty = 
+            DependencyProperty.Register("CurrentSearchText", typeof(string), typeof(NLogViewer), 
+                new PropertyMetadata(string.Empty));
+
+        /// <summary>
+        /// Whether to use regex pattern matching for search
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Use regex pattern matching instead of free text search")]
+        public bool UseRegexSearch
+        {
+            get => (bool)GetValue(UseRegexSearchProperty);
+            set => SetValue(UseRegexSearchProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="UseRegexSearch"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty UseRegexSearchProperty = 
+            DependencyProperty.Register("UseRegexSearch", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(false));
+
+        /// <summary>
+        /// Collection of active search terms
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(false)]
+        [Description("Collection of active search terms")]
+        public ObservableCollection<SearchTerm> ActiveSearchTerms
+        {
+            get => (ObservableCollection<SearchTerm>)GetValue(ActiveSearchTermsProperty);
+            private set => SetValue(ActiveSearchTermsProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ActiveSearchTerms"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ActiveSearchTermsProperty = 
+            DependencyProperty.Register("ActiveSearchTerms", typeof(ObservableCollection<SearchTerm>), typeof(NLogViewer), 
+                new PropertyMetadata(null));
+
         private static void OnFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
         {
             if (d is NLogViewer instance)
             {
                 instance.UpdateFilter();
             }
+        }
+
+
+        /// <summary>
+        /// Adds a new search term to the active search terms collection
+        /// </summary>
+        public void AddSearchTerm()
+        {
+            if (string.IsNullOrWhiteSpace(CurrentSearchText))
+                return;
+
+            SearchTerm searchTerm;
+            
+            if (UseRegexSearch)
+            {
+                try
+                {
+                    searchTerm = new RegexSearchTerm(CurrentSearchText);
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show($"Invalid regex pattern: {ex.Message}", "Regex Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            else
+            {
+                searchTerm = new TextSearchTerm(CurrentSearchText);
+            }
+            
+            ActiveSearchTerms.Add(searchTerm);
+            
+            // Clear the input
+            CurrentSearchText = string.Empty;
+            
+            // Update filter
+            UpdateFilter();
+        }
+
+        /// <summary>
+        /// Removes a search term from the active search terms collection
+        /// </summary>
+        public void RemoveSearchTerm(SearchTerm searchTerm)
+        {
+            ActiveSearchTerms.Remove(searchTerm);
+            UpdateFilter();
+        }
+
+        /// <summary>
+        /// Clears all active search terms
+        /// </summary>
+        public void ClearAllSearchTerms()
+        {
+            ActiveSearchTerms.Clear();
+            UpdateFilter();
         }
 
         #endregion
@@ -806,6 +1087,25 @@ namespace DJ
         /// </summary>
         public static readonly DependencyProperty ShowFilterButtonsProperty = 
             DependencyProperty.Register("ShowFilterButtons", typeof(bool), typeof(NLogViewer), 
+                new PropertyMetadata(true));
+
+        /// <summary>
+        /// Controls the visibility of the search controls
+        /// </summary>
+        [Category("NLogViewerFilters")]
+        [Browsable(true)]
+        [Description("Show/hide the search controls")]
+        public bool ShowSearchControls
+        {
+            get => (bool)GetValue(ShowSearchControlsProperty);
+            set => SetValue(ShowSearchControlsProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ShowSearchControls"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ShowSearchControlsProperty = 
+            DependencyProperty.Register("ShowSearchControls", typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true));
 
         #endregion
@@ -978,11 +1278,15 @@ namespace DJ
                 return;
 
             LogEvents = new CollectionViewSource {Source = _LogEventInfos};
+            ActiveSearchTerms = new ObservableCollection<SearchTerm>();
             UpdateFilter(); // Initialize filter
             
             Loaded += _OnLoaded;
             Unloaded += _OnUnloaded;
-            ClearCommand = new ActionCommand(_LogEventInfos.Clear);
+            ClearCommand = new RelayCommand(_LogEventInfos.Clear);
+            AddSearchTermCommand = new RelayCommand(AddSearchTerm);
+            ClearAllSearchTermsCommand = new RelayCommand(ClearAllSearchTerms);
+            RemoveSearchTermCommand = new RelayCommand<SearchTerm>(RemoveSearchTerm);
             
             // Filter commands are no longer needed - ToggleButtons handle the binding directly
         }

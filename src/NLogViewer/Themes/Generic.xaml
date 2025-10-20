@@ -6,7 +6,8 @@
     xmlns:listViewLayoutManager="clr-namespace:DJ.Helper.ListViewLayoutManager"
     xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter"
     xmlns:helper="clr-namespace:DJ.Helper"
-    xmlns:xamlConverter="clr-namespace:DJ.XamlConverter">
+    xmlns:xamlConverter="clr-namespace:DJ.XamlConverter"
+    x:Class="DJ.Themes.GenericTheme">
 
     <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
@@ -163,6 +164,67 @@
                                             </StackPanel>
                                         </ToggleButton.Content>
                                     </ToggleButton>
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- Search Controls -->
+                            <GroupBox Header="Search" Margin="10,0,0,0" Padding="5"
+                                      Visibility="{Binding ShowSearchControls, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel>
+                                    <!-- Search Input -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <TextBox Text="{Binding CurrentSearchText, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="200" 
+                                                 Margin="0,0,10,0"
+                                                 ToolTip="Search in logger name and message content (Press Enter to add)">
+                                            <TextBox.InputBindings>
+                                                <KeyBinding Key="Return" Command="{Binding AddSearchTermCommand, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                            </TextBox.InputBindings>
+                                        </TextBox>
+                                        <CheckBox Content="Regex" 
+                                                  IsChecked="{Binding UseRegexSearch, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  VerticalAlignment="Center"
+                                                  ToolTip="Use regex pattern matching"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Active Search Terms -->
+                                    <ItemsControl ItemsSource="{Binding ActiveSearchTerms, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="LightBlue" 
+                                                        BorderBrush="Blue" 
+                                                        BorderThickness="1" 
+                                                        CornerRadius="3" 
+                                                        Margin="2" 
+                                                        Padding="4,2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Text}" Margin="0,0,4,0"/>
+                                                        <Button Content="×" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0"
+                                                                Command="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Remove search term"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    
+                                    <!-- Clear All Button -->
+                                    <Button Content="Clear All Search Terms"
+                                            Command="{Binding ClearAllSearchTermsCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Left"
+                                            Visibility="{Binding ActiveSearchTerms.Count, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </GroupBox>
                         </StackPanel>

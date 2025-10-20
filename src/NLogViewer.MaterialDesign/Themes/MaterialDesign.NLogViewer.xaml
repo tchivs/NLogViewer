@@ -7,7 +7,8 @@
     xmlns:helper="clr-namespace:DJ.Helper;assembly=NLogViewer"
     xmlns:listViewLayoutManager="clr-namespace:DJ.Helper.ListViewLayoutManager;assembly=NLogViewer"
     xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
-    xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer">
+    xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer"
+    x:Class="DJ.MaterialDesign.Themes.MaterialDesignNLogViewerTheme">
     <!-- Converter Resources -->
     <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
@@ -202,6 +203,57 @@
                                             </Style>
                                         </ToggleButton.Style>
                                     </ToggleButton>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                            <!-- Search Controls -->
+                            <materialDesign:Card Margin="8" 
+                                                 Visibility="{Binding ShowSearchControls, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel Margin="16">
+                                    <TextBlock Text="Search" Style="{DynamicResource MaterialDesignSubtitle2TextBlock}" Margin="0,0,0,8"/>
+                                    
+                                    <!-- Search Input -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <TextBox Text="{Binding CurrentSearchText, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
+                                                 materialDesign:HintAssist.Hint="Search in logger name and message... (Press Enter to add)"
+                                                 Width="250"
+                                                 Margin="0,0,16,0">
+                                            <TextBox.InputBindings>
+                                                <KeyBinding Key="Return" Command="{Binding AddSearchTermCommand, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                            </TextBox.InputBindings>
+                                        </TextBox>
+                                        <CheckBox Content="Use Regex"
+                                                  IsChecked="{Binding UseRegexSearch, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  VerticalAlignment="Center"
+                                                  Style="{DynamicResource MaterialDesignCheckBox}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Active Search Terms -->
+                                    <ItemsControl ItemsSource="{Binding ActiveSearchTerms, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <materialDesign:Chip Margin="2" 
+                                                                   IsDeletable="True"
+                                                                   DeleteCommand="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
+                                                                   DeleteCommandParameter="{Binding}">
+                                                    <TextBlock Text="{Binding Text}"/>
+                                                </materialDesign:Chip>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    
+                                    <!-- Clear All Button -->
+                                    <Button Content="Clear All Search Terms"
+                                            Command="{Binding ClearAllSearchTermsCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                            Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Left"
+                                            Visibility="{Binding ActiveSearchTerms.Count, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </materialDesign:Card>
                         </StackPanel>
