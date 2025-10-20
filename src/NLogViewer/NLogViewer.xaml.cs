@@ -143,7 +143,7 @@ namespace DJ
         /// The <see cref="TraceBackground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty TraceBackgroundProperty =
-            DependencyProperty.Register("TraceBackground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(TraceBackground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata((Brush) (new BrushConverter().ConvertFrom("#D3D3D3"))));
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace DJ
         /// The <see cref="TraceForeground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty TraceForegroundProperty =
-            DependencyProperty.Register("TraceForeground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(TraceForeground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata((Brush) (new BrushConverter().ConvertFrom("#042271"))));
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace DJ
         /// The <see cref="DebugBackground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty DebugBackgroundProperty =
-            DependencyProperty.Register("DebugBackground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(DebugBackground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata((Brush) (new BrushConverter().ConvertFrom("#90EE90"))));
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace DJ
         /// The <see cref="DebugForeground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty DebugForegroundProperty =
-            DependencyProperty.Register("DebugForeground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(DebugForeground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata((Brush) (new BrushConverter().ConvertFrom("#042271"))));
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="InfoBackground"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty InfoBackgroundProperty = DependencyProperty.Register("InfoBackground",
+        public static readonly DependencyProperty InfoBackgroundProperty = DependencyProperty.Register(nameof(InfoBackground),
             typeof(Brush), typeof(NLogViewer),
             new PropertyMetadata((Brush) (new BrushConverter().ConvertFrom("#0000FF"))));
 
@@ -227,7 +227,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="InfoForeground"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty InfoForegroundProperty = DependencyProperty.Register("InfoForeground",
+        public static readonly DependencyProperty InfoForegroundProperty = DependencyProperty.Register(nameof(InfoForeground),
             typeof(Brush), typeof(NLogViewer), new PropertyMetadata(Brushes.White));
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="WarnBackground"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty WarnBackgroundProperty = DependencyProperty.Register("WarnBackground",
+        public static readonly DependencyProperty WarnBackgroundProperty = DependencyProperty.Register(nameof(WarnBackground),
             typeof(Brush), typeof(NLogViewer),
             new PropertyMetadata((Brush) (new BrushConverter().ConvertFrom("#FFFF00"))));
 
@@ -260,7 +260,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="WarnForeground"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty WarnForegroundProperty = DependencyProperty.Register("WarnForeground",
+        public static readonly DependencyProperty WarnForegroundProperty = DependencyProperty.Register(nameof(WarnForeground),
             typeof(Brush), typeof(NLogViewer),
             new PropertyMetadata((Brush) (new BrushConverter().ConvertFrom("#324B5C"))));
 
@@ -278,7 +278,7 @@ namespace DJ
         /// The <see cref="ErrorBackground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ErrorBackgroundProperty =
-            DependencyProperty.Register("ErrorBackground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(ErrorBackground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata(Brushes.Red));
 
         /// <summary>
@@ -295,7 +295,7 @@ namespace DJ
         /// The <see cref="ErrorForeground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ErrorForegroundProperty =
-            DependencyProperty.Register("ErrorForeground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(ErrorForeground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata(Brushes.White));
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace DJ
         /// The <see cref="FatalBackground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty FatalBackgroundProperty =
-            DependencyProperty.Register("FatalBackground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(FatalBackground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata(Brushes.Black));
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace DJ
         /// The <see cref="FatalForeground"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty FatalForegroundProperty =
-            DependencyProperty.Register("FatalForeground", typeof(Brush), typeof(NLogViewer),
+            DependencyProperty.Register(nameof(FatalForeground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata(Brushes.Yellow));
 
         #endregion
@@ -353,7 +353,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="TargetName"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty TargetNameProperty = DependencyProperty.Register("TargetName", typeof(string), typeof(NLogViewer), new PropertyMetadata(null));
+        public static readonly DependencyProperty TargetNameProperty = DependencyProperty.Register(nameof(TargetName), typeof(string), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
         /// Private DP to bind to the gui
@@ -368,7 +368,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="LogEvents"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty LogEventsProperty = DependencyProperty.Register("LogEvents",
+        public static readonly DependencyProperty LogEventsProperty = DependencyProperty.Register(nameof(LogEvents),
             typeof(CollectionViewSource), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
@@ -386,7 +386,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="AutoScroll"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty AutoScrollProperty = DependencyProperty.Register("AutoScroll", typeof(bool), typeof(NLogViewer), new PropertyMetadata(true, AutoScrollChangedCallback));
+        public static readonly DependencyProperty AutoScrollProperty = DependencyProperty.Register(nameof(AutoScroll), typeof(bool), typeof(NLogViewer), new PropertyMetadata(true, AutoScrollChangedCallback));
 
         private static void AutoScrollChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs args)
         {
@@ -463,7 +463,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="ClearCommand"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty ClearCommandProperty = DependencyProperty.Register("ClearCommand",
+        public static readonly DependencyProperty ClearCommandProperty = DependencyProperty.Register(nameof(ClearCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
 
         /// <summary>
@@ -481,7 +481,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="AddSearchTermCommand"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty AddSearchTermCommandProperty = DependencyProperty.Register("AddSearchTermCommand",
+        public static readonly DependencyProperty AddSearchTermCommandProperty = DependencyProperty.Register(nameof(AddSearchTermCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
 
         /// <summary>
@@ -499,7 +499,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="ClearAllSearchTermsCommand"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty ClearAllSearchTermsCommandProperty = DependencyProperty.Register("ClearAllSearchTermsCommand",
+        public static readonly DependencyProperty ClearAllSearchTermsCommandProperty = DependencyProperty.Register(nameof(ClearAllSearchTermsCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
 
         /// <summary>
@@ -517,7 +517,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="RemoveSearchTermCommand"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty RemoveSearchTermCommandProperty = DependencyProperty.Register("RemoveSearchTermCommand",
+        public static readonly DependencyProperty RemoveSearchTermCommandProperty = DependencyProperty.Register(nameof(RemoveSearchTermCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
@@ -535,7 +535,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="Pause"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty PauseProperty = DependencyProperty.Register("Pause", typeof(bool), typeof(NLogViewer), new PropertyMetadata(false, OnPauseChanged));
+        public static readonly DependencyProperty PauseProperty = DependencyProperty.Register(nameof(Pause), typeof(bool), typeof(NLogViewer), new PropertyMetadata(false, OnPauseChanged));
 
         private static void OnPauseChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -569,7 +569,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="MaxCount"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty MaxCountProperty = DependencyProperty.Register("MaxCount", typeof(int), typeof(NLogViewer), new PropertyMetadata(5000));
+        public static readonly DependencyProperty MaxCountProperty = DependencyProperty.Register(nameof(MaxCount), typeof(int), typeof(NLogViewer), new PropertyMetadata(5000));
 
 
         #endregion
@@ -593,7 +593,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="IdResolver"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty IdResolverProperty = DependencyProperty.Register("IdResolver", typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new IdResolver()));
+        public static readonly DependencyProperty IdResolverProperty = DependencyProperty.Register(nameof(IdResolver), typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new IdResolver()));
         
         /// <summary>
         /// The <see cref="ILogEventInfoResolver"/> to format the timestamp output
@@ -608,7 +608,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="TimeStampResolver"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty TimeStampResolverProperty = DependencyProperty.Register("TimeStampResolver", typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new TimeStampResolver()));
+        public static readonly DependencyProperty TimeStampResolverProperty = DependencyProperty.Register(nameof(TimeStampResolver), typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new TimeStampResolver()));
         
         /// <summary>
         /// The <see cref="ILogEventInfoResolver"/> to format the loggername
@@ -623,7 +623,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="LoggerNameResolver"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty LoggerNameResolverProperty = DependencyProperty.Register("LoggerNameResolver", typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new LoggerNameResolver()));
+        public static readonly DependencyProperty LoggerNameResolverProperty = DependencyProperty.Register(nameof(LoggerNameResolver), typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new LoggerNameResolver()));
         
         /// <summary>
         /// The <see cref="ILogEventInfoResolver"/> to format the message
@@ -638,7 +638,7 @@ namespace DJ
         /// <summary>
         /// The <see cref="MessageResolver"/> DependencyProperty.
         /// </summary>
-        public static readonly DependencyProperty MessageResolverProperty = DependencyProperty.Register("MessageResolver", typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new MessageResolver()));
+        public static readonly DependencyProperty MessageResolverProperty = DependencyProperty.Register(nameof(MessageResolver), typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new MessageResolver()));
         
         #endregion
 
@@ -662,7 +662,7 @@ namespace DJ
         /// The <see cref="ShowIdColumn"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ShowIdColumnProperty = 
-            DependencyProperty.Register("ShowIdColumn", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ShowIdColumn), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true, OnColumnVisibilityChanged));
 
         /// <summary>
@@ -679,7 +679,7 @@ namespace DJ
         /// The <see cref="ShowLevelColumn"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ShowLevelColumnProperty = 
-            DependencyProperty.Register("ShowLevelColumn", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ShowLevelColumn), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true, OnColumnVisibilityChanged));
 
         /// <summary>
@@ -696,7 +696,7 @@ namespace DJ
         /// The <see cref="ShowTimeStampColumn"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ShowTimeStampColumnProperty = 
-            DependencyProperty.Register("ShowTimeStampColumn", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ShowTimeStampColumn), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true, OnColumnVisibilityChanged));
 
         /// <summary>
@@ -713,7 +713,7 @@ namespace DJ
         /// The <see cref="ShowLoggerNameColumn"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ShowLoggerNameColumnProperty = 
-            DependencyProperty.Register("ShowLoggerNameColumn", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ShowLoggerNameColumn), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true, OnColumnVisibilityChanged));
 
 
@@ -843,7 +843,7 @@ namespace DJ
         /// The <see cref="TraceFilter"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty TraceFilterProperty = 
-            DependencyProperty.Register("TraceFilter", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(TraceFilter), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false, OnFilterChanged));
 
         /// <summary>
@@ -862,7 +862,7 @@ namespace DJ
         /// The <see cref="DebugFilter"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty DebugFilterProperty = 
-            DependencyProperty.Register("DebugFilter", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(DebugFilter), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false, OnFilterChanged));
 
         /// <summary>
@@ -881,7 +881,7 @@ namespace DJ
         /// The <see cref="InfoFilter"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty InfoFilterProperty = 
-            DependencyProperty.Register("InfoFilter", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(InfoFilter), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false, OnFilterChanged));
 
         /// <summary>
@@ -900,7 +900,7 @@ namespace DJ
         /// The <see cref="WarnFilter"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty WarnFilterProperty = 
-            DependencyProperty.Register("WarnFilter", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(WarnFilter), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false, OnFilterChanged));
 
         /// <summary>
@@ -919,7 +919,7 @@ namespace DJ
         /// The <see cref="ErrorFilter"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ErrorFilterProperty = 
-            DependencyProperty.Register("ErrorFilter", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ErrorFilter), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false, OnFilterChanged));
 
         /// <summary>
@@ -938,7 +938,7 @@ namespace DJ
         /// The <see cref="FatalFilter"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty FatalFilterProperty = 
-            DependencyProperty.Register("FatalFilter", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(FatalFilter), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false, OnFilterChanged));
 
         /// <summary>
@@ -957,7 +957,7 @@ namespace DJ
         /// The <see cref="CurrentSearchText"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty CurrentSearchTextProperty = 
-            DependencyProperty.Register("CurrentSearchText", typeof(string), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(CurrentSearchText), typeof(string), typeof(NLogViewer), 
                 new PropertyMetadata(string.Empty));
 
         /// <summary>
@@ -976,7 +976,7 @@ namespace DJ
         /// The <see cref="UseRegexSearch"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty UseRegexSearchProperty = 
-            DependencyProperty.Register("UseRegexSearch", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(UseRegexSearch), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(false));
 
         /// <summary>
@@ -995,7 +995,7 @@ namespace DJ
         /// The <see cref="ActiveSearchTerms"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ActiveSearchTermsProperty = 
-            DependencyProperty.Register("ActiveSearchTerms", typeof(ObservableCollection<SearchTerm>), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ActiveSearchTerms), typeof(ObservableCollection<SearchTerm>), typeof(NLogViewer), 
                 new PropertyMetadata(null));
 
         private static void OnFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
@@ -1086,7 +1086,7 @@ namespace DJ
         /// The <see cref="ShowFilterButtons"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ShowFilterButtonsProperty = 
-            DependencyProperty.Register("ShowFilterButtons", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ShowFilterButtons), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true));
 
         /// <summary>
@@ -1105,7 +1105,7 @@ namespace DJ
         /// The <see cref="ShowSearchControls"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ShowSearchControlsProperty = 
-            DependencyProperty.Register("ShowSearchControls", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ShowSearchControls), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true));
 
         #endregion
@@ -1132,7 +1132,7 @@ namespace DJ
         /// The <see cref="ShowControlButtons"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty ShowControlButtonsProperty = 
-            DependencyProperty.Register("ShowControlButtons", typeof(bool), typeof(NLogViewer), 
+            DependencyProperty.Register(nameof(ShowControlButtons), typeof(bool), typeof(NLogViewer), 
                 new PropertyMetadata(true));
 
         #endregion
