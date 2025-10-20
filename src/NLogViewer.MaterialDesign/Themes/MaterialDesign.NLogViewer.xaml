@@ -235,16 +235,37 @@
                                                 <WrapPanel Orientation="Horizontal"/>
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
+                                        <ItemsControl.Resources>
+                                            <!-- Plain text term chip -->
+                                            <DataTemplate DataType="{x:Type dj:TextSearchTerm}">
                                                 <materialDesign:Chip Margin="2" 
-                                                                   IsDeletable="True"
-                                                                   DeleteCommand="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
-                                                                   DeleteCommandParameter="{Binding}">
+                                                                       Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermBackground}"
+                                                                       BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermBorderBrush}"
+                                                                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermForeground}"
+                                                                       IsDeletable="True"
+                                                                       DeleteCommand="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
+                                                                       DeleteCommandParameter="{Binding}">
                                                     <TextBlock Text="{Binding Text}"/>
                                                 </materialDesign:Chip>
                                             </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
+
+                                            <!-- Regex term chip with visual accent/prefix -->
+                                            <DataTemplate DataType="{x:Type dj:RegexSearchTerm}">
+                                                <materialDesign:Chip Margin="2"
+                                                                       Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermBackground}"
+                                                                       BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermBorderBrush}"
+                                                                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermForeground}"
+                                                                       IsDeletable="True"
+                                                                       DeleteCommand="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
+                                                                       DeleteCommandParameter="{Binding}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Regex:" FontWeight="Bold" Margin="0,0,4,0"
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexPrefixForeground}"/>
+                                                        <TextBlock Text="{Binding Text}"/>
+                                                    </StackPanel>
+                                                </materialDesign:Chip>
+                                            </DataTemplate>
+                                        </ItemsControl.Resources>
                                     </ItemsControl>
                                     
                                     <!-- Clear All Button -->

@@ -194,16 +194,18 @@
                                                 <WrapPanel Orientation="Horizontal"/>
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Background="LightBlue" 
-                                                        BorderBrush="Blue" 
+                                        <ItemsControl.Resources>
+                                            <!-- Template for plain text terms -->
+                                            <DataTemplate DataType="{x:Type local:TextSearchTerm}">
+                                                <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=TextSearchTermBackground}" 
+                                                        BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=TextSearchTermBorderBrush}" 
                                                         BorderThickness="1" 
                                                         CornerRadius="3" 
                                                         Margin="2" 
                                                         Padding="4,2">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Text}" Margin="0,0,4,0"/>
+                                                        <TextBlock Text="{Binding Text}" Margin="0,0,4,0" 
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=TextSearchTermForeground}"/>
                                                         <Button Content="×" 
                                                                 Width="16" 
                                                                 Height="16" 
@@ -216,7 +218,33 @@
                                                     </StackPanel>
                                                 </Border>
                                             </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
+
+                                            <!-- Template for regex terms -->
+                                            <DataTemplate DataType="{x:Type local:RegexSearchTerm}">
+                                                <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexSearchTermBackground}" 
+                                                        BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexSearchTermBorderBrush}" 
+                                                        BorderThickness="1" 
+                                                        CornerRadius="3" 
+                                                        Margin="2" 
+                                                        Padding="4,2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Regex:" FontWeight="Bold" Margin="0,0,4,0"
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexPrefixForeground}"/>
+                                                        <TextBlock Text="{Binding Text}" Margin="0,0,4,0"
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexSearchTermForeground}"/>
+                                                        <Button Content="×" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0"
+                                                                Command="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Remove search term"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.Resources>
                                     </ItemsControl>
                                     
                                     <!-- Clear All Button -->

@@ -133,6 +133,7 @@ namespace DJ
         /// The background for the trace output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Background brush for Trace level log entries")] 
         public Brush TraceBackground
         {
             get => (Brush) GetValue(TraceBackgroundProperty);
@@ -150,6 +151,7 @@ namespace DJ
         /// The foreground for the trace output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Foreground brush for Trace level log entries")] 
         public Brush TraceForeground
         {
             get => (Brush) GetValue(TraceForegroundProperty);
@@ -167,6 +169,7 @@ namespace DJ
         /// The background for the debug output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Background brush for Debug level log entries")] 
         public Brush DebugBackground
         {
             get => (Brush) GetValue(DebugBackgroundProperty);
@@ -184,6 +187,7 @@ namespace DJ
         /// The foreground for the debug output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Foreground brush for Debug level log entries")] 
         public Brush DebugForeground
         {
             get => (Brush) GetValue(DebugForegroundProperty);
@@ -201,6 +205,7 @@ namespace DJ
         /// The background for the info output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Background brush for Info level log entries")] 
         public Brush InfoBackground
         {
             get => (Brush) GetValue(InfoBackgroundProperty);
@@ -218,6 +223,7 @@ namespace DJ
         /// The foreground for the info output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Foreground brush for Info level log entries")] 
         public Brush InfoForeground
         {
             get => (Brush) GetValue(InfoForegroundProperty);
@@ -234,6 +240,7 @@ namespace DJ
         /// The background for the warn output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Background brush for Warn level log entries")] 
         public Brush WarnBackground
         {
             get => (Brush) GetValue(WarnBackgroundProperty);
@@ -251,6 +258,7 @@ namespace DJ
         /// The foreground for the warn output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Foreground brush for Warn level log entries")] 
         public Brush WarnForeground
         {
             get => (Brush) GetValue(WarnForegroundProperty);
@@ -268,6 +276,7 @@ namespace DJ
         /// The background for the error output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Background brush for Error level log entries")] 
         public Brush ErrorBackground
         {
             get => (Brush) GetValue(ErrorBackgroundProperty);
@@ -285,6 +294,7 @@ namespace DJ
         /// The foreground for the error output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Foreground brush for Error level log entries")] 
         public Brush ErrorForeground
         {
             get => (Brush) GetValue(ErrorForegroundProperty);
@@ -302,6 +312,7 @@ namespace DJ
         /// The background for the fatal output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Background brush for Fatal level log entries")] 
         public Brush FatalBackground
         {
             get => (Brush) GetValue(FatalBackgroundProperty);
@@ -319,6 +330,7 @@ namespace DJ
         /// The foreground for the fatal output
         /// </summary>
         [Category("NLogViewerColors")]
+        [Description("Foreground brush for Fatal level log entries")] 
         public Brush FatalForeground
         {
             get => (Brush) GetValue(FatalForegroundProperty);
@@ -331,6 +343,136 @@ namespace DJ
         public static readonly DependencyProperty FatalForegroundProperty =
             DependencyProperty.Register(nameof(FatalForeground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata(Brushes.Yellow));
+
+        // ------------------------------------------------------------------------------------------
+        // Search Term Chip Colors
+        // ------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Background brush for plain text search term chips
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Background brush for plain text search term chips")] 
+        public Brush TextSearchTermBackground
+        {
+            get => (Brush)GetValue(TextSearchTermBackgroundProperty);
+            set => SetValue(TextSearchTermBackgroundProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="TextSearchTermBackground"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty TextSearchTermBackgroundProperty =
+            DependencyProperty.Register(nameof(TextSearchTermBackground), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFADD8E6"))));
+
+        /// <summary>
+        /// Border brush for plain text search term chips
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Border brush for plain text search term chips")] 
+        public Brush TextSearchTermBorderBrush
+        {
+            get => (Brush)GetValue(TextSearchTermBorderBrushProperty);
+            set => SetValue(TextSearchTermBorderBrushProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="TextSearchTermBorderBrush"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty TextSearchTermBorderBrushProperty =
+            DependencyProperty.Register(nameof(TextSearchTermBorderBrush), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FF0000FF"))));
+
+        /// <summary>
+        /// Foreground brush for plain text search term chips
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Foreground brush for plain text search term chips")] 
+        public Brush TextSearchTermForeground
+        {
+            get => (Brush)GetValue(TextSearchTermForegroundProperty);
+            set => SetValue(TextSearchTermForegroundProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="TextSearchTermForeground"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty TextSearchTermForegroundProperty =
+            DependencyProperty.Register(nameof(TextSearchTermForeground), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata(Brushes.Black));
+
+        /// <summary>
+        /// Background brush for regex search term chips
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Background brush for regex search term chips")] 
+        public Brush RegexSearchTermBackground
+        {
+            get => (Brush)GetValue(RegexSearchTermBackgroundProperty);
+            set => SetValue(RegexSearchTermBackgroundProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="RegexSearchTermBackground"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty RegexSearchTermBackgroundProperty =
+            DependencyProperty.Register(nameof(RegexSearchTermBackground), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFFFFBE6"))));
+
+        /// <summary>
+        /// Border brush for regex search term chips
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Border brush for regex search term chips")] 
+        public Brush RegexSearchTermBorderBrush
+        {
+            get => (Brush)GetValue(RegexSearchTermBorderBrushProperty);
+            set => SetValue(RegexSearchTermBorderBrushProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="RegexSearchTermBorderBrush"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty RegexSearchTermBorderBrushProperty =
+            DependencyProperty.Register(nameof(RegexSearchTermBorderBrush), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFFFC107"))));
+
+        /// <summary>
+        /// Foreground brush for regex search term chips
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Foreground brush for regex search term chips")] 
+        public Brush RegexSearchTermForeground
+        {
+            get => (Brush)GetValue(RegexSearchTermForegroundProperty);
+            set => SetValue(RegexSearchTermForegroundProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="RegexSearchTermForeground"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty RegexSearchTermForegroundProperty =
+            DependencyProperty.Register(nameof(RegexSearchTermForeground), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata(Brushes.Black));
+
+        /// <summary>
+        /// Foreground brush for the "Regex:" prefix label
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Foreground brush for the 'Regex:' prefix label")] 
+        public Brush RegexPrefixForeground
+        {
+            get => (Brush)GetValue(RegexPrefixForegroundProperty);
+            set => SetValue(RegexPrefixForegroundProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="RegexPrefixForeground"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty RegexPrefixForegroundProperty =
+            DependencyProperty.Register(nameof(RegexPrefixForeground), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFFF8F00"))));
 
         #endregion
         
