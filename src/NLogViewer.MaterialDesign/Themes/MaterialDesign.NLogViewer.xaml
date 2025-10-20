@@ -215,7 +215,7 @@
                                     <!-- Search Input -->
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                         <TextBox Text="{Binding CurrentSearchText, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
-                                                 materialDesign:HintAssist.Hint="Search in logger name and message... (Press Enter to add)"
+                                                 materialDesign:HintAssist.Hint="Search... (Press Enter to add)"
                                                  Width="250"
                                                  Margin="0,0,16,0">
                                             <TextBox.InputBindings>
