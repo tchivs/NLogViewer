@@ -474,6 +474,24 @@ namespace DJ
             DependencyProperty.Register(nameof(RegexPrefixForeground), typeof(Brush), typeof(NLogViewer),
                 new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFFF8F00"))));
 
+        /// <summary>
+        /// Background brush used to highlight matched search text in the message
+        /// </summary>
+        [Category("NLogViewerColors")]
+        [Description("Background brush used to highlight matched search text in the message")] 
+        public Brush SearchHighlightBackground
+        {
+            get => (Brush)GetValue(SearchHighlightBackgroundProperty);
+            set => SetValue(SearchHighlightBackgroundProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="SearchHighlightBackground"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty SearchHighlightBackgroundProperty =
+            DependencyProperty.Register(nameof(SearchHighlightBackground), typeof(Brush), typeof(NLogViewer),
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFFF80C0"))));
+
         #endregion
         
         // ##########################################################################################

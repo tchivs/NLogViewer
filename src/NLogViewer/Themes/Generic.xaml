@@ -373,29 +373,25 @@
                                         </GridViewColumn.DisplayMemberBinding>
                                     </GridViewColumn>
                                     <GridViewColumn Header="LoggerName" Width="Auto">
-                                        <GridViewColumn.DisplayMemberBinding>
-                                            <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
-                                                <Binding Path="."/>
-                                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}" Path="LoggerNameResolver"/>
-                                            </MultiBinding>
-                                        </GridViewColumn.DisplayMemberBinding>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    helper:MessageHighlighter.Enable="True"
+                                                    helper:MessageHighlighter.Source="LoggerName"
+                                                    Background="Transparent"
+                                                    TextWrapping="Wrap"
+                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
                                     <GridViewColumn Header="Message" Width="Auto" listViewLayoutManager:RangeColumn.IsFillColumn="True">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBox
-                                                    IsReadOnly="True"
+                                                <TextBlock
+                                                    helper:MessageHighlighter.Enable="True"
                                                     Background="Transparent"
-                                                    BorderThickness="0"
                                                     TextWrapping="Wrap"
-                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}">
-                                                    <TextBox.Text>
-                                                        <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
-                                                            <Binding Path="." Mode="OneWay"/>
-                                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}" Path="MessageResolver"/>
-                                                        </MultiBinding>
-                                                    </TextBox.Text>
-                                                </TextBox>
+                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}"/>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
