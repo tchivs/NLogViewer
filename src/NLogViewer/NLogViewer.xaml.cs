@@ -591,15 +591,15 @@ namespace DJ
                     string loggerName = logEvent.LoggerName ?? string.Empty;
                     string message = MessageResolver?.Resolve(logEvent) ?? string.Empty;
                     
-                    // OR logic: match if ANY search term matches
+                    // AND logic: ALL search terms must match
                     foreach (var searchTerm in ActiveSearchTerms)
                     {
-                        if (searchTerm.MatchAny(loggerName, message))
-                            return true;
+                        if (!searchTerm.MatchAny(loggerName, message))
+                            return false;
                     }
                     
-                    // No search term matched
-                    return false;
+                    // All search terms matched
+                    return true;
                 }
 
                 return true;
