@@ -365,7 +365,7 @@ namespace DJ
         /// </summary>
         public static readonly DependencyProperty TextSearchTermBackgroundProperty =
             DependencyProperty.Register(nameof(TextSearchTermBackground), typeof(Brush), typeof(NLogViewer),
-                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFADD8E6"))));
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFFFFBE6"))));
 
         /// <summary>
         /// Border brush for plain text search term chips
@@ -383,7 +383,7 @@ namespace DJ
         /// </summary>
         public static readonly DependencyProperty TextSearchTermBorderBrushProperty =
             DependencyProperty.Register(nameof(TextSearchTermBorderBrush), typeof(Brush), typeof(NLogViewer),
-                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FF0000FF"))));
+                new PropertyMetadata((Brush)(new BrushConverter().ConvertFrom("#FFFFC107"))));
 
         /// <summary>
         /// Foreground brush for plain text search term chips

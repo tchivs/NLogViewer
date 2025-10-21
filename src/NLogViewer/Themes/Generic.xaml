@@ -265,13 +265,6 @@
                                             </DataTemplate>
                                         </ItemsControl.Resources>
                                     </ItemsControl>
-                                    
-                                    <!-- Clear All Button -->
-                                    <Button Content="Clear All Search Terms"
-                                            Command="{Binding ClearAllSearchTermsCommand, RelativeSource={RelativeSource TemplatedParent}}"
-                                            Margin="0,8,0,0"
-                                            HorizontalAlignment="Left"
-                                            Visibility="{Binding ActiveSearchTerms.Count, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </GroupBox>
                         </StackPanel>

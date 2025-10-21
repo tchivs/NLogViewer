@@ -94,8 +94,10 @@
                             </materialDesign:Card>
 
                             <!-- Filter Controls -->
-                            <materialDesign:Card Padding="4"
-                                                 Visibility="{Binding ShowFilterButtons, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <materialDesign:Card 
+                                Margin="0,0,8,0"
+                                Padding="4"
+                                Visibility="{Binding ShowFilterButtons, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel Orientation="Horizontal" Margin="2">
                                     <!-- Trace Filter -->
                                     <ToggleButton IsChecked="{Binding TraceFilter, RelativeSource={RelativeSource TemplatedParent}}"
@@ -208,8 +210,9 @@
                             </materialDesign:Card>
 
                             <!-- Search Controls -->
-                            <materialDesign:Card Margin="8" 
-                                                 Visibility="{Binding ShowSearchControls, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <materialDesign:Card 
+                                Margin="0,0,8,0" 
+                                Visibility="{Binding ShowSearchControls, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel Margin="16">
                                     <TextBlock Text="Search" Style="{DynamicResource MaterialDesignSubtitle2TextBlock}" Margin="0,0,0,8"/>
                                     
@@ -315,14 +318,6 @@
                                             </DataTemplate>
                                         </ItemsControl.Resources>
                                     </ItemsControl>
-                                    
-                                    <!-- Clear All Button -->
-                                    <Button Content="Clear All Search Terms"
-                                            Command="{Binding ClearAllSearchTermsCommand, RelativeSource={RelativeSource TemplatedParent}}"
-                                            Style="{DynamicResource MaterialDesignOutlinedButton}"
-                                            Margin="0,8,0,0"
-                                            HorizontalAlignment="Left"
-                                            Visibility="{Binding ActiveSearchTerms.Count, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </materialDesign:Card>
                         </StackPanel>
