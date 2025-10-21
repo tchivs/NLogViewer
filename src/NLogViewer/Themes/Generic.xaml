@@ -207,6 +207,15 @@
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="{Binding Text}" Margin="0,0,4,0" 
                                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=TextSearchTermForeground}"/>
+                                                        <Button Content="✏" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0,0,2,0"
+                                                                Command="{Binding EditSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Edit search term"/>
                                                         <Button Content="×" 
                                                                 Width="16" 
                                                                 Height="16" 
@@ -233,6 +242,15 @@
                                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexPrefixForeground}"/>
                                                         <TextBlock Text="{Binding Text}" Margin="0,0,4,0"
                                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexSearchTermForeground}"/>
+                                                        <Button Content="✏" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0,0,2,0"
+                                                                Command="{Binding EditSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Edit search term"/>
                                                         <Button Content="×" 
                                                                 Width="16" 
                                                                 Height="16" 

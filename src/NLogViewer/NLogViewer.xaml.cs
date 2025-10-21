@@ -697,6 +697,24 @@ namespace DJ
         /// </summary>
         public static readonly DependencyProperty RemoveSearchTermCommandProperty = DependencyProperty.Register(nameof(RemoveSearchTermCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to edit a search term by copying it to the current search text
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to edit a search term by copying it to the current search text")]
+        public ICommand EditSearchTermCommand
+        {
+            get => (ICommand) GetValue(EditSearchTermCommandProperty);
+            set => SetValue(EditSearchTermCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="EditSearchTermCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty EditSearchTermCommandProperty = DependencyProperty.Register(nameof(EditSearchTermCommand),
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
         /// Stop logging
@@ -1262,6 +1280,26 @@ namespace DJ
             }
         }
 
+        /// <summary>
+        /// Edits a search term by copying its text to the current search text field
+        /// </summary>
+        /// <param name="searchTerm">The search term to edit</param>
+        public void EditSearchTerm(SearchTerm searchTerm)
+        {
+            if (searchTerm == null)
+                return;
+
+            // Copy the search term text to the current search text field
+            CurrentSearchText = searchTerm.Text;
+            
+            // Set the regex checkbox based on the search term type
+            UseRegexSearch = searchTerm is RegexSearchTerm;
+            
+            // Remove the original search term
+            ActiveSearchTerms.Remove(searchTerm);
+            UpdateFilter();
+        }
+
         #endregion
 
         // ##########################################################################################
@@ -1488,6 +1526,7 @@ namespace DJ
             ClearAllSearchTermsCommand = new RelayCommand(ClearAllSearchTerms);
             RemoveSearchTermCommand = new RelayCommand<SearchTerm>(RemoveSearchTerm);
             AddRegexSearchTermCommand = new RelayCommand<string>(AddRegexSearchTerm);
+            EditSearchTermCommand = new RelayCommand<SearchTerm>(EditSearchTerm);
             
             // Filter commands are no longer needed - ToggleButtons handle the binding directly
         }

@@ -239,32 +239,79 @@
                                         <ItemsControl.Resources>
                                             <!-- Plain text term chip -->
                                             <DataTemplate DataType="{x:Type dj:TextSearchTerm}">
-                                                <materialDesign:Chip Margin="2" 
-                                                                       Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermBackground}"
-                                                                       BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermBorderBrush}"
-                                                                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermForeground}"
-                                                                       IsDeletable="True"
-                                                                       DeleteCommand="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
-                                                                       DeleteCommandParameter="{Binding}">
-                                                    <TextBlock Text="{Binding Text}"/>
-                                                </materialDesign:Chip>
+                                                <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermBackground}"
+                                                        BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermBorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="16"
+                                                        Margin="2"
+                                                        Padding="8,4">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Text}" 
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=TextSearchTermForeground}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,8,0"/>
+                                                        <Button Content="✏" 
+                                                                Width="20" 
+                                                                Height="20" 
+                                                                FontSize="12" 
+                                                                Padding="0" 
+                                                                Margin="0,0,4,0"
+                                                                Command="{Binding EditSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Edit search term"
+                                                                Style="{DynamicResource MaterialDesignIconButton}"/>
+                                                        <Button Content="×" 
+                                                                Width="20" 
+                                                                Height="20" 
+                                                                FontSize="12" 
+                                                                Padding="0" 
+                                                                Margin="0"
+                                                                Command="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Remove search term"
+                                                                Style="{DynamicResource MaterialDesignIconButton}"/>
+                                                    </StackPanel>
+                                                </Border>
                                             </DataTemplate>
 
                                             <!-- Regex term chip with visual accent/prefix -->
                                             <DataTemplate DataType="{x:Type dj:RegexSearchTerm}">
-                                                <materialDesign:Chip Margin="2"
-                                                                       Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermBackground}"
-                                                                       BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermBorderBrush}"
-                                                                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermForeground}"
-                                                                       IsDeletable="True"
-                                                                       DeleteCommand="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
-                                                                       DeleteCommandParameter="{Binding}">
+                                                <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermBackground}"
+                                                        BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermBorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="16"
+                                                        Margin="2"
+                                                        Padding="8,4">
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="Regex:" FontWeight="Bold" Margin="0,0,4,0"
-                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexPrefixForeground}"/>
-                                                        <TextBlock Text="{Binding Text}"/>
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexPrefixForeground}"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Text}" 
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}, Path=RegexSearchTermForeground}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,8,0"/>
+                                                        <Button Content="✏" 
+                                                                Width="20" 
+                                                                Height="20" 
+                                                                FontSize="12" 
+                                                                Padding="0" 
+                                                                Margin="0,0,4,0"
+                                                                Command="{Binding EditSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Edit search term"
+                                                                Style="{DynamicResource MaterialDesignIconButton}"/>
+                                                        <Button Content="×" 
+                                                                Width="20" 
+                                                                Height="20" 
+                                                                FontSize="12" 
+                                                                Padding="0" 
+                                                                Margin="0"
+                                                                Command="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dj:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Remove search term"
+                                                                Style="{DynamicResource MaterialDesignIconButton}"/>
                                                     </StackPanel>
-                                                </materialDesign:Chip>
+                                                </Border>
                                             </DataTemplate>
                                         </ItemsControl.Resources>
                                     </ItemsControl>
