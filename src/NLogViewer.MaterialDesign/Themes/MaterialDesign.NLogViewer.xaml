@@ -29,7 +29,9 @@
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
                             <materialDesign:Card Padding="4" Margin="0,0,8,0"
                                                  Visibility="{Binding ShowControlButtons, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <StackPanel Orientation="Horizontal" Margin="2">
+                                <StackPanel>
+                                    <TextBlock Text="Controls" Style="{DynamicResource MaterialDesignSubtitle2TextBlock}" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Margin="2">
                                     <!-- Auto Scroll Toggle Button -->
                                     <ToggleButton IsChecked="{Binding AutoScroll, RelativeSource={RelativeSource TemplatedParent}}"
                                                   ToolTip="Automatically scroll to newest log entries"
@@ -91,6 +93,7 @@
                                         </ToggleButton.Style>
                                     </ToggleButton>
                                 </StackPanel>
+                                </StackPanel>
                             </materialDesign:Card>
 
                             <!-- Filter Controls -->
@@ -98,7 +101,9 @@
                                 Margin="0,0,8,0"
                                 Padding="4"
                                 Visibility="{Binding ShowFilterButtons, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <StackPanel Orientation="Horizontal" Margin="2">
+                                <StackPanel>
+                                    <TextBlock Text="Filter" Style="{DynamicResource MaterialDesignSubtitle2TextBlock}" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Margin="2">
                                     <!-- Trace Filter -->
                                     <ToggleButton IsChecked="{Binding TraceFilter, RelativeSource={RelativeSource TemplatedParent}}"
                                                   ToolTip="Hide/show Trace level log entries"
@@ -207,15 +212,16 @@
                                         </ToggleButton.Style>
                                     </ToggleButton>
                                 </StackPanel>
+                                </StackPanel>
                             </materialDesign:Card>
 
                             <!-- Search Controls -->
                             <materialDesign:Card 
                                 Margin="0,0,8,0" 
+                                Padding="4"
                                 Visibility="{Binding ShowSearchControls, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <StackPanel Margin="16">
+                                <StackPanel>
                                     <TextBlock Text="Search" Style="{DynamicResource MaterialDesignSubtitle2TextBlock}" Margin="0,0,0,8"/>
-                                    
                                     <!-- Search Input -->
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                         <TextBox Text="{Binding CurrentSearchText, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
