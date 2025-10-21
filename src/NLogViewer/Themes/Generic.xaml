@@ -11,6 +11,7 @@
 
     <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
+    <xamlConverter:ContextMenuHeaderConverter x:Key="ContextMenuHeaderConverter"/>
 
     <Style TargetType="{x:Type local:NLogViewer}">
         <Setter Property="Template">
@@ -380,7 +381,18 @@
                                                     helper:MessageHighlighter.Source="LoggerName"
                                                     Background="Transparent"
                                                     TextWrapping="Wrap"
-                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}"/>
+                                                    Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}">
+                                                    <TextBlock.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem 
+                                                                Header="{Binding LoggerName, Converter={StaticResource ContextMenuHeaderConverter}}"
+                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                CommandParameter="{Binding LoggerName}">
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </TextBlock.ContextMenu>
+                                                </TextBlock>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
@@ -391,7 +403,17 @@
                                                     helper:MessageHighlighter.Enable="True"
                                                     Background="Transparent"
                                                     TextWrapping="Wrap"
-                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}"/>
+                                                    Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}">
+                                                    <TextBlock.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem
+                                                                Header="{Binding Message, Converter={StaticResource ContextMenuHeaderConverter}}"
+                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                CommandParameter="{Binding Message}"/>
+                                                        </ContextMenu>
+                                                    </TextBlock.ContextMenu>
+                                                </TextBlock>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>

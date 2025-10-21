@@ -72,6 +72,7 @@ namespace DJ
         public override bool Match(string text)
         {
             if (string.IsNullOrEmpty(text)) return false;
+            if (string.IsNullOrEmpty(_lowercaseText)) return false;
             return text.ToLowerInvariant().Contains(_lowercaseText);
         }
         
@@ -87,7 +88,7 @@ namespace DJ
     public class RegexSearchTerm : SearchTerm
     {
         private readonly Regex _regex;
-        
+
         public RegexSearchTerm(string pattern) : base(pattern)
         {
             try
@@ -663,6 +664,23 @@ namespace DJ
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
 
         /// <summary>
+        /// Command to add a regex search term from a provided text
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to add a regex search term from the provided text")]
+        public ICommand AddRegexSearchTermCommand
+        {
+            get => (ICommand) GetValue(AddRegexSearchTermCommandProperty);
+            set => SetValue(AddRegexSearchTermCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="AddRegexSearchTermCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty AddRegexSearchTermCommandProperty = DependencyProperty.Register(nameof(AddRegexSearchTermCommand),
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+        /// <summary>
         /// Command to remove a specific search term
         /// </summary>
         [Category("NLogViewerControls")]
@@ -1222,6 +1240,28 @@ namespace DJ
             UpdateFilter();
         }
 
+        /// <summary>
+        /// Adds a RegexSearchTerm from a provided text and updates the filter
+        /// </summary>
+        /// <param name="text">The text to use as regex pattern</param>
+        public void AddRegexSearchTerm(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            try
+            {
+                var term = new RegexSearchTerm(text);
+                ActiveSearchTerms.Add(term);
+                UpdateFilter();
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show($"Invalid regex pattern: {ex.Message}", "Regex Error",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
         #endregion
 
         // ##########################################################################################
@@ -1447,6 +1487,7 @@ namespace DJ
             AddSearchTermCommand = new RelayCommand(AddSearchTerm);
             ClearAllSearchTermsCommand = new RelayCommand(ClearAllSearchTerms);
             RemoveSearchTermCommand = new RelayCommand<SearchTerm>(RemoveSearchTerm);
+            AddRegexSearchTermCommand = new RelayCommand<string>(AddRegexSearchTerm);
             
             // Filter commands are no longer needed - ToggleButtons handle the binding directly
         }
