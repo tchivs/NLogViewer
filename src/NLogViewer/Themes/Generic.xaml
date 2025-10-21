@@ -398,7 +398,15 @@
                                                         <ContextMenu>
                                                             <MenuItem 
                                                                 Header="{Binding LoggerName, Converter={StaticResource ContextMenuHeaderConverter}}"
+                                                                IsEnabled="False"/>
+                                                            <MenuItem 
+                                                                Header="Add to Filter"
                                                                 Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                CommandParameter="{Binding LoggerName}">
+                                                            </MenuItem>
+                                                            <MenuItem 
+                                                                Header="Copy to Clipboard"
+                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                 CommandParameter="{Binding LoggerName}">
                                                             </MenuItem>
                                                         </ContextMenu>
@@ -420,7 +428,14 @@
                                                         <ContextMenu>
                                                             <MenuItem
                                                                 Header="{Binding Message, Converter={StaticResource ContextMenuHeaderConverter}}"
+                                                                IsEnabled="False"/>
+                                                            <MenuItem
+                                                                Header="Add to Filter"
                                                                 Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                CommandParameter="{Binding Message}"/>
+                                                            <MenuItem
+                                                                Header="Copy to Clipboard"
+                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                 CommandParameter="{Binding Message}"/>
                                                         </ContextMenu>
                                                     </TextBlock.ContextMenu>

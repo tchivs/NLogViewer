@@ -715,6 +715,24 @@ namespace DJ
         /// </summary>
         public static readonly DependencyProperty EditSearchTermCommandProperty = DependencyProperty.Register(nameof(EditSearchTermCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to copy text to clipboard
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to copy text to clipboard")]
+        public ICommand CopyToClipboardCommand
+        {
+            get => (ICommand) GetValue(CopyToClipboardCommandProperty);
+            set => SetValue(CopyToClipboardCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="CopyToClipboardCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty CopyToClipboardCommandProperty = DependencyProperty.Register(nameof(CopyToClipboardCommand),
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
         /// Stop logging
@@ -1300,6 +1318,26 @@ namespace DJ
             UpdateFilter();
         }
 
+        /// <summary>
+        /// Copies text to the clipboard
+        /// </summary>
+        /// <param name="text">The text to copy to clipboard</param>
+        public void CopyToClipboard(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            try
+            {
+                Clipboard.SetText(text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to copy to clipboard: {ex.Message}", "Clipboard Error",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
         #endregion
 
         // ##########################################################################################
@@ -1527,6 +1565,7 @@ namespace DJ
             RemoveSearchTermCommand = new RelayCommand<SearchTerm>(RemoveSearchTerm);
             AddRegexSearchTermCommand = new RelayCommand<string>(AddRegexSearchTerm);
             EditSearchTermCommand = new RelayCommand<SearchTerm>(EditSearchTerm);
+            CopyToClipboardCommand = new RelayCommand<string>(CopyToClipboard);
             
             // Filter commands are no longer needed - ToggleButtons handle the binding directly
         }

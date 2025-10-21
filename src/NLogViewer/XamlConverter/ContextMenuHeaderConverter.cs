@@ -10,7 +10,12 @@ namespace DJ.XamlConverter
 		{
 			if (value is string s)
 			{
-				return $"add '{s}' to filter";
+				// Trim to 100 characters and add ellipsis if longer
+				if (s.Length > 100)
+				{
+					return s.Substring(0, 97) + "...";
+				}
+				return s;
 			}
 
 			return value;
