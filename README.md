@@ -13,7 +13,7 @@
 [p9]: doc/images/controls1.png "Control Buttons - All Visible"
 [p10]: doc/images/controls2.png "Control Buttons - Hidden"
 
-[nuget]: https://nuget.org/packages/Sentinel.NlogViewer/
+[nuget]: https://nuget.org/packages/Sentinel.NLogViewer/
 
 ## Nuget
 
@@ -22,10 +22,10 @@
 
 A NuGet-package is available [here][nuget].
 
-NlogViewer
+NLogViewer
 ==========
 
-NlogViewer is a ui control library to visualize NLog logs in your personal application. It is mainly based on [Sentinel][1] and its controls.
+NLogViewer is a ui control library to visualize NLog logs in your personal application. It is mainly based on [Sentinel][1] and its controls.
 
 supported Framework: `.NET8`
 
@@ -50,7 +50,7 @@ use the control
 <dj:NLogViewer/>
 ```
 
-`NlogViewer` is subscribing to [CacheTarget][2]. By default, the `NlogViewer` is automatically creating a [CacheTarget][2] with `loggingPattern  "*"` and `LogLevel "Trace"`.
+`NLogViewer` is subscribing to [CacheTarget][2]. By default, the `NLogViewer` is automatically creating a [CacheTarget][2] with `loggingPattern  "*"` and `LogLevel "Trace"`.
 
 If you want to customize the `loggingPattern` and `LogLevel`, add the following to your `Nlog.config`.
 
