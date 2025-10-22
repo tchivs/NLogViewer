@@ -8,7 +8,7 @@
     <RepositoryUrl>git@github.com:boexler/NLogViewer.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>sentinel nlog</PackageTags>
-    <Description>NlogViewer is a ui control library to visualize NLog logs</Description>
+    <Description>NLogViewer is a ui control library to visualize NLog logs</Description>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <IncludeSymbols>true</IncludeSymbols>
