@@ -6,7 +6,8 @@ using NLog;
 
 namespace DJ.XamlMultiValueConverter
 {
-    public class ILogEventResolverToStringConverter : IMultiValueConverter
+	// ReSharper disable once InconsistentNaming
+	public class ILogEventResolverToStringConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {

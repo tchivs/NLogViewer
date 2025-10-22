@@ -396,18 +396,28 @@
                                                     Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}">
                                                     <TextBlock.ContextMenu>
                                                         <ContextMenu>
-                                                            <MenuItem 
+                                                            <MenuItem
                                                                 Header="{Binding LoggerName, Converter={StaticResource ContextMenuHeaderConverter}}"
                                                                 IsEnabled="False"/>
-                                                            <MenuItem 
+                                                            <MenuItem
                                                                 Header="Add to Filter"
-                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                CommandParameter="{Binding LoggerName}">
+                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.LoggerNameResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
                                                             </MenuItem>
-                                                            <MenuItem 
+                                                            <MenuItem
                                                                 Header="Copy to Clipboard"
-                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                CommandParameter="{Binding LoggerName}">
+                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.LoggerNameResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
                                                             </MenuItem>
                                                         </ContextMenu>
                                                     </TextBlock.ContextMenu>
@@ -419,6 +429,7 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock
+                                                    x:Name="TextBlock1"
                                                     helper:MessageHighlighter.Enable="True"
                                                     Background="Transparent"
                                                     TextWrapping="Wrap"
@@ -431,12 +442,24 @@
                                                                 IsEnabled="False"/>
                                                             <MenuItem
                                                                 Header="Add to Filter"
-                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                CommandParameter="{Binding Message}"/>
+                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.MessageResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
+                                                            </MenuItem>
                                                             <MenuItem
                                                                 Header="Copy to Clipboard"
-                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                CommandParameter="{Binding Message}"/>
+                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.MessageResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
+                                                            </MenuItem>
                                                         </ContextMenu>
                                                     </TextBlock.ContextMenu>
                                                 </TextBlock>

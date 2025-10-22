@@ -157,6 +157,9 @@ namespace DJ.Helper
             {
                 textBlock.Inlines.Add(new Run(message.Substring(index)));
             }
+
+            // store raw text in tag property
+            textBlock.Tag = new TextRange(textBlock.ContentStart, textBlock.ContentEnd).Text;
         }
 
         private static IEnumerable<(int start, int length)> FindMatches(string text, SearchTerm term)
