@@ -234,6 +234,73 @@ nLogViewer.ShowFilterButtons = false;
 - The filter buttons are ToggleButtons that automatically bind to these properties
 - The entire filter group can be hidden using `ShowFilterButtons = false`
 
+### Search Functionality
+
+The NLogViewer includes search capabilities that filter log entries based on text patterns or regular expressions. Search terms are displayed as chips/tags and can be managed through the UI or programmatically.
+
+**Search Features:**
+- **Text Search** - Case-insensitive substring matching
+- **Regex Search** - Full regular expression pattern matching
+- **AND Logic** - All search terms must match for an entry to be displayed
+- **Search Highlighting** - Matched text is highlighted in both message and logger name columns
+- **Context Menu** - Right-click search terms for edit/remove options
+
+**Search Properties:**
+- `CurrentSearchText` - The text currently being typed in the search box
+- `UseRegexSearch` - Toggle between text search and regex search modes
+- `ActiveSearchTerms` - Collection of active search terms (read-only)
+- `SearchHighlightBackground` - Brush used to highlight matched text
+
+**Usage:**
+
+```csharp
+// Programmatically add search terms
+nLogViewer.CurrentSearchText = "error";
+nLogViewer.AddSearchTerm(); // Adds as text search
+
+// Enable regex mode and add regex pattern
+nLogViewer.UseRegexSearch = true;
+nLogViewer.CurrentSearchText = @"\d{4}-\d{2}-\d{2}";
+nLogViewer.AddSearchTerm(); // Adds as regex search
+
+// Remove specific search term
+var searchTerm = nLogViewer.ActiveSearchTerms.First();
+nLogViewer.RemoveSearchTerm(searchTerm);
+
+// Clear all search terms
+nLogViewer.ClearAllSearchTerms();
+
+// Customize search highlight color
+nLogViewer.SearchHighlightBackground = Brushes.Yellow;
+```
+
+**XAML Binding:**
+
+```xaml
+<dj:NLogViewer 
+    CurrentSearchText="{Binding SearchText}"
+    UseRegexSearch="{Binding IsRegexMode}"
+    SearchHighlightBackground="{Binding HighlightBrush}" />
+```
+
+**Search Logic:**
+- Search terms are applied to both the **message** and **logger name** columns
+- **AND logic**: ALL active search terms must match for a log entry to be displayed
+- Text search is case-insensitive and performs substring matching
+- Regex search uses full .NET regular expression patterns
+- Invalid regex patterns show a warning dialog and are not added
+- Search highlighting works in real-time as you add/remove terms
+
+### Control Architecture
+
+NLogViewer is built as a CustomControl with theming support:
+
+**Architecture:**
+- **CustomControl Base Class** - Enables proper theming and styling
+- **RelayCommand System** - MVVM-compatible command system
+- **Theme Support** - Full support for custom themes including Material Design
+- **Code Organization** - Separation of concerns between UI and logic
+
 ### Format output (ILogEventInfoResolver)
 
 To format the output of a `LogEventInfo`, implement a new instance of `ILogEventInfoResolver` and bind it to the `Resolver` you want to customize:

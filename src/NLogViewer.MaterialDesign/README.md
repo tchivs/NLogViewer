@@ -9,6 +9,8 @@ NLogViewer.MaterialDesign extends the base NLogViewer control with Material Desi
 - Beautiful log level icons and color coding
 - Responsive layout with Material Design cards
 - Consistent theming with Material Design principles
+- Enhanced search functionality with Material Design chips
+- Improved column headers with reduced height and separators
 
 ## Installation
 
@@ -58,3 +60,89 @@ In your `App.xaml`, add the Material Design theme and NLogViewer Material Design
     </Application.Resources>
 </Application>
 ```
+
+### 3. Use the Control
+
+Add the namespace and use the control in your XAML:
+
+```xaml
+<Window x:Class="YourApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dj="clr-namespace:DJ;assembly=NLogViewer">
+    <Grid>
+        <dj:NLogViewer />
+    </Grid>
+</Window>
+```
+
+## Features
+
+### Material Design Styling
+- **Cards**: Log entries are displayed in Material Design cards
+- **Icons**: Log levels are represented with Material Design icons
+- **Colors**: Consistent color scheme following Material Design guidelines
+- **Typography**: Material Design typography
+
+### Search Interface
+- **Search Chips**: Search terms are displayed as Material Design chips
+- **Regex Indicators**: Regex search terms are prefixed with "/" for identification
+- **Context Menus**: Right-click search chips for edit/remove options
+- **Search Highlighting**: Matched text is highlighted with Material Design colors
+
+### Layout
+- **Reduced Header Height**: Column headers have a reduced height (32px)
+- **Column Separators**: Visual separators between columns
+- **Responsive Design**: Layout adapts to different screen sizes
+
+### Theme Integration
+- **Color Binding**: Search term chips bind to NLogViewer color dependency properties
+- **Consistent Styling**: All UI elements follow Material Design principles
+- **Dark/Light Theme Support**: Compatible with Material Design theme switching
+
+## Customization
+
+### Color Customization
+You can customize the appearance by binding to NLogViewer's color properties:
+
+```xaml
+<dj:NLogViewer 
+    TraceBackground="{DynamicResource MaterialDesignChipBackground}"
+    DebugBackground="{DynamicResource MaterialDesignChipBackground}"
+    InfoBackground="{DynamicResource MaterialDesignChipBackground}"
+    WarnBackground="{DynamicResource MaterialDesignChipBackground}"
+    ErrorBackground="{DynamicResource MaterialDesignChipBackground}"
+    FatalBackground="{DynamicResource MaterialDesignChipBackground}"
+    SearchHighlightBackground="{DynamicResource MaterialDesignSelection}"
+    ShowControlButtons="True"
+    ShowFilterButtons="True" />
+```
+
+### Search Functionality
+The Material Design theme provides enhanced search experience:
+
+```csharp
+// Enable regex search mode
+nLogViewer.UseRegexSearch = true;
+
+// Add search terms programmatically
+nLogViewer.CurrentSearchText = "error";
+nLogViewer.AddSearchTerm();
+
+// Customize search highlight color
+nLogViewer.SearchHighlightBackground = new SolidColorBrush(Colors.Yellow);
+```
+
+## Test Applications
+
+This package includes test applications:
+
+- **NLogViewer.MaterialDesign.TestApp** - Standalone test application
+- **NLogViewer.TestApp** - Base test application for comparison
+
+## Requirements
+
+- .NET 8.0 or higher
+- MaterialDesignThemes 4.9.0 or higher
+- NLogViewer base control
+
