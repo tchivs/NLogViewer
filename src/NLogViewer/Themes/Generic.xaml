@@ -388,8 +388,7 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock
-                                                    helper:MessageHighlighter.Enable="True"
-                                                    helper:MessageHighlighter.Source="LoggerName"
+                                                    helper:MessageHighlighter.Resolver="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=LoggerNameResolver}"
                                                     Background="Transparent"
                                                     TextWrapping="Wrap"
                                                     Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
@@ -430,7 +429,7 @@
                                             <DataTemplate>
                                                 <TextBlock
                                                     x:Name="TextBlock1"
-                                                    helper:MessageHighlighter.Enable="True"
+                                                    helper:MessageHighlighter.Resolver="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=MessageResolver}"
                                                     Background="Transparent"
                                                     TextWrapping="Wrap"
                                                     Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"

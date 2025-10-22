@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using DJ.Resolver;
 
 namespace DJ.Helper
 {
@@ -14,38 +15,20 @@ namespace DJ.Helper
     /// </summary>
     public static class MessageHighlighter
     {
-        /// <summary>
-        /// Which text source to highlight: resolved Message or LoggerName
-        /// </summary>
-        public enum HighlightSource
-        {
-            Message,
-            LoggerName
-        }
-
-        public static readonly DependencyProperty EnableProperty = DependencyProperty.RegisterAttached(
-            "Enable",
-            typeof(bool),
+        public static readonly DependencyProperty ResolverProperty = DependencyProperty.RegisterAttached(
+            "Resolver",
+            typeof(ILogEventInfoResolver),
             typeof(MessageHighlighter),
-            new PropertyMetadata(false, OnEnableChanged));
+            new PropertyMetadata(null, OnResolverChanged));
 
-        public static void SetEnable(DependencyObject element, bool value) => element.SetValue(EnableProperty, value);
-        public static bool GetEnable(DependencyObject element) => (bool)element.GetValue(EnableProperty);
+        public static void SetResolver(DependencyObject element, ILogEventInfoResolver value) => element.SetValue(ResolverProperty, value);
+        public static ILogEventInfoResolver GetResolver(DependencyObject element) => (ILogEventInfoResolver)element.GetValue(ResolverProperty);
 
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.RegisterAttached(
-            "Source",
-            typeof(HighlightSource),
-            typeof(MessageHighlighter),
-            new PropertyMetadata(HighlightSource.Message, OnSourceChanged));
-
-        public static void SetSource(DependencyObject element, HighlightSource value) => element.SetValue(SourceProperty, value);
-        public static HighlightSource GetSource(DependencyObject element) => (HighlightSource)element.GetValue(SourceProperty);
-
-        private static void OnEnableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnResolverChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TextBlock textBlock)
             {
-                if ((bool)e.NewValue)
+                if (e.NewValue != null)
                 {
                     textBlock.Loaded += TextBlockOnLoaded;
                     textBlock.Unloaded += TextBlockOnUnloaded;
@@ -56,14 +39,6 @@ namespace DJ.Helper
                     textBlock.Loaded -= TextBlockOnLoaded;
                     textBlock.Unloaded -= TextBlockOnUnloaded;
                 }
-            }
-        }
-
-        private static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is TextBlock tb && GetEnable(tb))
-            {
-                TryUpdate(tb);
             }
         }
 
@@ -91,9 +66,11 @@ namespace DJ.Helper
             if (logEventInfo == null)
                 return;
 
-            string message = GetSource(textBlock) == HighlightSource.LoggerName
-                ? (nlogViewer.LoggerNameResolver?.Resolve(logEventInfo) ?? string.Empty)
-                : (nlogViewer.MessageResolver?.Resolve(logEventInfo) ?? string.Empty);
+            var resolver = GetResolver(textBlock);
+            if (resolver == null)
+                return;
+
+            string message = resolver.Resolve(logEventInfo);
             var terms = nlogViewer.ActiveSearchTerms;
             if (string.IsNullOrEmpty(message) || terms == null || terms.Count == 0)
             {
