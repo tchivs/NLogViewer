@@ -6,10 +6,12 @@
     xmlns:listViewLayoutManager="clr-namespace:DJ.Helper.ListViewLayoutManager"
     xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter"
     xmlns:helper="clr-namespace:DJ.Helper"
-    xmlns:xamlConverter="clr-namespace:DJ.XamlConverter">
+    xmlns:xamlConverter="clr-namespace:DJ.XamlConverter"
+    x:Class="DJ.Themes.GenericTheme">
 
     <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
+    <xamlConverter:ContextMenuHeaderConverter x:Key="ContextMenuHeaderConverter"/>
 
     <Style TargetType="{x:Type local:NLogViewer}">
         <Setter Property="Template">
@@ -165,6 +167,106 @@
                                     </ToggleButton>
                                 </StackPanel>
                             </GroupBox>
+
+                            <!-- Search Controls -->
+                            <GroupBox Header="Search" Margin="10,0,0,0" Padding="5"
+                                      Visibility="{Binding ShowSearchControls, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel>
+                                    <!-- Search Input -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <TextBox Text="{Binding CurrentSearchText, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="200" 
+                                                 Margin="0,0,10,0"
+                                                 ToolTip="Search in logger name and message content (Press Enter to add)">
+                                            <TextBox.InputBindings>
+                                                <KeyBinding Key="Return" Command="{Binding AddSearchTermCommand, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                            </TextBox.InputBindings>
+                                        </TextBox>
+                                        <CheckBox Content="Regex" 
+                                                  IsChecked="{Binding UseRegexSearch, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  VerticalAlignment="Center"
+                                                  ToolTip="Use regex pattern matching"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Active Search Terms -->
+                                    <ItemsControl ItemsSource="{Binding ActiveSearchTerms, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.Resources>
+                                            <!-- Template for plain text terms -->
+                                            <DataTemplate DataType="{x:Type local:TextSearchTerm}">
+                                                <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=TextSearchTermBackground}" 
+                                                        BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=TextSearchTermBorderBrush}" 
+                                                        BorderThickness="1" 
+                                                        CornerRadius="3" 
+                                                        Margin="2" 
+                                                        Padding="4,2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Text}" Margin="0,0,4,0" 
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=TextSearchTermForeground}"/>
+                                                        <Button Content="✏" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0,0,2,0"
+                                                                Command="{Binding EditSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Edit search term"/>
+                                                        <Button Content="×" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0"
+                                                                Command="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Remove search term"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+
+                                            <!-- Template for regex terms -->
+                                            <DataTemplate DataType="{x:Type local:RegexSearchTerm}">
+                                                <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexSearchTermBackground}" 
+                                                        BorderBrush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexSearchTermBorderBrush}" 
+                                                        BorderThickness="1" 
+                                                        CornerRadius="3" 
+                                                        Margin="2" 
+                                                        Padding="4,2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Regex:" FontWeight="Bold" Margin="0,0,4,0"
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexPrefixForeground}"/>
+                                                        <TextBlock Text="{Binding Text}" Margin="0,0,4,0"
+                                                                   Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=RegexSearchTermForeground}"/>
+                                                        <Button Content="✏" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0,0,2,0"
+                                                                Command="{Binding EditSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Edit search term"/>
+                                                        <Button Content="×" 
+                                                                Width="16" 
+                                                                Height="16" 
+                                                                FontSize="10" 
+                                                                Padding="0" 
+                                                                Margin="0"
+                                                                Command="{Binding RemoveSearchTermCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="Remove search term"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.Resources>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </GroupBox>
                         </StackPanel>
 
                         <ListView
@@ -283,29 +385,83 @@
                                         </GridViewColumn.DisplayMemberBinding>
                                     </GridViewColumn>
                                     <GridViewColumn Header="LoggerName" Width="Auto">
-                                        <GridViewColumn.DisplayMemberBinding>
-                                            <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
-                                                <Binding Path="."/>
-                                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}" Path="LoggerNameResolver"/>
-                                            </MultiBinding>
-                                        </GridViewColumn.DisplayMemberBinding>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    helper:MessageHighlighter.Resolver="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=LoggerNameResolver}"
+                                                    Background="Transparent"
+                                                    TextWrapping="Wrap"
+                                                    Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
+                                                    Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}">
+                                                    <TextBlock.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem
+                                                                Header="{Binding LoggerName, Converter={StaticResource ContextMenuHeaderConverter}}"
+                                                                IsEnabled="False"/>
+                                                            <MenuItem
+                                                                Header="Add to Filter"
+                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.LoggerNameResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
+                                                            </MenuItem>
+                                                            <MenuItem
+                                                                Header="Copy to Clipboard"
+                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.LoggerNameResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </TextBlock.ContextMenu>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
                                     <GridViewColumn Header="Message" Width="Auto" listViewLayoutManager:RangeColumn.IsFillColumn="True">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBox
-                                                    IsReadOnly="True"
+                                                <TextBlock
+                                                    x:Name="TextBlock1"
+                                                    helper:MessageHighlighter.Resolver="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}, Path=MessageResolver}"
                                                     Background="Transparent"
-                                                    BorderThickness="0"
                                                     TextWrapping="Wrap"
+                                                    Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}}"
                                                     Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Foreground}">
-                                                    <TextBox.Text>
-                                                        <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
-                                                            <Binding Path="." Mode="OneWay"/>
-                                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:NLogViewer}" Path="MessageResolver"/>
-                                                        </MultiBinding>
-                                                    </TextBox.Text>
-                                                </TextBox>
+                                                    <TextBlock.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem
+                                                                Header="{Binding Message, Converter={StaticResource ContextMenuHeaderConverter}}"
+                                                                IsEnabled="False"/>
+                                                            <MenuItem
+                                                                Header="Add to Filter"
+                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.MessageResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
+                                                            </MenuItem>
+                                                            <MenuItem
+                                                                Header="Copy to Clipboard"
+                                                                Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                <MenuItem.CommandParameter>
+                                                                    <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                        <Binding Path="."/>
+                                                                        <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.MessageResolver"/>
+                                                                    </MultiBinding>
+                                                                </MenuItem.CommandParameter>
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </TextBlock.ContextMenu>
+                                                </TextBlock>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
