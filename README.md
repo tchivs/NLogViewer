@@ -39,16 +39,52 @@ This project also includes **NLogViewer.MaterialDesign** - a Material Design the
 
 ## Quick Start
 
-Add a namespace to your `Window`
+### 1. Add Required References
 
-```xaml
-xmlns:dj="clr-namespace:DJ;assembly=NLogViewer"
+Add the following NuGet package reference to your project:
+
+```xml
+<PackageReference Include="NLogViewer" Version="[version]" />
 ```
 
-use the control
-```xaml
-<dj:NLogViewer/>
+### 2. Configure Application Resources
+
+In your `App.xaml`, add the NLogViewer theme and styles:
+
+```xml
+<Application x:Class="YourApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer"
+             xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- NLogViewer Theme -->
+                <ResourceDictionary Source="pack://application:,,,/NLogViewer;component/Themes/Generic.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
 ```
+
+### 3. Use the Control
+
+Add the namespace and use the control in your XAML:
+
+```xaml
+<Window x:Class="YourApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dj="clr-namespace:DJ;assembly=NLogViewer">
+    <Grid>
+        <dj:NLogViewer />
+    </Grid>
+</Window>
+```
+
+### NLog Configuration
 
 `NLogViewer` is subscribing to [CacheTarget][2]. By default, the `NLogViewer` is automatically creating a [CacheTarget][2] with `loggingPattern  "*"` and `LogLevel "Trace"`.
 
