@@ -30,11 +30,15 @@ namespace NLogViewer.ClientApplication.ViewModels
             { "ro", "Română" }
         };
 
-        public LanguageSelectionViewModel()
+        private readonly LocalizationService _localizationService;
+
+        public LanguageSelectionViewModel(LocalizationService localizationService)
         {
+            _localizationService = localizationService ?? throw new ArgumentNullException(nameof(localizationService));
+            
             Languages = new ObservableCollection<LanguageItem>();
             
-            foreach (var lang in LocalizationService.AvailableLanguages)
+            foreach (var lang in Services.LocalizationService.AvailableLanguages)
             {
                 Languages.Add(new LanguageItem
                 {
@@ -45,7 +49,7 @@ namespace NLogViewer.ClientApplication.ViewModels
             }
 
             // Set current language as selected
-            var currentCode = LocalizationService.Instance.CurrentLanguageCode;
+            var currentCode = _localizationService.CurrentLanguageCode;
             SelectedLanguage = Languages.FirstOrDefault(l => l.Code == currentCode) ?? Languages.First();
         }
 

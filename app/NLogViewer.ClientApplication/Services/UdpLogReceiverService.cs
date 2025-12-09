@@ -17,8 +17,13 @@ namespace NLogViewer.ClientApplication.Services
     {
         private readonly List<UdpClient> _udpClients = new();
         private readonly List<CancellationTokenSource> _cancellationTokens = new();
-        private readonly Log4JXmlParser _xmlParser = new();
+        private readonly Parsers.Log4JXmlParser _xmlParser;
         private bool _disposed;
+
+        public UdpLogReceiverService(Parsers.Log4JXmlParser xmlParser)
+        {
+            _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
+        }
 
         public event EventHandler<LogReceivedEventArgs>? LogReceived;
 

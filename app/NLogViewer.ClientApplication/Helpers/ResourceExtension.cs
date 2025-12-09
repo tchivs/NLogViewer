@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Markup;
 using NLogViewer.ClientApplication.Services;
 
@@ -33,7 +34,16 @@ namespace NLogViewer.ClientApplication.Helpers
             if (string.IsNullOrEmpty(Key))
                 return DefaultValue;
 
-            return LocalizationService.Instance.GetString(Key, DefaultValue);
+            // Get LocalizationService from DI container
+            var localizationService = App.ServiceProvider?.GetService<LocalizationService>();
+            
+            if (localizationService != null)
+            {
+                return localizationService.GetString(Key, DefaultValue);
+            }
+            
+            // Fallback if DI is not available
+            return DefaultValue;
         }
     }
 }

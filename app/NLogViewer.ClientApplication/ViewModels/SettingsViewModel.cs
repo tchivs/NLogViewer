@@ -15,17 +15,21 @@ namespace NLogViewer.ClientApplication.ViewModels
     public class SettingsViewModel : INotifyPropertyChanged
     {
         private readonly ConfigurationService _configService;
+        private readonly LocalizationService _localizationService;
         private AppConfiguration _configuration;
         private string _selectedLanguage = "en";
         private PortConfiguration? _selectedPort;
 
-        public SettingsViewModel()
+        public SettingsViewModel(
+            ConfigurationService configService,
+            LocalizationService localizationService)
         {
-            _configService = new ConfigurationService();
+            _configService = configService ?? throw new ArgumentNullException(nameof(configService));
+            _localizationService = localizationService ?? throw new ArgumentNullException(nameof(localizationService));
             _configuration = _configService.LoadConfiguration();
             // Use current language from LocalizationService if config language is empty
             _selectedLanguage = string.IsNullOrEmpty(_configuration.Language) 
-                ? LocalizationService.Instance.CurrentLanguageCode 
+                ? _localizationService.CurrentLanguageCode 
                 : _configuration.Language;
 
             Ports = new ObservableCollection<PortConfiguration>();
@@ -127,7 +131,7 @@ namespace NLogViewer.ClientApplication.ViewModels
             _configService.SaveConfiguration(_configuration);
 
             // Apply language change
-            LocalizationService.Instance.SetLanguage(SelectedLanguage);
+            _localizationService.SetLanguage(SelectedLanguage);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

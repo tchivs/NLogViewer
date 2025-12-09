@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using NLogViewer.ClientApplication.ViewModels;
 
@@ -10,10 +11,10 @@ namespace NLogViewer.ClientApplication
     {
         private readonly LanguageSelectionViewModel _viewModel;
 
-        public LanguageSelectionWindow()
+        public LanguageSelectionWindow(LanguageSelectionViewModel viewModel)
         {
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
-            _viewModel = new LanguageSelectionViewModel();
             DataContext = _viewModel;
         }
 

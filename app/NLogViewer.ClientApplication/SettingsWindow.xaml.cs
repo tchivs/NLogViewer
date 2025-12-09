@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using NLogViewer.ClientApplication.ViewModels;
 
@@ -10,10 +11,10 @@ namespace NLogViewer.ClientApplication
     {
         private readonly SettingsViewModel _viewModel;
 
-        public SettingsWindow()
+        public SettingsWindow(SettingsViewModel viewModel)
         {
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
-            _viewModel = new SettingsViewModel();
             DataContext = _viewModel;
 
             _viewModel.CancelCommand = new ViewModels.RelayCommand(() => DialogResult = false);

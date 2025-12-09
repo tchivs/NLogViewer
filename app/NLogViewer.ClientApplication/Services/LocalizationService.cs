@@ -13,7 +13,7 @@ namespace NLogViewer.ClientApplication.Services
     /// </summary>
     public class LocalizationService
     {
-        private static LocalizationService? _instance;
+        private readonly ConfigurationService _configService;
         private ResourceManager? _resourceManager;
         private CultureInfo _currentCulture;
 
@@ -31,10 +31,9 @@ namespace NLogViewer.ClientApplication.Services
             { "ro", "pack://application:,,,/Resources/flags/ro.svg" }   // Romanian
         };
 
-        public static LocalizationService Instance => _instance ??= new LocalizationService();
-
-        private LocalizationService()
+        public LocalizationService(ConfigurationService configService)
         {
+            _configService = configService ?? throw new ArgumentNullException(nameof(configService));
             _currentCulture = CultureInfo.CurrentCulture;
         }
 
@@ -86,8 +85,7 @@ namespace NLogViewer.ClientApplication.Services
                     typeof(LocalizationService).Assembly);
 
                 // Set culture based on configuration or system default
-                var configService = new ConfigurationService();
-                var config = configService.LoadConfiguration();
+                var config = _configService.LoadConfiguration();
                 
                 string languageToUse;
                 if (string.IsNullOrEmpty(config.Language))
@@ -96,7 +94,7 @@ namespace NLogViewer.ClientApplication.Services
                     languageToUse = DetectWindowsLanguage();
                     // Save the detected language to configuration
                     config.Language = languageToUse;
-                    configService.SaveConfiguration(config);
+                    _configService.SaveConfiguration(config);
                 }
                 else
                 {
@@ -129,10 +127,9 @@ namespace NLogViewer.ClientApplication.Services
                 CultureInfo.DefaultThreadCurrentUICulture = _currentCulture;
 
                 // Save to configuration
-                var configService = new ConfigurationService();
-                var config = configService.LoadConfiguration();
+                var config = _configService.LoadConfiguration();
                 config.Language = languageCode;
-                configService.SaveConfiguration(config);
+                _configService.SaveConfiguration(config);
             }
             catch
             {

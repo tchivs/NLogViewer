@@ -1,5 +1,7 @@
+using System;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using NLogViewer.ClientApplication.ViewModels;
 
 namespace NLogViewer.ClientApplication
@@ -11,10 +13,10 @@ namespace NLogViewer.ClientApplication
     {
         private readonly MainViewModel _viewModel;
 
-        public MainWindow()
+        public MainWindow(MainViewModel viewModel)
         {
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
-            _viewModel = new MainViewModel();
             DataContext = _viewModel;
             
             // Setup keyboard shortcuts
@@ -29,14 +31,15 @@ namespace NLogViewer.ClientApplication
         /// </summary>
         private void LanguageButton_Click(object sender, RoutedEventArgs e)
         {
-            var languageWindow = new LanguageSelectionWindow();
-            var result = languageWindow.ShowDialog(this);
-            
-            if (result == true && !string.IsNullOrEmpty(languageWindow.SelectedLanguageCode))
-            {
-                _viewModel.ChangeLanguageCommand.Execute(languageWindow.SelectedLanguageCode);
-            }
-        }
+	        using var scope = App.ServiceProvider.CreateScope();
+	        var languageWindow = scope.ServiceProvider.GetRequiredService<LanguageSelectionWindow>();
+	        var result = languageWindow.ShowDialog(this);
+
+	        if (result == true && !string.IsNullOrEmpty(languageWindow.SelectedLanguageCode))
+	        {
+		        _viewModel.ChangeLanguageCommand.Execute(languageWindow.SelectedLanguageCode);
+	        }
+		}
 
         protected override void OnClosed(System.EventArgs e)
         {

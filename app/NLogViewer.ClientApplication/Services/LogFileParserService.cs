@@ -11,10 +11,20 @@ namespace NLogViewer.ClientApplication.Services
     /// </summary>
     public class LogFileParserService : IDisposable
     {
-        private readonly Log4JXmlParser _xmlParser = new();
-        private readonly PlainTextParser _textParser = new();
-        private readonly JsonLogParser _jsonParser = new();
+        private readonly Parsers.Log4JXmlParser _xmlParser;
+        private readonly Parsers.PlainTextParser _textParser;
+        private readonly Parsers.JsonLogParser _jsonParser;
         private bool _disposed;
+
+        public LogFileParserService(
+            Parsers.Log4JXmlParser xmlParser,
+            Parsers.PlainTextParser textParser,
+            Parsers.JsonLogParser jsonParser)
+        {
+            _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
+            _textParser = textParser ?? throw new ArgumentNullException(nameof(textParser));
+            _jsonParser = jsonParser ?? throw new ArgumentNullException(nameof(jsonParser));
+        }
 
         public event EventHandler<LogReceivedEventArgs>? LogParsed;
 

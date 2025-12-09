@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer"
              xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
-             xmlns:converters="clr-namespace:NLogViewer.ClientApplication.Converters"
-             StartupUri="MainWindow.xaml">
+             xmlns:converters="clr-namespace:NLogViewer.ClientApplication.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

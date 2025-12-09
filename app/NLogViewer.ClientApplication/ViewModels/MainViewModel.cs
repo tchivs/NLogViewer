@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using NLog;
 using NLog.Config;
@@ -24,6 +25,7 @@ namespace NLogViewer.ClientApplication.ViewModels
         private readonly UdpLogReceiverService _udpReceiverService;
         private readonly LogFileParserService _fileParserService;
         private readonly ConfigurationService _configService;
+        private readonly LocalizationService _localizationService;
         private bool _isListening;
         private string _listeningStatus;
         private string _statusMessage = "Ready";
@@ -31,11 +33,16 @@ namespace NLogViewer.ClientApplication.ViewModels
         private LogTabViewModel? _selectedTab;
         private string _currentLanguageFlag = "🇬🇧";
 
-        public MainViewModel()
+        public MainViewModel(
+            UdpLogReceiverService udpReceiverService,
+            LogFileParserService fileParserService,
+            ConfigurationService configService,
+            LocalizationService localizationService)
         {
-            _configService = new ConfigurationService();
-            _udpReceiverService = new UdpLogReceiverService();
-            _fileParserService = new LogFileParserService();
+            _udpReceiverService = udpReceiverService ?? throw new ArgumentNullException(nameof(udpReceiverService));
+            _fileParserService = fileParserService ?? throw new ArgumentNullException(nameof(fileParserService));
+            _configService = configService ?? throw new ArgumentNullException(nameof(configService));
+            _localizationService = localizationService ?? throw new ArgumentNullException(nameof(localizationService));
 
             LogTabs = new ObservableCollection<LogTabViewModel>();
 
@@ -52,7 +59,7 @@ namespace NLogViewer.ClientApplication.ViewModels
             UpdateLanguageFlag();
 
             // Initialize listening status with translated value
-            ListeningStatus = LocalizationService.Instance.GetString("Status_Stopped", "Stopped");
+            ListeningStatus = _localizationService.GetString("Status_Stopped", "Stopped");
 
             // Subscribe to log events
             _udpReceiverService.LogReceived += OnLogReceived;
@@ -158,7 +165,7 @@ namespace NLogViewer.ClientApplication.ViewModels
         /// <summary>
         /// Gets the list of available languages with flags
         /// </summary>
-        public Dictionary<string, string> AvailableLanguages => LocalizationService.AvailableLanguages;
+        public Dictionary<string, string> AvailableLanguages => Services.LocalizationService.AvailableLanguages;
 
         private void LoadConfiguration()
         {
@@ -181,13 +188,13 @@ namespace NLogViewer.ClientApplication.ViewModels
                 var config = _configService.LoadConfiguration();
                 _udpReceiverService.StartListening(config.Ports);
                 IsListening = true;
-                ListeningStatus = LocalizationService.Instance.GetString("Status_Listening", "Listening");
-                StatusMessage = LocalizationService.Instance.GetString("Status_ListeningOnPorts", $"Listening on {config.Ports.Count} port(s)");
+                ListeningStatus = _localizationService.GetString("Status_Listening", "Listening");
+                StatusMessage = _localizationService.GetString("Status_ListeningOnPorts", $"Listening on {config.Ports.Count} port(s)");
             }
             catch (Exception ex)
             {
-                StatusMessage = LocalizationService.Instance.GetString("Error_StartingListener", $"Error starting listener: {ex.Message}");
-                ListeningStatus = LocalizationService.Instance.GetString("Status_Error", "Error");
+                StatusMessage = _localizationService.GetString("Error_StartingListener", $"Error starting listener: {ex.Message}");
+                ListeningStatus = _localizationService.GetString("Status_Error", "Error");
             }
         }
 
@@ -197,12 +204,12 @@ namespace NLogViewer.ClientApplication.ViewModels
             {
                 _udpReceiverService.StopListening();
                 IsListening = false;
-                ListeningStatus = LocalizationService.Instance.GetString("Status_Stopped", "Stopped");
-                StatusMessage = LocalizationService.Instance.GetString("Status_StoppedListening", "Stopped listening");
+                ListeningStatus = _localizationService.GetString("Status_Stopped", "Stopped");
+                StatusMessage = _localizationService.GetString("Status_StoppedListening", "Stopped listening");
             }
             catch (Exception ex)
             {
-                StatusMessage = LocalizationService.Instance.GetString("Error_StoppingListener", $"Error stopping listener: {ex.Message}");
+                StatusMessage = _localizationService.GetString("Error_StoppingListener", $"Error stopping listener: {ex.Message}");
             }
         }
 
@@ -235,15 +242,16 @@ namespace NLogViewer.ClientApplication.ViewModels
 
         private void OpenSettings()
         {
-            var settingsWindow = new SettingsWindow();
-            var result = settingsWindow.ShowDialog(System.Windows.Application.Current.MainWindow);
-            if (result == true)
-            {
-                StatusMessage = "Settings saved";
-                // Reload configuration if needed
-                LoadConfiguration();
-            }
-        }
+	        using var scope = App.ServiceProvider.CreateScope();
+	        var settingsWindow = scope.ServiceProvider.GetRequiredService<SettingsWindow>();
+	        var result = settingsWindow.ShowDialog(System.Windows.Application.Current.MainWindow);
+	        if (result == true)
+	        {
+		        StatusMessage = "Settings saved";
+		        // Reload configuration if needed
+		        LoadConfiguration();
+	        }
+		}
 
         private void ShowAbout()
         {
@@ -258,7 +266,7 @@ namespace NLogViewer.ClientApplication.ViewModels
 
             try
             {
-                LocalizationService.Instance.SetLanguage(languageCode);
+                _localizationService.SetLanguage(languageCode);
                 UpdateLanguageFlag();
                 
                 // Notify that language has changed - this will require app restart for full effect
@@ -272,7 +280,7 @@ namespace NLogViewer.ClientApplication.ViewModels
 
         private void UpdateLanguageFlag()
         {
-            CurrentLanguageFlag = LocalizationService.Instance.CurrentLanguageFlag;
+            CurrentLanguageFlag = _localizationService.CurrentLanguageFlag;
         }
 
         private void OnLogReceived(object? sender, LogReceivedEventArgs e)
