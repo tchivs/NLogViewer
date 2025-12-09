@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -24,10 +25,11 @@ namespace NLogViewer.ClientApplication.ViewModels
         private readonly LogFileParserService _fileParserService;
         private readonly ConfigurationService _configService;
         private bool _isListening;
-        private string _listeningStatus = "Stopped";
+        private string _listeningStatus;
         private string _statusMessage = "Ready";
         private string _lastLogTimestamp = string.Empty;
         private LogTabViewModel? _selectedTab;
+        private string _currentLanguageFlag = "🇬🇧";
 
         public MainViewModel()
         {
@@ -44,6 +46,13 @@ namespace NLogViewer.ClientApplication.ViewModels
             OpenSettingsCommand = new RelayCommand(OpenSettings);
             ExitCommand = new RelayCommand(() => System.Windows.Application.Current.Shutdown());
             AboutCommand = new RelayCommand(ShowAbout);
+            ChangeLanguageCommand = new RelayCommand<string>(ChangeLanguage);
+
+            // Initialize current language flag
+            UpdateLanguageFlag();
+
+            // Initialize listening status with translated value
+            ListeningStatus = LocalizationService.Instance.GetString("Status_Stopped", "Stopped");
 
             // Subscribe to log events
             _udpReceiverService.LogReceived += OnLogReceived;
@@ -128,6 +137,28 @@ namespace NLogViewer.ClientApplication.ViewModels
         public ICommand OpenSettingsCommand { get; }
         public ICommand ExitCommand { get; }
         public ICommand AboutCommand { get; }
+        public ICommand ChangeLanguageCommand { get; }
+
+        /// <summary>
+        /// Gets the flag emoji for the current language
+        /// </summary>
+        public string CurrentLanguageFlag
+        {
+            get => _currentLanguageFlag;
+            private set
+            {
+                if (_currentLanguageFlag != value)
+                {
+                    _currentLanguageFlag = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of available languages with flags
+        /// </summary>
+        public Dictionary<string, string> AvailableLanguages => LocalizationService.AvailableLanguages;
 
         private void LoadConfiguration()
         {
@@ -150,13 +181,13 @@ namespace NLogViewer.ClientApplication.ViewModels
                 var config = _configService.LoadConfiguration();
                 _udpReceiverService.StartListening(config.Ports);
                 IsListening = true;
-                ListeningStatus = "Listening";
-                StatusMessage = $"Listening on {config.Ports.Count} port(s)";
+                ListeningStatus = LocalizationService.Instance.GetString("Status_Listening", "Listening");
+                StatusMessage = LocalizationService.Instance.GetString("Status_ListeningOnPorts", $"Listening on {config.Ports.Count} port(s)");
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error starting listener: {ex.Message}";
-                ListeningStatus = "Error";
+                StatusMessage = LocalizationService.Instance.GetString("Error_StartingListener", $"Error starting listener: {ex.Message}");
+                ListeningStatus = LocalizationService.Instance.GetString("Status_Error", "Error");
             }
         }
 
@@ -166,12 +197,12 @@ namespace NLogViewer.ClientApplication.ViewModels
             {
                 _udpReceiverService.StopListening();
                 IsListening = false;
-                ListeningStatus = "Stopped";
-                StatusMessage = "Stopped listening";
+                ListeningStatus = LocalizationService.Instance.GetString("Status_Stopped", "Stopped");
+                StatusMessage = LocalizationService.Instance.GetString("Status_StoppedListening", "Stopped listening");
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error stopping listener: {ex.Message}";
+                StatusMessage = LocalizationService.Instance.GetString("Error_StoppingListener", $"Error stopping listener: {ex.Message}");
             }
         }
 
@@ -218,6 +249,30 @@ namespace NLogViewer.ClientApplication.ViewModels
         {
             // TODO: Show about dialog
             StatusMessage = "About dialog not yet implemented";
+        }
+
+        private void ChangeLanguage(string? languageCode)
+        {
+            if (string.IsNullOrEmpty(languageCode))
+                return;
+
+            try
+            {
+                LocalizationService.Instance.SetLanguage(languageCode);
+                UpdateLanguageFlag();
+                
+                // Notify that language has changed - this will require app restart for full effect
+                StatusMessage = "Language changed. Please restart the application for full effect.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error changing language: {ex.Message}";
+            }
+        }
+
+        private void UpdateLanguageFlag()
+        {
+            CurrentLanguageFlag = LocalizationService.Instance.CurrentLanguageFlag;
         }
 
         private void OnLogReceived(object? sender, LogReceivedEventArgs e)
@@ -333,6 +388,43 @@ namespace NLogViewer.ClientApplication.ViewModels
         public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
 
         public void Execute(object? parameter) => _execute();
+
+        public void RaiseCanExecuteChanged()
+        {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>
+    /// RelayCommand with parameter support
+    /// </summary>
+    public class RelayCommand<T> : ICommand
+    {
+        private readonly Action<T?> _execute;
+        private readonly Func<T?, bool>? _canExecute;
+
+        public RelayCommand(Action<T?> execute, Func<T?, bool>? canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        public event EventHandler? CanExecuteChanged;
+
+        public bool CanExecute(object? parameter)
+        {
+            if (parameter is T typedParam)
+                return _canExecute?.Invoke(typedParam) ?? true;
+            return _canExecute?.Invoke(default) ?? true;
+        }
+
+        public void Execute(object? parameter)
+        {
+            if (parameter is T typedParam)
+                _execute(typedParam);
+            else
+                _execute(default);
+        }
 
         public void RaiseCanExecuteChanged()
         {

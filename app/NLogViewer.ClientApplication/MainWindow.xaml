@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dj="clr-namespace:DJ;assembly=NLogViewer"
         xmlns:viewModels="clr-namespace:NLogViewer.ClientApplication.ViewModels"
+        xmlns:helpers="clr-namespace:NLogViewer.ClientApplication.Helpers"
         mc:Ignorable="d" 
         Title="NLogViewer Client Application" 
         Height="600" 
@@ -20,36 +21,36 @@
         
         <!-- Menu Bar -->
         <Menu Grid.Row="0">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open File..." 
+            <MenuItem Header="{helpers:Resource Key=Menu_File, DefaultValue=_File}">
+                <MenuItem Header="{helpers:Resource Key=Menu_OpenFile, DefaultValue=_Open File...}" 
                           Command="{Binding OpenFileCommand}" 
                           InputGestureText="Ctrl+O"/>
                 <Separator />
-                <MenuItem Header="E_xit" 
+                <MenuItem Header="{helpers:Resource Key=Menu_Exit, DefaultValue=E_xit}" 
                           Command="{Binding ExitCommand}" 
                           InputGestureText="Alt+F4"/>
             </MenuItem>
-            <MenuItem Header="_View">
-                <MenuItem Header="_Settings..." 
+            <MenuItem Header="{helpers:Resource Key=Menu_View, DefaultValue=_View}">
+                <MenuItem Header="{helpers:Resource Key=Menu_Settings, DefaultValue=_Settings...}" 
                           Command="{Binding OpenSettingsCommand}" 
                           InputGestureText="Ctrl+,"/>
             </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem Header="_About..." 
+            <MenuItem Header="{helpers:Resource Key=Menu_Help, DefaultValue=_Help}">
+                <MenuItem Header="{helpers:Resource Key=Menu_About, DefaultValue=_About...}" 
                           Command="{Binding AboutCommand}"/>
             </MenuItem>
         </Menu>
         
         <!-- Toolbar -->
         <ToolBar Grid.Row="0" Margin="0,25,0,0">
-            <Button Content="Start Listening" 
+            <Button Content="{helpers:Resource Key=Button_StartListening, DefaultValue=Start Listening}" 
                     Command="{Binding StartListeningCommand}" 
-                    ToolTip="Start listening on configured ports"/>
-            <Button Content="Stop Listening" 
+                    ToolTip="{helpers:Resource Key=ToolTip_StartListening, DefaultValue=Start listening on configured ports}"/>
+            <Button Content="{helpers:Resource Key=Button_StopListening, DefaultValue=Stop Listening}" 
                     Command="{Binding StopListeningCommand}" 
-                    ToolTip="Stop listening on all ports"/>
+                    ToolTip="{helpers:Resource Key=ToolTip_StopListening, DefaultValue=Stop listening on all ports}"/>
             <Separator />
-            <TextBlock Text="Status:" VerticalAlignment="Center" Margin="5,0"/>
+            <TextBlock Text="{helpers:Resource Key=Status_Label, DefaultValue=Status:}" VerticalAlignment="Center" Margin="5,0"/>
             <TextBlock Text="{Binding ListeningStatus}" 
                        VerticalAlignment="Center" 
                        Margin="5,0"
@@ -83,10 +84,49 @@
         
         <!-- Status Bar -->
         <StatusBar Grid.Row="2">
+            <!-- Language Selector (Left) -->
+            <StatusBarItem HorizontalAlignment="Left">
+                <Button x:Name="LanguageButton" 
+                        Content="{Binding CurrentLanguageFlag}" 
+                        FontSize="16"
+                        Padding="5,2"
+                        Cursor="Hand"
+                        ToolTip="Change Language"
+                        Click="LanguageButton_Click">
+                    <Button.ContextMenu>
+                        <ContextMenu x:Name="LanguageContextMenu">
+                            <MenuItem Header="🇩🇪 Deutsch" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="de"/>
+                            <MenuItem Header="🇬🇧 English" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="en"/>
+                            <MenuItem Header="🇪🇸 Español" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="es"/>
+                            <MenuItem Header="🇫🇷 Français" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="fr"/>
+                            <MenuItem Header="🇭🇺 Magyar" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="hu"/>
+                            <MenuItem Header="🇵🇱 Polski" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="pl"/>
+                            <MenuItem Header="🇷🇴 Română" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="ro"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </StatusBarItem>
+            <Separator />
+            <!-- Status Message (Center) -->
             <StatusBarItem>
                 <TextBlock Text="{Binding StatusMessage}" />
             </StatusBarItem>
             <Separator />
+            <!-- Timestamp (Right) -->
             <StatusBarItem HorizontalAlignment="Right">
                 <TextBlock Text="{Binding LastLogTimestamp}" />
             </StatusBarItem>

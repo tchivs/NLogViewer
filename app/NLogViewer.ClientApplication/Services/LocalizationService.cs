@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Resources;
 using System.Threading;
 using System.Windows;
@@ -15,11 +17,63 @@ namespace NLogViewer.ClientApplication.Services
         private ResourceManager? _resourceManager;
         private CultureInfo _currentCulture;
 
+        /// <summary>
+        /// Available languages with their flag emojis
+        /// </summary>
+        public static readonly Dictionary<string, string> AvailableLanguages = new()
+        {
+            { "de", "🇩🇪" },  // German
+            { "en", "🇬🇧" },  // English
+            { "es", "🇪🇸" },  // Spanish
+            { "fr", "🇫🇷" },  // French
+            { "hu", "🇭🇺" },  // Hungarian
+            { "pl", "🇵🇱" },  // Polish
+            { "ro", "🇷🇴" }   // Romanian
+        };
+
         public static LocalizationService Instance => _instance ??= new LocalizationService();
 
         private LocalizationService()
         {
             _currentCulture = CultureInfo.CurrentCulture;
+        }
+
+        /// <summary>
+        /// Detects the best matching language based on Windows culture settings
+        /// </summary>
+        /// <returns>Language code (e.g., "en", "de") or "en" as default</returns>
+        public static string DetectWindowsLanguage()
+        {
+            try
+            {
+                var windowsCulture = CultureInfo.CurrentUICulture;
+                var languageCode = windowsCulture.TwoLetterISOLanguageName.ToLowerInvariant();
+
+                // Check if we have resources for this language
+                if (AvailableLanguages.ContainsKey(languageCode))
+                {
+                    return languageCode;
+                }
+
+                // Try to find a match by checking parent cultures
+                var culture = windowsCulture;
+                while (culture != null && culture != CultureInfo.InvariantCulture)
+                {
+                    var code = culture.TwoLetterISOLanguageName.ToLowerInvariant();
+                    if (AvailableLanguages.ContainsKey(code))
+                    {
+                        return code;
+                    }
+                    culture = culture.Parent;
+                }
+
+                // Default to English if no match found
+                return "en";
+            }
+            catch
+            {
+                return "en";
+            }
         }
 
         public void Initialize()
@@ -35,14 +89,26 @@ namespace NLogViewer.ClientApplication.Services
                 var configService = new ConfigurationService();
                 var config = configService.LoadConfiguration();
                 
-                if (!string.IsNullOrEmpty(config.Language))
+                string languageToUse;
+                if (string.IsNullOrEmpty(config.Language))
                 {
-                    SetLanguage(config.Language);
+                    // Auto-detect language from Windows settings
+                    languageToUse = DetectWindowsLanguage();
+                    // Save the detected language to configuration
+                    config.Language = languageToUse;
+                    configService.SaveConfiguration(config);
                 }
+                else
+                {
+                    languageToUse = config.Language;
+                }
+
+                SetLanguage(languageToUse);
             }
             catch (Exception)
             {
                 // If resources are not available, continue with default culture
+                SetLanguage("en");
             }
         }
 
@@ -50,16 +116,30 @@ namespace NLogViewer.ClientApplication.Services
         {
             try
             {
+                // Validate that the language is available
+                if (!AvailableLanguages.ContainsKey(languageCode))
+                {
+                    languageCode = "en";
+                }
+
                 _currentCulture = new CultureInfo(languageCode);
                 Thread.CurrentThread.CurrentCulture = _currentCulture;
                 Thread.CurrentThread.CurrentUICulture = _currentCulture;
                 CultureInfo.DefaultThreadCurrentCulture = _currentCulture;
                 CultureInfo.DefaultThreadCurrentUICulture = _currentCulture;
+
+                // Save to configuration
+                var configService = new ConfigurationService();
+                var config = configService.LoadConfiguration();
+                config.Language = languageCode;
+                configService.SaveConfiguration(config);
             }
             catch
             {
                 // Invalid language code, use default
-                _currentCulture = CultureInfo.InvariantCulture;
+                _currentCulture = new CultureInfo("en");
+                Thread.CurrentThread.CurrentCulture = _currentCulture;
+                Thread.CurrentThread.CurrentUICulture = _currentCulture;
             }
         }
 
@@ -76,6 +156,15 @@ namespace NLogViewer.ClientApplication.Services
         }
 
         public CultureInfo CurrentCulture => _currentCulture;
+
+        /// <summary>
+        /// Gets the current language code (e.g., "en", "de")
+        /// </summary>
+        public string CurrentLanguageCode => _currentCulture.TwoLetterISOLanguageName.ToLowerInvariant();
+
+        /// <summary>
+        /// Gets the flag emoji for the current language
+        /// </summary>
+        public string CurrentLanguageFlag => AvailableLanguages.TryGetValue(CurrentLanguageCode, out var flag) ? flag : "🇬🇧";
     }
 }
-
