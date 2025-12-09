@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <StartupObject>NLogViewer.MaterialDesign.TestApp.App</StartupObject>
-    <RootNamespace>NLogViewer.MaterialDesign.TestApp</RootNamespace>
-    <AssemblyName>NLogViewer.MaterialDesign.TestApp</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>NLogViewer.ClientApplication.TestApp</RootNamespace>
+    <AssemblyName>NLogViewer.ClientApplication.TestApp</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
@@ -21,16 +19,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Properties\launchSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NLog" Version="5.2.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\NLogViewer\NLogViewer.csproj" />
-    <ProjectReference Include="..\NLogViewer.MaterialDesign\NLogViewer.MaterialDesign.csproj" />
+    <PackageReference Include="NLog" Version="6.0.0" />
+    <PackageReference Include="NLog.Targets.Network" Version="6.0.0" />
   </ItemGroup>
   
 </Project>

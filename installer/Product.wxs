@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="*" 
+           Name="NLogViewer Client Application" 
+           Language="1033" 
+           Version="1.0.0.0" 
+           Manufacturer="Dominic Böxler" 
+           UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+    
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine"
+             Description="NLogViewer Client Application - Standalone log viewer for NLog"
+             Comments="NLogViewer Client Application allows you to receive and view NLog logs via UDP network protocol or from log files."
+             Manufacturer="Dominic Böxler" />
+    
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate />
+    
+    <Feature Id="ProductFeature" Title="NLogViewer Client Application" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationDesktopShortcut" />
+    </Feature>
+    
+    <UIRef Id="WixUI_Mondo" />
+    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
+    
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+  </Product>
+  
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="NLogViewer Client Application" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="NLogViewer Client Application" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+  </Fragment>
+  
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="ApplicationFiles" Guid="B1C2D3E4-F5A6-7890-BCDE-F123456789AB">
+        <File Id="NLogViewerClientApplication.exe" 
+              Source="$(var.NLogViewer.ClientApplication.TargetPath)" 
+              KeyPath="yes" />
+        <File Id="appsettings.json" 
+              Source="$(var.NLogViewer.ClientApplication.ProjectDir)appsettings.json" />
+      </Component>
+    </ComponentGroup>
+    
+    <Component Id="ApplicationShortcut" 
+               Directory="ApplicationProgramsFolder" 
+               Guid="C2D3E4F5-A6B7-8901-CDEF-123456789ABC">
+      <Shortcut Id="ApplicationStartMenuShortcut" 
+                Name="NLogViewer Client Application" 
+                Description="NLog Log Viewer Client Application" 
+                Target="[INSTALLFOLDER]NLogViewer.ClientApplication.exe" 
+                WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\NLogViewer\ClientApplication" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+    
+    <Component Id="ApplicationDesktopShortcut" 
+               Directory="DesktopFolder" 
+               Guid="D3E4F5A6-B7C8-9012-DEF1-23456789ABCD">
+      <Shortcut Id="ApplicationDesktopShortcut" 
+                Name="NLogViewer Client Application" 
+                Description="NLog Log Viewer Client Application" 
+                Target="[INSTALLFOLDER]NLogViewer.ClientApplication.exe" 
+                WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="DesktopFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\NLogViewer\ClientApplication" 
+                     Name="desktopshortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+  </Fragment>
+</Wix>
+
