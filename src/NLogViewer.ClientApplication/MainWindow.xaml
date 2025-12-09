@@ -81,10 +81,40 @@
         
         <!-- Status Bar -->
         <StatusBar Grid.Row="2">
+            <!-- Language Selector (Left) -->
+            <StatusBarItem HorizontalAlignment="Left">
+                <Button x:Name="LanguageButton" 
+                        Content="{Binding CurrentLanguageFlag}" 
+                        FontSize="16"
+                        Padding="5,2"
+                        Cursor="Hand"
+                        ToolTip="Change Language"
+                        Click="LanguageButton_Click">
+                    <Button.ContextMenu>
+                        <ContextMenu x:Name="LanguageContextMenu">
+                            <MenuItem Header="🇩🇪 Deutsch" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="de"/>
+                            <MenuItem Header="🇬🇧 English" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="en"/>
+                            <MenuItem Header="🇪🇸 Español" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="es"/>
+                            <MenuItem Header="🇫🇷 Français" 
+                                      Command="{Binding ChangeLanguageCommand}" 
+                                      CommandParameter="fr"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </StatusBarItem>
+            <Separator />
+            <!-- Status Message (Center) -->
             <StatusBarItem>
                 <TextBlock Text="{Binding StatusMessage}" />
             </StatusBarItem>
             <Separator />
+            <!-- Timestamp (Right) -->
             <StatusBarItem HorizontalAlignment="Right">
                 <TextBlock Text="{Binding LastLogTimestamp}" />
             </StatusBarItem>

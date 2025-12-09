@@ -23,7 +23,10 @@ namespace NLogViewer.ClientApplication.ViewModels
         {
             _configService = new ConfigurationService();
             _configuration = _configService.LoadConfiguration();
-            _selectedLanguage = _configuration.Language;
+            // Use current language from LocalizationService if config language is empty
+            _selectedLanguage = string.IsNullOrEmpty(_configuration.Language) 
+                ? LocalizationService.Instance.CurrentLanguageCode 
+                : _configuration.Language;
 
             Ports = new ObservableCollection<PortConfiguration>();
             foreach (var portAddress in _configuration.Ports)

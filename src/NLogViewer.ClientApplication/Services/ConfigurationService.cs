@@ -31,7 +31,14 @@ namespace NLogViewer.ClientApplication.Services
                     var json = File.ReadAllText(_configPath);
                     var config = JsonSerializer.Deserialize<AppConfiguration>(json);
                     if (config != null)
+                    {
+                        // Ensure Language is set, default to empty for auto-detection
+                        if (string.IsNullOrEmpty(config.Language))
+                        {
+                            config.Language = string.Empty;
+                        }
                         return config;
+                    }
                 }
             }
             catch (Exception)
@@ -39,11 +46,11 @@ namespace NLogViewer.ClientApplication.Services
                 // Fall back to default configuration
             }
 
-            // Return default configuration
+            // Return default configuration with empty language for auto-detection
             return new AppConfiguration
             {
                 Ports = new List<string> { "udp://0.0.0.0:4000" },
-                Language = "en",
+                Language = string.Empty, // Empty means auto-detect on first start
                 MaxLogEntriesPerTab = 10000,
                 AutoStartListening = false
             };
@@ -69,7 +76,7 @@ namespace NLogViewer.ClientApplication.Services
     public class AppConfiguration
     {
         public List<string> Ports { get; set; } = new();
-        public string Language { get; set; } = "en";
+        public string Language { get; set; } = string.Empty; // Empty means auto-detect
         public int MaxLogEntriesPerTab { get; set; } = 10000;
         public bool AutoStartListening { get; set; } = false;
     }

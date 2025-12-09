@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dj="clr-namespace:DJ;assembly=NLogViewer"
+        xmlns:viewModels="clr-namespace:NLogViewer.ClientApplication.ViewModels"
         mc:Ignorable="d" 
         Title="NLogViewer Client Application" 
         Height="600" 
         Width="1000"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

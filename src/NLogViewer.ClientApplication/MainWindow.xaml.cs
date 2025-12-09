@@ -24,6 +24,18 @@ namespace NLogViewer.ClientApplication
                 new KeyGesture(Key.OemComma, ModifierKeys.Control)));
         }
 
+        /// <summary>
+        /// Opens the language selection context menu when the language button is clicked
+        /// </summary>
+        private void LanguageButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (LanguageContextMenu != null)
+            {
+                LanguageContextMenu.PlacementTarget = LanguageButton;
+                LanguageContextMenu.IsOpen = true;
+            }
+        }
+
         protected override void OnClosed(System.EventArgs e)
         {
             _viewModel?.Dispose();
