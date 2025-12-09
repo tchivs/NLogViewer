@@ -92,106 +92,11 @@
                         ToolTip="Change Language"
                         Click="LanguageButton_Click">
                     <Button.Content>
-                        <Image Source="{Binding CurrentLanguageFlag}" 
+                        <Image Source="{Binding CurrentLanguageFlag, Converter={StaticResource SvgImageSourceConverter}}" 
                                Width="20" 
                                Height="15" 
                                Stretch="Uniform"/>
                     </Button.Content>
-                    <Button.ContextMenu>
-                        <ContextMenu x:Name="LanguageContextMenu">
-                            <MenuItem Command="{Binding ChangeLanguageCommand}" 
-                                      CommandParameter="de">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="pack://application:,,,/Resources/flags/de.svg" 
-                                               Width="20" 
-                                               Height="15" 
-                                               Stretch="Uniform" 
-                                               Margin="0,0,5,0"/>
-                                        <TextBlock Text="Deutsch"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Command="{Binding ChangeLanguageCommand}" 
-                                      CommandParameter="en">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="pack://application:,,,/Resources/flags/gb.svg" 
-                                               Width="20" 
-                                               Height="15" 
-                                               Stretch="Uniform" 
-                                               Margin="0,0,5,0"/>
-                                        <TextBlock Text="English"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Command="{Binding ChangeLanguageCommand}" 
-                                      CommandParameter="es">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="pack://application:,,,/Resources/flags/es.svg" 
-                                               Width="20" 
-                                               Height="15" 
-                                               Stretch="Uniform" 
-                                               Margin="0,0,5,0"/>
-                                        <TextBlock Text="Español"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Command="{Binding ChangeLanguageCommand}" 
-                                      CommandParameter="fr">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="pack://application:,,,/Resources/flags/fr.svg" 
-                                               Width="20" 
-                                               Height="15" 
-                                               Stretch="Uniform" 
-                                               Margin="0,0,5,0"/>
-                                        <TextBlock Text="Français"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Command="{Binding ChangeLanguageCommand}" 
-                                      CommandParameter="hu">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="pack://application:,,,/Resources/flags/hu.svg" 
-                                               Width="20" 
-                                               Height="15" 
-                                               Stretch="Uniform" 
-                                               Margin="0,0,5,0"/>
-                                        <TextBlock Text="Magyar"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Command="{Binding ChangeLanguageCommand}" 
-                                      CommandParameter="pl">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="pack://application:,,,/Resources/flags/pl.svg" 
-                                               Width="20" 
-                                               Height="15" 
-                                               Stretch="Uniform" 
-                                               Margin="0,0,5,0"/>
-                                        <TextBlock Text="Polski"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Command="{Binding ChangeLanguageCommand}" 
-                                      CommandParameter="ro">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="pack://application:,,,/Resources/flags/ro.svg" 
-                                               Width="20" 
-                                               Height="15" 
-                                               Stretch="Uniform" 
-                                               Margin="0,0,5,0"/>
-                                        <TextBlock Text="Română"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                        </ContextMenu>
-                    </Button.ContextMenu>
                 </Button>
             </StatusBarItem>
             <Separator />

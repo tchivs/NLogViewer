@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer"
              xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
+             xmlns:converters="clr-namespace:NLogViewer.ClientApplication.Converters"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -13,6 +14,7 @@
             <!-- Converters -->
             <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
+            <converters:SvgImageSourceConverter x:Key="SvgImageSourceConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

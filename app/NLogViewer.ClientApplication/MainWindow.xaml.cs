@@ -25,14 +25,16 @@ namespace NLogViewer.ClientApplication
         }
 
         /// <summary>
-        /// Opens the language selection context menu when the language button is clicked
+        /// Opens the language selection window when the language button is clicked
         /// </summary>
         private void LanguageButton_Click(object sender, RoutedEventArgs e)
         {
-            if (LanguageContextMenu != null)
+            var languageWindow = new LanguageSelectionWindow();
+            var result = languageWindow.ShowDialog(this);
+            
+            if (result == true && !string.IsNullOrEmpty(languageWindow.SelectedLanguageCode))
             {
-                LanguageContextMenu.PlacementTarget = LanguageButton;
-                LanguageContextMenu.IsOpen = true;
+                _viewModel.ChangeLanguageCommand.Execute(languageWindow.SelectedLanguageCode);
             }
         }
 
