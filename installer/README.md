@@ -59,3 +59,4 @@ To modify the installer:
   dotnet publish app\NLogViewer.ClientApplication\NLogViewer.ClientApplication.csproj -c Release -r win-x64 --self-contained true
   ```
 
+

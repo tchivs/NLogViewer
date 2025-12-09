@@ -240,3 +240,4 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
     }
 }
 
+

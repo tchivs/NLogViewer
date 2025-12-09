@@ -74,3 +74,4 @@ namespace NLogViewer.ClientApplication.Models
     }
 }
 
+

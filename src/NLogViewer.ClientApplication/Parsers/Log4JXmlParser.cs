@@ -192,3 +192,4 @@ namespace NLogViewer.ClientApplication.Parsers
     }
 }
 
+

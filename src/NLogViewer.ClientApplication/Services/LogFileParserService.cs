@@ -116,3 +116,4 @@ namespace NLogViewer.ClientApplication.Services
     }
 }
 
+
