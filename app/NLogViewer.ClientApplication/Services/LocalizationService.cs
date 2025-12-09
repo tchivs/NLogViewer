@@ -18,17 +18,17 @@ namespace NLogViewer.ClientApplication.Services
         private CultureInfo _currentCulture;
 
         /// <summary>
-        /// Available languages with their flag emojis
+        /// Available languages with their flag SVG paths
         /// </summary>
         public static readonly Dictionary<string, string> AvailableLanguages = new()
         {
-            { "de", "🇩🇪" },  // German
-            { "en", "🇬🇧" },  // English
-            { "es", "🇪🇸" },  // Spanish
-            { "fr", "🇫🇷" },  // French
-            { "hu", "🇭🇺" },  // Hungarian
-            { "pl", "🇵🇱" },  // Polish
-            { "ro", "🇷🇴" }   // Romanian
+            { "de", "pack://application:,,,/Resources/flags/de.svg" },  // German
+            { "en", "pack://application:,,,/Resources/flags/gb.svg" },  // English (GB)
+            { "es", "pack://application:,,,/Resources/flags/es.svg" },  // Spanish
+            { "fr", "pack://application:,,,/Resources/flags/fr.svg" },  // French
+            { "hu", "pack://application:,,,/Resources/flags/hu.svg" },  // Hungarian
+            { "pl", "pack://application:,,,/Resources/flags/pl.svg" },  // Polish
+            { "ro", "pack://application:,,,/Resources/flags/ro.svg" }   // Romanian
         };
 
         public static LocalizationService Instance => _instance ??= new LocalizationService();
@@ -163,8 +163,8 @@ namespace NLogViewer.ClientApplication.Services
         public string CurrentLanguageCode => _currentCulture.TwoLetterISOLanguageName.ToLowerInvariant();
 
         /// <summary>
-        /// Gets the flag emoji for the current language
+        /// Gets the flag SVG path for the current language
         /// </summary>
-        public string CurrentLanguageFlag => AvailableLanguages.TryGetValue(CurrentLanguageCode, out var flag) ? flag : "🇬🇧";
+        public string CurrentLanguageFlag => AvailableLanguages.TryGetValue(CurrentLanguageCode, out var flag) ? flag : AvailableLanguages["en"];
     }
 }
