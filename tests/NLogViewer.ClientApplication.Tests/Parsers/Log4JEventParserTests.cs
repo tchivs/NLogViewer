@@ -1,26 +1,24 @@
 using System;
-using System.Linq;
-using System.Xml.Linq;
-using NLog;
+using NLogViewer.ClientApplication.Models;
 using NLogViewer.ClientApplication.Parsers;
 using Xunit;
 
 namespace NLogViewer.ClientApplication.Tests.Parsers
 {
     /// <summary>
-    /// Unit tests for Log4JXmlParser
+    /// Unit tests for Log4JEventParser
     /// </summary>
-    public class Log4JXmlParserTests : IDisposable
+    public class Log4JEventParserTests : IDisposable
     {
-        private readonly Log4JXmlParser _parser;
+        private readonly Log4JEventParser _parser;
 
-        public Log4JXmlParserTests()
+        public Log4JEventParserTests()
         {
-            _parser = new Log4JXmlParser();
+            _parser = new Log4JEventParser();
         }
 
         [Fact]
-        public void Parse_ValidLog4JXml_ReturnsLogEventInfo()
+        public void Parse_ValidLog4JXml_ReturnsLog4JEvent()
         {
             // Arrange
             var xml = @"<log4j:event logger=""TestLogger"" level=""INFO"" timestamp=""1234567890000"" xmlns:log4j=""http://jakarta.apache.org/log4j/"">
@@ -33,9 +31,10 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("TestLogger", result.LoggerName);
-            Assert.Equal(LogLevel.Info, result.Level);
+            Assert.Equal("TestLogger", result.Logger);
+            Assert.Equal(Log4JLevel.Info, result.Level);
             Assert.Equal("Test message", result.Message);
+            Assert.Equal("Thread-1", result.Thread);
         }
 
         [Fact]
@@ -52,15 +51,14 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
 
             // Assert
             Assert.NotNull(result);
-            var expectedTime = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).DateTime;
-            Assert.True(Math.Abs((result.TimeStamp - expectedTime).TotalSeconds) < 1);
+            Assert.Equal(timestamp, result.Timestamp);
         }
 
         [Fact]
         public void Parse_Log4JXmlWithAllLevels_ParsesLevelsCorrectly()
         {
             var levels = new[] { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL" };
-            var expectedLogLevels = new[] { LogLevel.Trace, LogLevel.Debug, LogLevel.Info, LogLevel.Warn, LogLevel.Error, LogLevel.Fatal };
+            var expectedLogLevels = new[] { Log4JLevel.Trace, Log4JLevel.Debug, Log4JLevel.Info, Log4JLevel.Warn, Log4JLevel.Error, Log4JLevel.Fatal };
 
             for (int i = 0; i < levels.Length; i++)
             {
@@ -92,19 +90,21 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
 
             // Assert
             Assert.NotNull(result);
-            Assert.NotNull(result.Exception);
-            Assert.Contains("Test exception", result.Exception.Message);
+            Assert.NotNull(result.Throwable);
+            Assert.Contains("Test exception", result.Throwable);
         }
 
         [Fact]
         public void Parse_Log4JXmlWithProperties_ParsesProperties()
         {
             // Arrange
-            // Note: The parser reads prop.Value, so we need to put the value as element content, not as attribute
+            // Note: The parser reads the value attribute from log4j:data elements within log4j:properties
             var xml = @"<log4j:event logger=""TestLogger"" level=""INFO"" timestamp=""1234567890000"" xmlns:log4j=""http://jakarta.apache.org/log4j/"">
                 <log4j:message>Test message</log4j:message>
-                <log4j:data name=""UserId"">12345</log4j:data>
-                <log4j:data name=""SessionId"">abc-123</log4j:data>
+                <log4j:properties>
+                    <log4j:data name=""UserId"" value=""12345""/>
+                    <log4j:data name=""SessionId"" value=""abc-123""/>
+                </log4j:properties>
             </log4j:event>";
 
             // Act
@@ -119,85 +119,25 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
         }
 
         [Fact]
-        public void Parse_InvalidXml_ReturnsNull()
+        public void Parse_InvalidXml_ThrowsFormatException()
         {
             // Arrange
             var invalidXml = "<invalid>xml</invalid>";
 
-            // Act
-            var result = _parser.Parse(invalidXml);
-
-            // Assert
-            Assert.Null(result);
+            // Act & Assert
+            Assert.Throws<FormatException>(() => _parser.Parse(invalidXml));
         }
 
         [Fact]
-        public void Parse_EmptyXml_ReturnsNull()
+        public void Parse_EmptyXml_ThrowsArgumentException()
         {
             // Arrange
             var emptyXml = "";
 
-            // Act
-            var result = _parser.Parse(emptyXml);
-
-            // Assert
-            Assert.Null(result);
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _parser.Parse(emptyXml));
         }
 
-        [Fact]
-        public void ParseMultiple_ValidLog4JXml_ReturnsMultipleLogEvents()
-        {
-            // Arrange
-            var xml = @"<log4j:events xmlns:log4j=""http://jakarta.apache.org/log4j/"">
-                <log4j:event logger=""Logger1"" level=""INFO"" timestamp=""1234567890000"">
-                    <log4j:message>Message 1</log4j:message>
-                </log4j:event>
-                <log4j:event logger=""Logger2"" level=""WARN"" timestamp=""1234567891000"">
-                    <log4j:message>Message 2</log4j:message>
-                </log4j:event>
-            </log4j:events>";
-
-            // Act
-            var results = _parser.ParseMultiple(xml);
-
-            // Assert
-            Assert.NotNull(results);
-            Assert.Equal(2, results.Count);
-            Assert.Equal("Logger1", results[0].LoggerName);
-            Assert.Equal("Logger2", results[1].LoggerName);
-        }
-
-        [Fact]
-        public void ExtractAppInfo_ValidLog4JXml_ReturnsAppInfo()
-        {
-            // Arrange
-            var xml = @"<log4j:event logger=""TestLogger"" level=""INFO"" timestamp=""1234567890000"" xmlns:log4j=""http://jakarta.apache.org/log4j/"">
-                <log4j:app>MyApplication</log4j:app>
-                <log4j:message>Test message</log4j:message>
-            </log4j:event>";
-
-            // Act
-            var appInfo = _parser.ExtractAppInfo(xml);
-
-            // Assert
-            Assert.NotNull(appInfo);
-            Assert.Equal("MyApplication", appInfo);
-        }
-
-        [Fact]
-        public void ExtractAppInfo_Log4JXmlWithoutApp_ReturnsNull()
-        {
-            // Arrange
-            var xml = @"<log4j:event logger=""TestLogger"" level=""INFO"" timestamp=""1234567890000"" xmlns:log4j=""http://jakarta.apache.org/log4j/"">
-                <log4j:message>Test message</log4j:message>
-            </log4j:event>";
-
-            // Act
-            var appInfo = _parser.ExtractAppInfo(xml);
-
-            // Assert
-            Assert.Null(appInfo);
-        }
 
         [Fact]
         public void Parse_RealWorldLog4JXml_DoesNotThrowException()
@@ -207,7 +147,7 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
             var xml = @"<log4j:event logger=""NLogViewer.ClientApplication.TestApp.Services.NetworkService"" level=""TRACE"" timestamp=""1765283620626"" thread=""11""><log4j:message>Application started successfully (Message #16)</log4j:message><log4j:locationInfo class=""NLogViewer.ClientApplication.TestApp.Program"" method=""GenerateNormalLog"" file=""C:\Users\dboexler\Documents\Repositories\github.com\boexler\NLogViewer\testapp\NLogViewer.ClientApplication.TestApp\Program.cs"" line=""107""/><log4j:properties><log4j:data name=""log4japp"" value=""NLogViewer.ClientApplication.TestApp(31368)""/><log4j:data name=""log4jmachinename"" value=""NB250911""/></log4j:properties></log4j:event>";
 
             // Act - Should not throw exception and should parse successfully
-            LogEventInfo? result = null;
+            Log4JEvent? result = null;
             Exception? parseException = null;
             try
             {
@@ -221,14 +161,21 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
             // Assert - Should not throw exception and should parse successfully
             Assert.Null(parseException);
             Assert.NotNull(result);
-            Assert.Equal("NLogViewer.ClientApplication.TestApp.Services.NetworkService", result.LoggerName);
-            Assert.Equal(LogLevel.Trace, result.Level);
+            Assert.Equal("NLogViewer.ClientApplication.TestApp.Services.NetworkService", result.Logger);
+            Assert.Equal(Log4JLevel.Trace, result.Level);
             Assert.Equal("Application started successfully (Message #16)", result.Message);
+            Assert.Equal("11", result.Thread);
+            Assert.Equal(1765283620626L, result.Timestamp);
             // Properties should be parsed from the value attributes
             Assert.True(result.Properties.ContainsKey("log4japp"));
             Assert.Equal("NLogViewer.ClientApplication.TestApp(31368)", result.Properties["log4japp"]);
             Assert.True(result.Properties.ContainsKey("log4jmachinename"));
             Assert.Equal("NB250911", result.Properties["log4jmachinename"]);
+            // LocationInfo should be parsed
+            Assert.NotNull(result.LocationInfo);
+            Assert.Equal("NLogViewer.ClientApplication.TestApp.Program", result.LocationInfo.Class);
+            Assert.Equal("GenerateNormalLog", result.LocationInfo.Method);
+            Assert.Equal(107, result.LocationInfo.Line);
         }
 
         [Fact]
@@ -244,9 +191,9 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
 
             // Assert
             // The parser should handle XML without namespace declaration
-            // It uses LocalName which should work regardless of namespace
+            // It automatically adds the namespace if missing
             Assert.NotNull(result);
-            Assert.Equal("TestLogger", result.LoggerName);
+            Assert.Equal("TestLogger", result.Logger);
             Assert.Equal("Test message", result.Message);
         }
 
@@ -267,9 +214,9 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("TestLogger", result.LoggerName);
+            Assert.Equal("TestLogger", result.Logger);
             Assert.Equal("Test message", result.Message);
-            // Properties should be parsed from the data elements (now supports value attribute)
+            // Properties should be parsed from the data elements (value attribute)
             Assert.True(result.Properties.ContainsKey("log4japp"));
             Assert.Equal("MyApp(12345)", result.Properties["log4japp"]);
             Assert.True(result.Properties.ContainsKey("log4jmachinename"));
@@ -290,15 +237,20 @@ namespace NLogViewer.ClientApplication.Tests.Parsers
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("TestLogger", result.LoggerName);
-            Assert.Equal(LogLevel.Debug, result.Level);
+            Assert.Equal("TestLogger", result.Logger);
+            Assert.Equal(Log4JLevel.Debug, result.Level);
             Assert.Equal("Debug message", result.Message);
-            // LocationInfo should not cause parsing errors
+            // LocationInfo should be parsed correctly
+            Assert.NotNull(result.LocationInfo);
+            Assert.Equal("MyClass", result.LocationInfo.Class);
+            Assert.Equal("MyMethod", result.LocationInfo.Method);
+            Assert.Equal("MyFile.cs", result.LocationInfo.File);
+            Assert.Equal(42, result.LocationInfo.Line);
         }
 
         public void Dispose()
         {
-            _parser?.Dispose();
+            // Log4JEventParser doesn't implement IDisposable, so nothing to dispose
         }
     }
 }

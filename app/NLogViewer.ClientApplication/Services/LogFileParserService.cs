@@ -1,6 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using NLogViewer.ClientApplication.Models;
+using NLogViewer.ClientApplication.Parsers;
 
 namespace NLogViewer.ClientApplication.Services;
 
@@ -8,14 +13,14 @@ namespace NLogViewer.ClientApplication.Services;
 /// Service for parsing log files
 /// </summary>
 public class LogFileParserService(
-	Parsers.Log4JXmlParser xmlParser,
-	Parsers.PlainTextParser textParser,
-	Parsers.JsonLogParser jsonParser)
+	Log4JEventParser xmlParser,
+	PlainTextParser textParser,
+	JsonLogParser jsonParser)
 	: IDisposable
 {
-	private readonly Parsers.Log4JXmlParser _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
-	private readonly Parsers.PlainTextParser _textParser = textParser ?? throw new ArgumentNullException(nameof(textParser));
-	private readonly Parsers.JsonLogParser _jsonParser = jsonParser ?? throw new ArgumentNullException(nameof(jsonParser));
+	private readonly Log4JEventParser _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
+	private readonly PlainTextParser _textParser = textParser ?? throw new ArgumentNullException(nameof(textParser));
+	private readonly JsonLogParser _jsonParser = jsonParser ?? throw new ArgumentNullException(nameof(jsonParser));
 	private bool _disposed;
 
 	//public event EventHandler<LogReceivedEventArgs>? LogParsed;
@@ -54,18 +59,83 @@ public class LogFileParserService(
 	private void ParseXmlFile(string filePath, string fileName)
 	{
 		var content = File.ReadAllText(filePath);
-		var logEvents = _xmlParser.ParseMultiple(content);
+		var log4JEvents = ParseMultipleLog4JEvents(content);
 
-		foreach (var logEvent in logEvents)
+		foreach (var log4JEvent in log4JEvents)
 		{
-			var appInfo = _xmlParser.ExtractAppInfo(content);
+			var logEvent = log4JEvent.ToLogEvent("File");
 			//OnLogParsed(new LogReceivedEventArgs
 			//{
-			//	LogEvent = logEvent,
-			//	AppInfo = appInfo ?? fileName,
+			//	LogEvent = logEvent.LogEventInfo,
+			//	AppInfo = logEvent.AppInfo?.AppName?.Name ?? fileName,
 			//	Sender = "File"
 			//});
 		}
+	}
+
+	/// <summary>
+	/// Parses multiple Log4J events from XML content.
+	/// Extracts all log4j:event elements and parses each one separately.
+	/// </summary>
+	private List<Log4JEvent> ParseMultipleLog4JEvents(string xmlContent)
+	{
+		var results = new List<Log4JEvent>();
+
+		try
+		{
+			// Try to parse as a document with multiple events
+			var doc = XDocument.Parse(xmlContent);
+			var ns = XNamespace.Get("http://jakarta.apache.org/log4j/");
+			
+			// Find all event elements (could be in eventSet or standalone)
+			var eventElements = doc.Descendants(ns + "event").ToList();
+			
+			if (eventElements.Any())
+			{
+				// Parse each event element separately
+				foreach (var eventElement in eventElements)
+				{
+					try
+					{
+						var eventXml = eventElement.ToString();
+						var log4JEvent = _xmlParser.Parse(eventXml);
+						results.Add(log4JEvent);
+					}
+					catch
+					{
+						// Skip invalid events
+					}
+				}
+			}
+			else
+			{
+				// Try parsing as a single event
+				try
+				{
+					var log4JEvent = _xmlParser.Parse(xmlContent);
+					results.Add(log4JEvent);
+				}
+				catch
+				{
+					// If parsing fails, return empty list
+				}
+			}
+		}
+		catch
+		{
+			// If document parsing fails, try parsing as a single event
+			try
+			{
+				var log4JEvent = _xmlParser.Parse(xmlContent);
+				results.Add(log4JEvent);
+			}
+			catch
+			{
+				// Return empty list on error
+			}
+		}
+
+		return results;
 	}
 
 	private void ParseJsonFile(string filePath, string fileName)
@@ -109,7 +179,7 @@ public class LogFileParserService(
 	{
 		if (!_disposed)
 		{
-			_xmlParser?.Dispose();
+			// Log4JEventParser doesn't implement IDisposable
 			_textParser?.Dispose();
 			_jsonParser?.Dispose();
 			_disposed = true;
