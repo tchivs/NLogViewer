@@ -46,6 +46,7 @@ namespace NLogViewer.ClientApplication
             services.AddScoped<LogFileParserService>();
             
             // Register parsers as transient (new instance each time)
+            services.AddTransient<Parsers.Log4JEventParser>();
             services.AddTransient<Parsers.Log4JXmlParser>();
             services.AddTransient<Parsers.PlainTextParser>();
             services.AddTransient<Parsers.JsonLogParser>();

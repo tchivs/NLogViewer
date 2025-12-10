@@ -17,10 +17,10 @@ namespace NLogViewer.ClientApplication.Services
     {
         private readonly List<UdpClient> _udpClients = new();
         private readonly List<CancellationTokenSource> _cancellationTokens = new();
-        private readonly Parsers.Log4JXmlParser _xmlParser;
+        private readonly Log4JEventParser _xmlParser;
         private bool _disposed;
 
-        public UdpLogReceiverService(Parsers.Log4JXmlParser xmlParser)
+        public UdpLogReceiverService(Log4JEventParser xmlParser)
         {
             _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
         }
@@ -95,13 +95,13 @@ namespace NLogViewer.ClientApplication.Services
 
                     if (logEvent != null)
                     {
-                        var appInfo = _xmlParser.ExtractAppInfo(xml);
-                        OnLogReceived(new LogReceivedEventArgs
-                        {
-                            LogEvent = logEvent,
-                            AppInfo = appInfo,
-                            Sender = sender
-                        });
+                        var appInfo = _xmlParser.Parse(xml);
+                        //OnLogReceived(new LogReceivedEventArgs
+                        //{
+                        //    LogEvent = logEvent,
+                        //    AppInfo = appInfo,
+                        //    Sender = sender
+                        //});
                     }
                 }
                 catch (ObjectDisposedException)
@@ -127,7 +127,7 @@ namespace NLogViewer.ClientApplication.Services
             if (!_disposed)
             {
                 StopListening();
-                _xmlParser?.Dispose();
+                //_xmlParser?.Dispose();
                 _disposed = true;
             }
         }
