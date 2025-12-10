@@ -16,12 +16,16 @@ namespace NLogViewer.ClientApplication.Services;
 public class LogFileParserService(
 	Log4JEventParser xmlParser,
 	PlainTextParser textParser,
-	JsonLogParser jsonParser)
+	JsonLogParser jsonParser,
+	TextFileFormatDetector formatDetector,
+	TextFileFormatConfigService formatConfigService)
 	: IDisposable
 {
 	private readonly Log4JEventParser _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
 	private readonly PlainTextParser _textParser = textParser ?? throw new ArgumentNullException(nameof(textParser));
 	private readonly JsonLogParser _jsonParser = jsonParser ?? throw new ArgumentNullException(nameof(jsonParser));
+	private readonly TextFileFormatDetector _formatDetector = formatDetector ?? throw new ArgumentNullException(nameof(formatDetector));
+	private readonly TextFileFormatConfigService _formatConfigService = formatConfigService ?? throw new ArgumentNullException(nameof(formatConfigService));
 	private bool _disposed;
 
 	/// <summary>
@@ -165,10 +169,39 @@ public class LogFileParserService(
 	}
 
 	/// <summary>
+	/// Gets the format configuration for a text file, detecting if necessary
+	/// </summary>
+	/// <param name="filePath">Path to the text file</param>
+	/// <returns>Format configuration or null if detection fails</returns>
+	public TextFileFormat? GetTextFileFormat(string filePath)
+	{
+		// Check for saved format configuration
+		var savedFormat = _formatConfigService.GetFormatForFile(filePath);
+		if (savedFormat != null)
+			return savedFormat;
+
+		// Try to detect format
+		return _formatDetector.DetectFormat(filePath);
+	}
+
+	/// <summary>
+	/// Saves a format configuration for a file pattern
+	/// </summary>
+	/// <param name="filePattern">File pattern</param>
+	/// <param name="format">Format to save</param>
+	public void SaveTextFileFormat(string filePattern, TextFileFormat format)
+	{
+		_formatConfigService.SaveFormatForPattern(filePattern, format);
+	}
+
+	/// <summary>
 	/// Parses a text file line by line with progress reporting
 	/// </summary>
 	private List<LogEventInfo> ParseTextFile(string filePath, string fileName, IProgress<(int current, int total)>? progress)
 	{
+		// Get format configuration
+		var format = GetTextFileFormat(filePath);
+
 		var results = new List<LogEventInfo>();
 		const int batchSize = 1000; // Process in batches for progress updates
 		
@@ -188,7 +221,7 @@ public class LogFileParserService(
 			// Process batch when full or at end
 			if (batch.Count >= batchSize || currentLine == totalLines)
 			{
-				var logEvents = _textParser.Parse(batch.ToArray());
+				var logEvents = _textParser.Parse(batch.ToArray(), format);
 				results.AddRange(logEvents);
 				batch.Clear();
 				

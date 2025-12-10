@@ -17,6 +17,7 @@ using NLog;
 using NLog.Config;
 using NLogViewer.ClientApplication.Models;
 using NLogViewer.ClientApplication.Services;
+using NLogViewer.ClientApplication;
 using DJ.Targets;
 
 namespace NLogViewer.ClientApplication.ViewModels;
@@ -297,45 +298,191 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
 		if (dialog.ShowDialog() == true)
 		{
-			IsLoading = true;
-			LoadingProgress = "Starting...";
-			StatusMessage = "Parsing file...";
-			
-			Task.Run(async () =>
+			var filePath = dialog.FileName;
+			var extension = Path.GetExtension(filePath).ToLowerInvariant();
+
+			// For text files, check format detection
+			if (extension == ".txt" || extension == ".log" || extension == "")
 			{
-				try
-				{
-					var progress = new Progress<(int current, int total)>(p =>
-					{
-						var percentage = p.total > 0 ? (p.current * 100 / p.total) : 0;
-						System.Windows.Application.Current.Dispatcher.Invoke(() =>
-						{
-							LoadingProgress = $"Processing: {p.current} / {p.total} ({percentage}%)";
-						});
-					});
-					
-					var logEvents = await _fileParserService.ParseFileAsync(dialog.FileName, progress);
-					
-					// Batch-add logs to CacheTarget for better performance
-					System.Windows.Application.Current.Dispatcher.Invoke(() =>
-					{
-						ProcessParsedLogs(logEvents, dialog.FileName);
-						IsLoading = false;
-						LoadingProgress = string.Empty;
-						StatusMessage = $"Loaded {logEvents.Count} log entries from {System.IO.Path.GetFileName(dialog.FileName)}";
-					});
-				}
-				catch (Exception ex)
-				{
-					System.Windows.Application.Current.Dispatcher.Invoke(() =>
-					{
-						IsLoading = false;
-						LoadingProgress = string.Empty;
-						StatusMessage = $"Error parsing file: {ex.Message}";
-					});
-				}
-			});
+				HandleTextFileWithFormatDetection(filePath);
+			}
+			else
+			{
+				// For XML/JSON, parse directly
+				ParseFileDirectly(filePath);
+			}
 		}
+	}
+
+	/// <summary>
+	/// Handles text file opening with format detection and optional mapping dialog
+	/// </summary>
+	private void HandleTextFileWithFormatDetection(string filePath)
+	{
+		Task.Run(() =>
+		{
+			try
+			{
+				// Get format configuration
+				var format = _fileParserService.GetTextFileFormat(filePath);
+
+				// If format detection failed or auto-mapping is incomplete, show dialog
+				if (format == null || !format.ColumnMapping.IsValid())
+				{
+					// Read sample lines for the dialog
+					var sampleLines = File.ReadLines(filePath).Take(20).ToList();
+
+					// If format is null, create a basic one for detection
+					if (format == null)
+					{
+						var detector = App.ServiceProvider?.GetRequiredService<TextFileFormatDetector>();
+						format = detector?.DetectFormat(filePath);
+					}
+
+					// Show dialog on UI thread
+					System.Windows.Application.Current.Dispatcher.Invoke(() =>
+					{
+						if (format != null)
+						{
+							var viewModel = new ColumnMappingViewModel(format, sampleLines, filePath);
+							var mappingWindow = new ColumnMappingWindow(viewModel);
+							var mainWindow = System.Windows.Application.Current.MainWindow;
+
+							if (mappingWindow.ShowDialog(mainWindow) == true)
+							{
+								var finalFormat = mappingWindow.FinalFormat;
+
+								// Save format if requested
+								if (mappingWindow.SaveForPattern && !string.IsNullOrEmpty(mappingWindow.FilePattern))
+								{
+									_fileParserService.SaveTextFileFormat(mappingWindow.FilePattern, finalFormat);
+								}
+
+								// Parse with the configured format
+								ParseFileWithFormat(filePath, finalFormat);
+							}
+							else
+							{
+								// User cancelled, try parsing with detected format or fallback
+								ParseFileDirectly(filePath);
+							}
+						}
+						else
+						{
+							// Format detection completely failed, use fallback parsing
+							ParseFileDirectly(filePath);
+						}
+					});
+				}
+				else
+				{
+					// Format is valid, parse directly
+					ParseFileDirectly(filePath);
+				}
+			}
+			catch (Exception ex)
+			{
+				System.Windows.Application.Current.Dispatcher.Invoke(() =>
+				{
+					StatusMessage = $"Error detecting file format: {ex.Message}";
+					// Fallback to direct parsing
+					ParseFileDirectly(filePath);
+				});
+			}
+		});
+	}
+
+	/// <summary>
+	/// Parses a file directly without format configuration
+	/// </summary>
+	private void ParseFileDirectly(string filePath)
+	{
+		IsLoading = true;
+		LoadingProgress = "Starting...";
+		StatusMessage = "Parsing file...";
+
+		Task.Run(async () =>
+		{
+			try
+			{
+				var progress = new Progress<(int current, int total)>(p =>
+				{
+					var percentage = p.total > 0 ? (p.current * 100 / p.total) : 0;
+					System.Windows.Application.Current.Dispatcher.Invoke(() =>
+					{
+						LoadingProgress = $"Processing: {p.current} / {p.total} ({percentage}%)";
+					});
+				});
+
+				var logEvents = await _fileParserService.ParseFileAsync(filePath, progress);
+
+				// Batch-add logs to CacheTarget for better performance
+				System.Windows.Application.Current.Dispatcher.Invoke(() =>
+				{
+					ProcessParsedLogs(logEvents, filePath);
+					IsLoading = false;
+					LoadingProgress = string.Empty;
+					StatusMessage = $"Loaded {logEvents.Count} log entries from {Path.GetFileName(filePath)}";
+				});
+			}
+			catch (Exception ex)
+			{
+				System.Windows.Application.Current.Dispatcher.Invoke(() =>
+				{
+					IsLoading = false;
+					LoadingProgress = string.Empty;
+					StatusMessage = $"Error parsing file: {ex.Message}";
+				});
+			}
+		});
+	}
+
+	/// <summary>
+	/// Parses a file with a specific format configuration
+	/// </summary>
+	private void ParseFileWithFormat(string filePath, TextFileFormat format)
+	{
+		IsLoading = true;
+		LoadingProgress = "Starting...";
+		StatusMessage = "Parsing file...";
+
+		Task.Run(async () =>
+		{
+			try
+			{
+				var progress = new Progress<(int current, int total)>(p =>
+				{
+					var percentage = p.total > 0 ? (p.current * 100 / p.total) : 0;
+					System.Windows.Application.Current.Dispatcher.Invoke(() =>
+					{
+						LoadingProgress = $"Processing: {p.current} / {p.total} ({percentage}%)";
+					});
+				});
+
+				// Temporarily save format for this parsing session
+				_fileParserService.SaveTextFileFormat(Path.GetFileName(filePath), format);
+
+				var logEvents = await _fileParserService.ParseFileAsync(filePath, progress);
+
+				// Batch-add logs to CacheTarget for better performance
+				System.Windows.Application.Current.Dispatcher.Invoke(() =>
+				{
+					ProcessParsedLogs(logEvents, filePath);
+					IsLoading = false;
+					LoadingProgress = string.Empty;
+					StatusMessage = $"Loaded {logEvents.Count} log entries from {Path.GetFileName(filePath)}";
+				});
+			}
+			catch (Exception ex)
+			{
+				System.Windows.Application.Current.Dispatcher.Invoke(() =>
+				{
+					IsLoading = false;
+					LoadingProgress = string.Empty;
+					StatusMessage = $"Error parsing file: {ex.Message}";
+				});
+			}
+		});
 	}
 
 	/// <summary>

@@ -40,6 +40,8 @@ namespace NLogViewer.ClientApplication
             // Register services as singletons
             services.AddSingleton<ConfigurationService>();
             services.AddSingleton<LocalizationService>();
+            services.AddSingleton<TextFileFormatDetector>();
+            services.AddSingleton<TextFileFormatConfigService>();
             
             // Register services as scoped (one per window/view)
             services.AddScoped<UdpLogReceiverService>();
