@@ -66,11 +66,11 @@ public class Log4JEvent : ILogEvent
 
 	/// <summary>
 	/// Regular expression to extract the application name from log4japp property.
-	/// Matches patterns like "com.example.MyApp(123)" or "MyApp" and extracts the base name.
+	/// Matches patterns like "com.example.MyApp(123)" or "MyApp" and extracts the base name and optional process ID.
 	/// Pattern breakdown:
 	/// - ^(?:.*\\.)? - Optional package prefix (e.g., "com.example.")
-	/// - (?<name>[A-Za-z_][A-Za-z0-9_]*) - Captured group for the app name (must start with letter/underscore)
-	/// - (?:\\(\\d+\\))?$ - Optional process ID suffix like "(123)"
+	/// - (?<name>[A-Za-z_][A-Za-z0-9_]*) - Named captured group for the app name (must start with letter/underscore)
+	/// - (?<id>\\(\\d+\\))?$ - Optional named captured group for process ID suffix like "(123)"
 	/// </summary>
 	private static readonly Regex Log4JEventAppNameRegex = new("^(?:.*\\.)?(?<name>[A-Za-z_][A-Za-z0-9_]*)(?<id>\\(\\d+\\))?$", RegexOptions.Compiled);
 
