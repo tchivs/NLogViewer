@@ -32,7 +32,7 @@ namespace DJ.Targets
             var target = (CacheTarget)LogManager.Configuration.AllTargets.FirstOrDefault(predicate.Compile());
             if (target == null)
             {
-                target = new CacheTarget { MaxCount = defaultMaxCount, Name = targetName ?? nameof(CacheTarget)};
+                target = new CacheTarget(defaultMaxCount) { Name = targetName ?? nameof(CacheTarget)};
                 LogManager.Configuration.AddTarget(target.Name, target);
                 LogManager.Configuration.LoggingRules.Insert(0, new LoggingRule("*", LogLevel.FromString("Trace"), target));
                 LogManager.ReconfigExistingLoggers();
@@ -50,11 +50,6 @@ namespace DJ.Targets
         // Public Properties
         // ##########################################################################################
 
-        /// <summary>
-        /// The maximum amount of entries held in buffer/cache
-        /// </summary>
-        public int MaxCount { get; set; } = 100;
-        
         public IObservable<LogEventInfo> Cache => _CacheSubject.AsObservable();
         private readonly ReplaySubject<LogEventInfo> _CacheSubject;
 
@@ -70,9 +65,15 @@ namespace DJ.Targets
 
         #region Constructor
 
-        public CacheTarget()
+        /// <summary>
+        /// Initializes a new instance of the CacheTarget class with the specified maximum count
+        /// </summary>
+        /// <param name="maxCount">The maximum amount of entries held in buffer/cache. Defaults to 100 if not specified.</param>
+        public CacheTarget(int maxCount = 500)
         {
-            _CacheSubject = new ReplaySubject<LogEventInfo>(MaxCount);
+            if(maxCount == 0)
+	            maxCount = 500;
+            _CacheSubject = new ReplaySubject<LogEventInfo>(maxCount);
         }
 
         #endregion

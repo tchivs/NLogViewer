@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using NLog;
 using NLogViewer.ClientApplication.Models;
 using NLogViewer.ClientApplication.Parsers;
 
@@ -23,30 +24,31 @@ public class LogFileParserService(
 	private readonly JsonLogParser _jsonParser = jsonParser ?? throw new ArgumentNullException(nameof(jsonParser));
 	private bool _disposed;
 
-	//public event EventHandler<LogReceivedEventArgs>? LogParsed;
-
-	public async Task ParseFileAsync(string filePath)
+	/// <summary>
+	/// Parses a log file asynchronously with progress reporting
+	/// </summary>
+	/// <param name="filePath">Path to the log file</param>
+	/// <param name="progress">Progress reporter for parsing status</param>
+	/// <returns>List of parsed log events</returns>
+	public async Task<List<LogEventInfo>> ParseFileAsync(string filePath, IProgress<(int current, int total)>? progress = null)
 	{
 		var extension = Path.GetExtension(filePath).ToLowerInvariant();
 		var fileName = Path.GetFileName(filePath);
 
-		await Task.Run(() =>
+		return await Task.Run(() =>
 		{
 			try
 			{
 				switch (extension)
 				{
 					case ".xml":
-						ParseXmlFile(filePath, fileName);
-						break;
+						return ParseXmlFile(filePath, fileName, progress);
 					case ".json":
-						ParseJsonFile(filePath, fileName);
-						break;
+						return ParseJsonFile(filePath, fileName, progress);
 					case ".txt":
 					case ".log":
 					default:
-						ParseTextFile(filePath, fileName);
-						break;
+						return ParseTextFile(filePath, fileName, progress);
 				}
 			}
 			catch (Exception ex)
@@ -56,28 +58,29 @@ public class LogFileParserService(
 		});
 	}
 
-	private void ParseXmlFile(string filePath, string fileName)
+	/// <summary>
+	/// Parses an XML file with progress reporting
+	/// </summary>
+	private List<LogEventInfo> ParseXmlFile(string filePath, string fileName, IProgress<(int current, int total)>? progress)
 	{
 		var content = File.ReadAllText(filePath);
-		var log4JEvents = ParseMultipleLog4JEvents(content);
-
+		var log4JEvents = ParseMultipleLog4JEvents(content, progress);
+		
+		var results = new List<LogEventInfo>();
 		foreach (var log4JEvent in log4JEvents)
 		{
 			var logEvent = log4JEvent.ToLogEvent("File");
-			//OnLogParsed(new LogReceivedEventArgs
-			//{
-			//	LogEvent = logEvent.LogEventInfo,
-			//	AppInfo = logEvent.AppInfo?.AppName?.Name ?? fileName,
-			//	Sender = "File"
-			//});
+			results.Add(logEvent.LogEventInfo);
 		}
+		
+		return results;
 	}
 
 	/// <summary>
-	/// Parses multiple Log4J events from XML content.
+	/// Parses multiple Log4J events from XML content with progress reporting.
 	/// Extracts all log4j:event elements and parses each one separately.
 	/// </summary>
-	private List<Log4JEvent> ParseMultipleLog4JEvents(string xmlContent)
+	private List<Log4JEvent> ParseMultipleLog4JEvents(string xmlContent, IProgress<(int current, int total)>? progress)
 	{
 		var results = new List<Log4JEvent>();
 
@@ -89,6 +92,8 @@ public class LogFileParserService(
 			
 			// Find all event elements (could be in eventSet or standalone)
 			var eventElements = doc.Descendants(ns + "event").ToList();
+			var total = eventElements.Count;
+			var current = 0;
 			
 			if (eventElements.Any())
 			{
@@ -100,6 +105,8 @@ public class LogFileParserService(
 						var eventXml = eventElement.ToString();
 						var log4JEvent = _xmlParser.Parse(eventXml);
 						results.Add(log4JEvent);
+						current++;
+						progress?.Report((current, total));
 					}
 					catch
 					{
@@ -114,6 +121,7 @@ public class LogFileParserService(
 				{
 					var log4JEvent = _xmlParser.Parse(xmlContent);
 					results.Add(log4JEvent);
+					progress?.Report((1, 1));
 				}
 				catch
 				{
@@ -128,6 +136,7 @@ public class LogFileParserService(
 			{
 				var log4JEvent = _xmlParser.Parse(xmlContent);
 				results.Add(log4JEvent);
+				progress?.Report((1, 1));
 			}
 			catch
 			{
@@ -138,42 +147,58 @@ public class LogFileParserService(
 		return results;
 	}
 
-	private void ParseJsonFile(string filePath, string fileName)
+	/// <summary>
+	/// Parses a JSON file with progress reporting
+	/// </summary>
+	private List<LogEventInfo> ParseJsonFile(string filePath, string fileName, IProgress<(int current, int total)>? progress)
 	{
 		var content = File.ReadAllText(filePath);
 		var logEvents = _jsonParser.Parse(content);
-
-		foreach (var logEvent in logEvents)
+		
+		// Report progress if parser supports it
+		if (logEvents.Count > 0)
 		{
-			//OnLogParsed(new LogReceivedEventArgs
-			//{
-			//	LogEvent = logEvent,
-			//	AppInfo = fileName,
-			//	Sender = "File"
-			//});
+			progress?.Report((logEvents.Count, logEvents.Count));
 		}
+		
+		return logEvents;
 	}
 
-	private void ParseTextFile(string filePath, string fileName)
+	/// <summary>
+	/// Parses a text file line by line with progress reporting
+	/// </summary>
+	private List<LogEventInfo> ParseTextFile(string filePath, string fileName, IProgress<(int current, int total)>? progress)
 	{
-		var lines = File.ReadAllLines(filePath);
-		var logEvents = _textParser.Parse(lines);
-
-		foreach (var logEvent in logEvents)
+		var results = new List<LogEventInfo>();
+		const int batchSize = 1000; // Process in batches for progress updates
+		
+		// Get total line count for progress calculation
+		var totalLines = File.ReadLines(filePath).Count();
+		
+		using var reader = new StreamReader(filePath);
+		string? line;
+		int currentLine = 0;
+		var batch = new List<string>(batchSize);
+		
+		while ((line = reader.ReadLine()) != null)
 		{
-			//OnLogParsed(new LogReceivedEventArgs
-			//{
-			//	LogEvent = logEvent,
-			//	AppInfo = fileName,
-			//	Sender = "File"
-			//});
+			currentLine++;
+			batch.Add(line);
+			
+			// Process batch when full or at end
+			if (batch.Count >= batchSize || currentLine == totalLines)
+			{
+				var logEvents = _textParser.Parse(batch.ToArray());
+				results.AddRange(logEvents);
+				batch.Clear();
+				
+				// Report progress
+				progress?.Report((currentLine, totalLines));
+			}
 		}
+		
+		return results;
 	}
-
-	//protected virtual void OnLogParsed(LogReceivedEventArgs e)
-	//{
-	//	LogParsed?.Invoke(this, e);
-	//}
 
 	public void Dispose()
 	{

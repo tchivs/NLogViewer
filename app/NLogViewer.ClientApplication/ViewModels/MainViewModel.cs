@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -35,6 +36,8 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 	private string _lastLogTimestamp = string.Empty;
 	private LogTabViewModel? _selectedTab;
 	private string _currentLanguageFlag = "🇬🇧";
+	private bool _isLoading;
+	private string _loadingProgress = string.Empty;
 
 	private readonly CompositeDisposable _subscriptions = new();
 
@@ -206,6 +209,38 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 	/// </summary>
 	public Dictionary<string, string> AvailableLanguages => Services.LocalizationService.AvailableLanguages;
 
+	/// <summary>
+	/// Gets or sets whether the application is currently loading a file
+	/// </summary>
+	public bool IsLoading
+	{
+		get => _isLoading;
+		private set
+		{
+			if (_isLoading != value)
+			{
+				_isLoading = value;
+				OnPropertyChanged();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Gets or sets the loading progress message
+	/// </summary>
+	public string LoadingProgress
+	{
+		get => _loadingProgress;
+		private set
+		{
+			if (_loadingProgress != value)
+			{
+				_loadingProgress = value;
+				OnPropertyChanged();
+			}
+		}
+	}
+
 	private void LoadConfiguration()
 	{
 		var config = _configService.LoadConfiguration();
@@ -262,21 +297,97 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 
 		if (dialog.ShowDialog() == true)
 		{
+			IsLoading = true;
+			LoadingProgress = "Starting...";
+			StatusMessage = "Parsing file...";
+			
 			Task.Run(async () =>
 			{
 				try
 				{
-					await _fileParserService.ParseFileAsync(dialog.FileName);
+					var progress = new Progress<(int current, int total)>(p =>
+					{
+						var percentage = p.total > 0 ? (p.current * 100 / p.total) : 0;
+						System.Windows.Application.Current.Dispatcher.Invoke(() =>
+						{
+							LoadingProgress = $"Processing: {p.current} / {p.total} ({percentage}%)";
+						});
+					});
+					
+					var logEvents = await _fileParserService.ParseFileAsync(dialog.FileName, progress);
+					
+					// Batch-add logs to CacheTarget for better performance
+					System.Windows.Application.Current.Dispatcher.Invoke(() =>
+					{
+						ProcessParsedLogs(logEvents, dialog.FileName);
+						IsLoading = false;
+						LoadingProgress = string.Empty;
+						StatusMessage = $"Loaded {logEvents.Count} log entries from {System.IO.Path.GetFileName(dialog.FileName)}";
+					});
 				}
 				catch (Exception ex)
 				{
 					System.Windows.Application.Current.Dispatcher.Invoke(() =>
 					{
+						IsLoading = false;
+						LoadingProgress = string.Empty;
 						StatusMessage = $"Error parsing file: {ex.Message}";
 					});
 				}
 			});
 		}
+	}
+
+	/// <summary>
+	/// Processes parsed log events and adds them to the appropriate tab
+	/// </summary>
+	private void ProcessParsedLogs(List<LogEventInfo> logEvents, string fileName)
+	{
+		if (logEvents.Count == 0)
+			return;
+		
+		// Find or create tab for this file
+		var tab = LogTabs.FirstOrDefault(t => t.TargetName == $"File_{System.IO.Path.GetFileName(fileName)}");
+		if (tab == null)
+		{
+			tab = new LogTabViewModel
+			{
+				Header = System.IO.Path.GetFileName(fileName),
+				TargetName = $"File_{System.IO.Path.GetFileName(fileName)}",
+				MaxCount = int.MaxValue
+			};
+			LogTabs.Add(tab);
+			SelectedTab = tab;
+			
+			// Create CacheTarget for this tab
+			CreateCacheTargetForTab(tab);
+		}
+		
+		// Batch-write logs to CacheTarget for better performance
+		var target = CacheTarget.GetInstance(defaultMaxCount: int.MaxValue, targetName: tab.TargetName);
+		var logger = LogManager.GetLogger(tab.TargetName);
+
+		const int batchSize = 500; // Write in batches to avoid UI freezing
+		for (int i = 0; i < logEvents.Count; i += batchSize)
+		{
+			var batch = logEvents.Skip(i).Take(batchSize).ToList();
+			
+			// Write batch synchronously on UI thread to maintain order
+			foreach (var logEvent in batch)
+			{
+				logger.Log(logEvent);
+			}
+			
+			// Update progress during batch writing
+			if (i + batchSize < logEvents.Count)
+			{
+				var progress = (i + batchSize) * 100 / logEvents.Count;
+				LoadingProgress = $"Adding to view: {progress}%";
+			}
+		}
+		
+		tab.LogCount = logEvents.Count;
+		LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
 	}
 
 	private void OpenSettings()
@@ -327,10 +438,9 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 		try
 		{
 			var config = LogManager.Configuration ?? new LoggingConfiguration();
-			var target = new CacheTarget
+			var target = new CacheTarget(int.MaxValue)
 			{
 				Name = tab.TargetName,
-				MaxCount = tab.MaxCount
 			};
 
 			config.AddTarget(tab.TargetName, target);

@@ -76,8 +76,7 @@
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <dj:NLogViewer TargetName="{Binding TargetName}" 
-                                   MaxCount="{Binding MaxCount}"/>
+                    <dj:NLogViewer/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
@@ -110,6 +109,34 @@
                 <TextBlock Text="{Binding LastLogTimestamp}" />
             </StatusBarItem>
         </StatusBar>
+        
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="3" 
+              Background="#80000000" 
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+              Panel.ZIndex="1000">
+            <Border Background="White" 
+                    CornerRadius="10" 
+                    Padding="30"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MinWidth="300">
+                <StackPanel>
+                    <TextBlock Text="Loading File..." 
+                               FontSize="18" 
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20"/>
+                    <ProgressBar IsIndeterminate="True" 
+                                 Height="20" 
+                                 Margin="0,0,0,10"/>
+                    <TextBlock Text="{Binding LoadingProgress}" 
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Foreground="Gray"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
 
