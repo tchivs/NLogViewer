@@ -9,6 +9,7 @@
     <AssemblyName>NLogViewer.ClientApplication</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <!-- Self-contained publish configuration -->

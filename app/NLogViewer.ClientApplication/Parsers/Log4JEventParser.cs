@@ -83,6 +83,22 @@ public class Log4JEventParser
 	}
 
 	/// <summary>
+	/// Extracts the value content from an XML element.
+	/// Handles both CDATA sections and normal text content correctly.
+	/// </summary>
+	/// <param name="element">The XML element to extract the value from. Can be null.</param>
+	/// <returns>The trimmed element value, or null if the element is null or empty.</returns>
+	private string ExtractValue(XElement element)
+	{
+		if (element == null)
+			return null;
+
+		// Handles CDATA and normal text correctly
+		var value = element.Value?.Trim();
+		return string.IsNullOrEmpty(value) ? null : value;
+	}
+
+	/// <summary>
 	/// Extracts location information from the log4j:locationInfo child element.
 	/// </summary>
 	/// <param name="root">The root log4j:event element.</param>
