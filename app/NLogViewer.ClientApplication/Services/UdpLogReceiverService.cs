@@ -20,8 +20,8 @@ public class UdpLogReceiverService(Log4JEventParser xmlParser) : IDisposable
 	private readonly Log4JEventParser _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
 	private bool _disposed;
 
-	public IObservable<Log4JEvent> Log4JEventObservable => _log4JEventObservable;
-	private readonly Subject<Log4JEvent> _log4JEventObservable = new();
+	public IObservable<LogEvent> Log4JEventObservable => _log4JEventObservable;
+	private readonly Subject<LogEvent> _log4JEventObservable = new();
 
 	public void StartListening(List<string> addresses)
 	{
@@ -83,16 +83,13 @@ public class UdpLogReceiverService(Log4JEventParser xmlParser) : IDisposable
 			{
 				var result = await client.ReceiveAsync();
 				var data = result.Buffer;
-				var sender = result.RemoteEndPoint?.ToString();
+				var sender = result.RemoteEndPoint.Address.ToString();
 
 				// Parse the received data
 				var xml = Encoding.UTF8.GetString(data);
-				var logEvent = _xmlParser.Parse(xml);
+				var log4JEvent = _xmlParser.Parse(xml);
 
-				if (logEvent != null)
-				{
-					_log4JEventObservable.OnNext(logEvent);
-				}
+				_log4JEventObservable.OnNext(log4JEvent.ToLogEvent(sender));
 			}
 			catch (ObjectDisposedException)
 			{

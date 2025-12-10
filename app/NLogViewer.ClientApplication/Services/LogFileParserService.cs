@@ -59,12 +59,12 @@ public class LogFileParserService(
 		foreach (var logEvent in logEvents)
 		{
 			var appInfo = _xmlParser.ExtractAppInfo(content);
-			OnLogParsed(new LogReceivedEventArgs
-			{
-				LogEvent = logEvent,
-				AppInfo = appInfo ?? fileName,
-				Sender = "File"
-			});
+			//OnLogParsed(new LogReceivedEventArgs
+			//{
+			//	LogEvent = logEvent,
+			//	AppInfo = appInfo ?? fileName,
+			//	Sender = "File"
+			//});
 		}
 	}
 
@@ -75,12 +75,12 @@ public class LogFileParserService(
 
 		foreach (var logEvent in logEvents)
 		{
-			OnLogParsed(new LogReceivedEventArgs
-			{
-				LogEvent = logEvent,
-				AppInfo = fileName,
-				Sender = "File"
-			});
+			//OnLogParsed(new LogReceivedEventArgs
+			//{
+			//	LogEvent = logEvent,
+			//	AppInfo = fileName,
+			//	Sender = "File"
+			//});
 		}
 	}
 
@@ -91,19 +91,19 @@ public class LogFileParserService(
 
 		foreach (var logEvent in logEvents)
 		{
-			OnLogParsed(new LogReceivedEventArgs
-			{
-				LogEvent = logEvent,
-				AppInfo = fileName,
-				Sender = "File"
-			});
+			//OnLogParsed(new LogReceivedEventArgs
+			//{
+			//	LogEvent = logEvent,
+			//	AppInfo = fileName,
+			//	Sender = "File"
+			//});
 		}
 	}
 
-	protected virtual void OnLogParsed(LogReceivedEventArgs e)
-	{
-		LogParsed?.Invoke(this, e);
-	}
+	//protected virtual void OnLogParsed(LogReceivedEventArgs e)
+	//{
+	//	LogParsed?.Invoke(this, e);
+	//}
 
 	public void Dispose()
 	{

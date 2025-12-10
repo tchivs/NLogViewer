@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using DJ;
 using NLogViewer.ClientApplication.ViewModels;
 
 namespace NLogViewer.ClientApplication
@@ -17,8 +18,8 @@ namespace NLogViewer.ClientApplication
             InitializeComponent();
             DataContext = _viewModel;
 
-            _viewModel.CancelCommand = new ViewModels.RelayCommand(() => DialogResult = false);
-            _viewModel.SaveCommand = new ViewModels.RelayCommand(() =>
+            _viewModel.CancelCommand = new RelayCommand(() => DialogResult = false);
+            _viewModel.SaveCommand = new RelayCommand(() =>
             {
                 _viewModel.Save();
                 DialogResult = true;
