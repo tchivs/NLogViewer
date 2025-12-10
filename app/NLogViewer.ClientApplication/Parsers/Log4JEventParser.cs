@@ -62,6 +62,9 @@ public class Log4JEventParser
 			Properties = ExtractProperties(root, ns)
 		};
 
+		if (string.IsNullOrEmpty(evt.Thread))
+			evt.Thread = ExtractValue(root.Element(ns + "thread"));
+
 		return evt;
 	}
 
