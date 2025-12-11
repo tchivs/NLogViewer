@@ -58,6 +58,9 @@ jobs:
           -p:SelfContained=false `
           -p:RuntimeIdentifier=win-x64 `
           -o publish/framework-dependent
+    - name: Create artifacts directory
+      run: |
+        New-Item -ItemType Directory -Force -Path artifacts
     - name: Create Self-Contained ZIP
       run: |
         Compress-Archive -Path publish/self-contained/* -DestinationPath artifacts/NLogViewer-SelfContained-win-x64.zip -Force
