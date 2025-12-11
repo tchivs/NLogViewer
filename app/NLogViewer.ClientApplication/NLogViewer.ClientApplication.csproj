@@ -7,9 +7,7 @@
     <StartupObject>NLogViewer.ClientApplication.App</StartupObject>
     <RootNamespace>NLogViewer.ClientApplication</RootNamespace>
     <AssemblyName>NLogViewer.ClientApplication</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,10 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.11.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="NLog" Version="5.2.4" />
