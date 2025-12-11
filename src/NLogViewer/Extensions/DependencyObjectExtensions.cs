@@ -8,68 +8,64 @@ namespace DJ.Extensions
     public static class DependencyObjectExtensions
     {
         /// <summary>
-        /// Analyzes both visual and logical tree in order to find all elements of a given
-        /// type that are descendants of the <paramref name="source"/> item.
+        /// Analyzes both visual and logical tree in order to find an element of a given
+        /// type with the specified UID that is a descendant of the <paramref name="source"/> item.
+        /// This method ensures that controls in tabs or other containers are found even when not visually active.
         /// </summary>
         /// <typeparam name="T">The type of the queried items.</typeparam>
-        /// <param name="source">The root element that marks the source of the search. If the
-        /// source is already of the requested type, it will not be included in the result.</param>
+        /// <param name="source">The root element that marks the source of the search.</param>
         /// <param name="uid">The UID of the <see cref="UIElement"/></param>
-        /// <returns>All descendants of <paramref name="source"/> that match the requested type.</returns>
+        /// <returns>The descendant of <paramref name="source"/> that matches the requested type and UID.</returns>
         public static T FindChildByUid<T>(this DependencyObject source, string uid) where T : UIElement
         {
-            if (source != null)
-            {
-                var childs = GetChildObjects(source);
-                foreach (DependencyObject child in childs)
-                {
-                    //analyze if children match the requested type
-                    if (child != null && child is T dependencyObject && dependencyObject.Uid.Equals(uid))
-                    {
-                        return dependencyObject;
-                    }
-                    
-                    var descendant = FindChildByUid<T>(child, uid);
-                    if (descendant != null)
-                        return descendant;
-                }
-            }
-
-            return null;
+            if (source == null)
+                return null;
+                
+            var visited = new HashSet<DependencyObject>(); // Prevent infinite loops
+            return FindChildByUidRecursive<T>(source, uid, visited);
         }
         
-        /// <summary>
-        /// This method is an alternative to WPF's
-        /// <see cref="VisualTreeHelper.GetChild"/> method, which also
-        /// supports content elements. Keep in mind that for content elements,
-        /// this method falls back to the logical tree of the element.
-        /// </summary>
-        /// <param name="parent">The item to be processed.</param>
-        /// <returns>The submitted item's child elements, if available.</returns>
-        public static IEnumerable<DependencyObject> GetChildObjects(this DependencyObject parent)
+        private static T FindChildByUidRecursive<T>(DependencyObject source, string uid, HashSet<DependencyObject> visited) where T : UIElement
         {
-            if (parent == null) yield break;
-
-			// check for type, because GetChildrenCount() is throwing exception
-			if (parent is Visual or Visual3D)
-			{
-				// Use the visual tree if the element is a Visual or Visual3D
-				int count = VisualTreeHelper.GetChildrenCount(parent);
-				for (int i = 0; i < count; i++)
-				{
-					yield return VisualTreeHelper.GetChild(parent, i);
-				}
-			}
-			// no more type checks required as GetChildren() is returns EnumeratorWrapper.Empty
-			else
-			{
-				//use the logical tree for content / framework elements
-				foreach (object obj in LogicalTreeHelper.GetChildren(parent))
-				{
-					var depObj = obj as DependencyObject;
-					if (depObj != null) yield return (DependencyObject)obj;
-				}
-			}
+            if (source == null || visited.Contains(source))
+                return null;
+                
+            visited.Add(source);
+            
+            // Check if the source itself matches the criteria
+            if (source is T dependencyObject && dependencyObject.Uid.Equals(uid))
+            {
+                return dependencyObject;
+            }
+            
+            // Search in Visual Tree
+            if (source is Visual || source is Visual3D)
+            {
+                int visualChildrenCount = VisualTreeHelper.GetChildrenCount(source);
+                for (int i = 0; i < visualChildrenCount; i++)
+                {
+                    var visualChild = VisualTreeHelper.GetChild(source, i);
+                    if (visualChild != null)
+                    {
+                        var result = FindChildByUidRecursive<T>(visualChild, uid, visited);
+                        if (result != null)
+                            return result;
+                    }
+                }
+            }
+            
+            // Search in Logical Tree
+            foreach (object logicalChild in LogicalTreeHelper.GetChildren(source))
+            {
+                if (logicalChild is DependencyObject logicalDepObj && !visited.Contains(logicalDepObj))
+                {
+                    var result = FindChildByUidRecursive<T>(logicalDepObj, uid, visited);
+                    if (result != null)
+                        return result;
+                }
+            }
+            
+            return null;
         }
     }
 }

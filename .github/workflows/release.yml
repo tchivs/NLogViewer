@@ -11,54 +11,157 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Build solution
       run: dotnet build -c Release
+    - name: Run tests
+      run: dotnet test -c Release --no-build --verbosity normal
     - name: Fetch nuget packages
       run: |
         mkdir -p nuget
-        copy src\NLogViewer\bin\Release\*.nupkg nuget\
-        copy src\NLogViewer\bin\Release\*.snupkg nuget\
+        Get-ChildItem -Path src -Recurse -Filter "*.nupkg" | Copy-Item -Destination nuget
+        Get-ChildItem -Path src -Recurse -Filter "*.snupkg" | Copy-Item -Destination nuget
     - name: Upload nuget packages as artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: NuGet
         path: nuget
         if-no-files-found: error
+
+  publish-app:
+    name: Publish Application
+    needs: [build]
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+    - name: Publish Self-Contained
+      run: |
+        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+          -c Release `
+          -p:SelfContained=true `
+          -p:PublishSingleFile=true `
+          -p:RuntimeIdentifier=win-x64 `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -o publish/self-contained
+    - name: Publish Framework-Dependent
+      run: |
+        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+          -c Release `
+          -p:SelfContained=false `
+          -p:RuntimeIdentifier=win-x64 `
+          -o publish/framework-dependent
+    - name: Create artifacts directory
+      run: |
+        New-Item -ItemType Directory -Force -Path artifacts
+    - name: Create Self-Contained ZIP
+      run: |
+        Compress-Archive -Path publish/self-contained/* -DestinationPath artifacts/NLogViewer-SelfContained-win-x64.zip -Force
+    - name: Create Framework-Dependent ZIP
+      run: |
+        Compress-Archive -Path publish/framework-dependent/* -DestinationPath artifacts/NLogViewer-FrameworkDependent-win-x64.zip -Force
+    - name: Upload Self-Contained artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NLogViewer-SelfContained-win-x64
+        path: artifacts/NLogViewer-SelfContained-win-x64.zip
+        if-no-files-found: error
+    - name: Upload Framework-Dependent artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NLogViewer-FrameworkDependent-win-x64
+        path: artifacts/NLogViewer-FrameworkDependent-win-x64.zip
+        if-no-files-found: error
+
   publish:
     name: Publish
-    needs: [build]
+    needs: [build, publish-app]
     runs-on: ubuntu-latest
     steps:
     - name: Download nuget artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: NuGet
         path: nuget
+    - name: Download application artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: NLogViewer-SelfContained-win-x64
+        path: artifacts
+    - name: Download application artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: NLogViewer-FrameworkDependent-win-x64
+        path: artifacts
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Upload artifacts to release
-      uses: actions/github-script@v3
+      uses: actions/github-script@v8
       with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const path = require('path');
           const fs = require('fs');
+          const path = require('path');
+
           const release_id = '${{ steps.get_release.outputs.id }}';
-          for (let file of await fs.readdirSync('./nuget')) {
-            console.log('uploadReleaseAsset', file);
-            await github.repos.uploadReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: release_id,
-              name: file,
-              data: await fs.readFileSync(`./nuget/${file}`)
-            });
+          
+          // Upload NuGet packages
+          const nugetDir = './nuget';
+          if (fs.existsSync(nugetDir)) {
+            const nugetFiles = fs.readdirSync(nugetDir);
+            for (const file of nugetFiles) {
+              const filePath = path.join(nugetDir, file);
+              const data = fs.readFileSync(filePath);
+              const stats = fs.statSync(filePath);
+
+              console.log(`Uploading NuGet asset: ${file} (${stats.size} bytes)`);
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release_id,
+                name: file,
+                data: data,
+                headers: {
+                  'content-type': 'application/octet-stream',
+                  'content-length': stats.size.toString()
+                }
+              });
+            }
+          }
+          
+          // Upload application artifacts
+          const artifactsDir = './artifacts';
+          if (fs.existsSync(artifactsDir)) {
+            const artifactFiles = fs.readdirSync(artifactsDir);
+            for (const file of artifactFiles) {
+              const filePath = path.join(artifactsDir, file);
+              const data = fs.readFileSync(filePath);
+              const stats = fs.statSync(filePath);
+
+              console.log(`Uploading application asset: ${file} (${stats.size} bytes)`);
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release_id,
+                name: file,
+                data: data,
+                headers: {
+                  'content-type': 'application/zip',
+                  'content-length': stats.size.toString()
+                }
+              });
+            }
           }
     - name: Publish the package to GitHub Packages & nuget.org    
       run: |

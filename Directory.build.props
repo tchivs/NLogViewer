@@ -1,19 +1,22 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <Authors>Dominic Jonas</Authors>
-    <Company>Dominic Jonas</Company>
+    <Authors>Dominic Böxler</Authors>
+    <Company>Dominic Böxler</Company>
     <Product>Sentinel.NLogViewer</Product>
-    <PackageProjectUrl>https://github.com/dojo90/NLogViewer</PackageProjectUrl>
-    <RepositoryUrl>git@github.com:dojo90/NLogViewer.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/boexler/NLogViewer</PackageProjectUrl>
+    <RepositoryUrl>git@github.com:boexler/NLogViewer.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>sentinel nlog</PackageTags>
-    <Description>NlogViewer is a ui control library to visualize NLog logs</Description>
+    <Description>NLogViewer is a ui control library to visualize NLog logs</Description>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

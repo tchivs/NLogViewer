@@ -1,0 +1,20 @@
+<Application x:Class="NLogViewer.ClientApplication.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer"
+             xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
+             xmlns:converters="clr-namespace:NLogViewer.ClientApplication.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- NLogViewer Design Styles -->
+                <ResourceDictionary Source="pack://application:,,,/NLogViewer;component/Themes/Generic.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <!-- Converters -->
+            <xamlConverter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <xamlMultiValueConverter:ILogEventResolverToStringConverter x:Key="ILogEventResolverToStringConverter"/>
+            <converters:SvgImageSourceConverter x:Key="SvgImageSourceConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
+
