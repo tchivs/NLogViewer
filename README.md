@@ -55,14 +55,14 @@ In your `App.xaml`, add the NLogViewer theme and styles:
 <Application x:Class="YourApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:xamlConverter="clr-namespace:DJ.XamlConverter;assembly=NLogViewer"
-             xmlns:xamlMultiValueConverter="clr-namespace:DJ.XamlMultiValueConverter;assembly=NLogViewer"
+             xmlns:xamlConverter="clr-namespace:Sentinel.NLogViewer.Wpf.XamlConverter;assembly=Sentinel.NLogViewer.Wpf"
+             xmlns:xamlMultiValueConverter="clr-namespace:Sentinel.NLogViewer.Wpf.XamlMultiValueConverter;assembly=Sentinel.NLogViewer.Wpf"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!-- NLogViewer Theme -->
-                <ResourceDictionary Source="pack://application:,,,/NLogViewer;component/Themes/Generic.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Sentinel.NLogViewer.Wpf;component/Themes/Generic.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
@@ -77,7 +77,7 @@ Add the namespace and use the control in your XAML:
 <Window x:Class="YourApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:dj="clr-namespace:DJ;assembly=NLogViewer">
+        xmlns:dj="clr-namespace:Sentinel.NLogViewer.Wpf;assembly=Sentinel.NLogViewer.Wpf">
     <Grid>
         <dj:NLogViewer />
     </Grid>

@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogViewer.TestApp", "testapp\NLogViewer.TestApp\NLogViewer.TestApp.csproj", "{FF15C180-042C-42D9-8687-24F1BEB5F4FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.Wpf.TestApp", "testapp\Sentinel.NLogViewer.Wpf.TestApp\Sentinel.NLogViewer.Wpf.TestApp.csproj", "{FF15C180-042C-42D9-8687-24F1BEB5F4FB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogViewer", "src\NLogViewer\NLogViewer.csproj", "{D1C5763C-DA9C-43E0-B7EA-DDC9AAA90AE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.Wpf", "ui\Sentinel.NLogViewer.Wpf\Sentinel.NLogViewer.Wpf.csproj", "{D1C5763C-DA9C-43E0-B7EA-DDC9AAA90AE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogViewer.MaterialDesign", "src\NLogViewer.MaterialDesign\NLogViewer.MaterialDesign.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.Wpf.MaterialDesign", "ui\Sentinel.NLogViewer.Wpf.MaterialDesign\Sentinel.NLogViewer.Wpf.MaterialDesign.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogViewer.MaterialDesign.TestApp", "testapp\NLogViewer.MaterialDesign.TestApp\NLogViewer.MaterialDesign.TestApp.csproj", "{D1CF3283-A165-477B-A08A-BEBFCD7A7712}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.Wpf.MaterialDesign.TestApp", "testapp\Sentinel.NLogViewer.Wpf.MaterialDesign.TestApp\Sentinel.NLogViewer.Wpf.MaterialDesign.TestApp.csproj", "{D1CF3283-A165-477B-A08A-BEBFCD7A7712}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogViewer.ClientApplication", "app\NLogViewer.ClientApplication\NLogViewer.ClientApplication.csproj", "{B2C3D4E5-F6A7-8901-BCDE-F123456789AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.App", "app\Sentinel.NLogViewer.App\Sentinel.NLogViewer.App.csproj", "{B2C3D4E5-F6A7-8901-BCDE-F123456789AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogViewer.ClientApplication.TestApp", "testapp\NLogViewer.ClientApplication.TestApp\NLogViewer.ClientApplication.TestApp.csproj", "{C3D4E5F6-A7B8-9012-CDEF-123456789ABC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.App.TestApp", "testapp\Sentinel.NLogViewer.App.TestApp\Sentinel.NLogViewer.App.TestApp.csproj", "{C3D4E5F6-A7B8-9012-CDEF-123456789ABC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogViewer.ClientApplication.Tests", "tests\NLogViewer.ClientApplication.Tests\NLogViewer.ClientApplication.Tests.csproj", "{D4E5F6A7-B8C9-0123-DEF1-23456789ABCD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.App.Tests", "tests\Sentinel.NLogViewer.App.Tests\Sentinel.NLogViewer.App.Tests.csproj", "{D4E5F6A7-B8C9-0123-DEF1-23456789ABCD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FF9C764-5BB9-4E66-B48B-6B7D746EA817}"
 	ProjectSection(SolutionItems) = preProject
