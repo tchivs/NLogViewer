@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,11 +20,29 @@ namespace NLogViewer.ClientApplication
             InitializeComponent();
             DataContext = _viewModel;
             
+            // Set window title with version
+            SetWindowTitleWithVersion();
+            
             // Setup keyboard shortcuts
             this.InputBindings.Add(new KeyBinding(_viewModel.OpenFileCommand, 
                 new KeyGesture(Key.O, ModifierKeys.Control)));
             this.InputBindings.Add(new KeyBinding(_viewModel.OpenSettingsCommand, 
                 new KeyGesture(Key.OemComma, ModifierKeys.Control)));
+        }
+
+        /// <summary>
+        /// Sets the window title with the application version
+        /// </summary>
+        private void SetWindowTitleWithVersion()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            
+            string version = versionAttribute?.InformationalVersion 
+                ?? assembly.GetName().Version?.ToString() 
+                ?? "Unknown";
+            
+            this.Title = $"NLogViewer Client Application - {version}";
         }
 
         /// <summary>
