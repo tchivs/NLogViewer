@@ -2,6 +2,7 @@ name: Commit
 on: 
   push:
   pull_request:
+  workflow_dispatch:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true  
 jobs:
@@ -33,6 +34,7 @@ jobs:
     name: Publish Application
     needs: [build]
     runs-on: windows-latest
+    if: github.event_name == 'workflow_dispatch'
     steps:
     - name: Checkout
       uses: actions/checkout@v4
