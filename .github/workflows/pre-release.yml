@@ -1,4 +1,4 @@
-name: publish pre-release
+name: Pre-Release
 on: [workflow_dispatch]
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true  
@@ -16,11 +16,8 @@ jobs:
       run: dotnet build -c Release
     - name: Run tests
       run: dotnet test -c Release --no-build --verbosity normal
-    - name: Fetch nuget packages
-      run: |
-        mkdir -p nuget
-        Get-ChildItem -Path src -Recurse -Filter "*.nupkg" | Copy-Item -Destination nuget
-        Get-ChildItem -Path src -Recurse -Filter "*.snupkg" | Copy-Item -Destination nuget
+    - name: Pack NuGet packages
+      run: dotnet pack -c Release --no-build -o nuget
     - name: Upload nuget packages as artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -81,8 +78,8 @@ jobs:
         path: artifacts/NLogViewer-FrameworkDependent-win-x64.zip
         if-no-files-found: error
 
-  publish:
-    name: Publish
+  deploy:
+    name: Deploy
     needs: [build]
     runs-on: ubuntu-latest
     steps:
