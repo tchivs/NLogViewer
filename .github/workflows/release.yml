@@ -18,11 +18,8 @@ jobs:
       run: dotnet build -c Release
     - name: Run tests
       run: dotnet test -c Release --no-build --verbosity normal
-    - name: Fetch nuget packages
-      run: |
-        mkdir -p nuget
-        Get-ChildItem -Path src -Recurse -Filter "*.nupkg" | Copy-Item -Destination nuget
-        Get-ChildItem -Path src -Recurse -Filter "*.snupkg" | Copy-Item -Destination nuget
+    - name: Pack NuGet packages
+      run: dotnet pack -c Release --no-build -o nuget
     - name: Upload nuget packages as artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -45,7 +42,7 @@ jobs:
         dotnet-version: '8.x'
     - name: Publish Self-Contained
       run: |
-        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+        dotnet publish app/Sentinel.NLogViewer.App/Sentinel.NLogViewer.App.csproj `
           -c Release `
           -p:SelfContained=true `
           -p:PublishSingleFile=true `
@@ -54,7 +51,7 @@ jobs:
           -o publish/self-contained
     - name: Publish Framework-Dependent
       run: |
-        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+        dotnet publish app/Sentinel.NLogViewer.App/Sentinel.NLogViewer.App.csproj `
           -c Release `
           -p:SelfContained=false `
           -p:RuntimeIdentifier=win-x64 `
