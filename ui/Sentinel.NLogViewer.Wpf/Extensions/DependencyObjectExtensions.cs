@@ -16,7 +16,7 @@ namespace Sentinel.NLogViewer.Wpf.Extensions
         /// <param name="source">The root element that marks the source of the search.</param>
         /// <param name="uid">The UID of the <see cref="UIElement"/></param>
         /// <returns>The descendant of <paramref name="source"/> that matches the requested type and UID.</returns>
-        public static T FindChildByUid<T>(this DependencyObject source, string uid) where T : UIElement
+        public static T? FindChildByUid<T>(this DependencyObject source, string uid) where T : UIElement
         {
             if (source == null)
                 return null;
@@ -25,7 +25,7 @@ namespace Sentinel.NLogViewer.Wpf.Extensions
             return FindChildByUidRecursive<T>(source, uid, visited);
         }
         
-        private static T FindChildByUidRecursive<T>(DependencyObject source, string uid, HashSet<DependencyObject> visited) where T : UIElement
+        private static T? FindChildByUidRecursive<T>(DependencyObject source, string uid, HashSet<DependencyObject> visited) where T : UIElement
         {
             if (source == null || visited.Contains(source))
                 return null;

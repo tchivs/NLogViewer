@@ -9,14 +9,14 @@ namespace Sentinel.NLogViewer.Wpf
     public class RelayCommand : ICommand
     {
         private readonly Action _execute;
-        private readonly Func<bool> _canExecute;
+        private readonly Func<bool>? _canExecute;
 
         /// <summary>
         /// Initializes a new instance of the RelayCommand class
         /// </summary>
         /// <param name="execute">The execution logic</param>
         /// <param name="canExecute">The execution status logic (optional)</param>
-        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        public RelayCommand(Action execute, Func<bool>? canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
@@ -25,7 +25,7 @@ namespace Sentinel.NLogViewer.Wpf
         /// <summary>
         /// Occurs when changes occur that affect whether or not the command should execute
         /// </summary>
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
@@ -36,7 +36,7 @@ namespace Sentinel.NLogViewer.Wpf
         /// </summary>
         /// <param name="parameter">Data used by the command</param>
         /// <returns>True if this command can be executed; otherwise, false</returns>
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
             return _canExecute?.Invoke() ?? true;
         }
@@ -45,7 +45,7 @@ namespace Sentinel.NLogViewer.Wpf
         /// Defines the method to be called when the command is invoked
         /// </summary>
         /// <param name="parameter">Data used by the command</param>
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
             _execute();
         }
@@ -66,14 +66,14 @@ namespace Sentinel.NLogViewer.Wpf
     public class RelayCommand<T> : ICommand
     {
         private readonly Action<T> _execute;
-        private readonly Func<T, bool> _canExecute;
+        private readonly Func<T, bool>? _canExecute;
 
         /// <summary>
         /// Initializes a new instance of the RelayCommand class
         /// </summary>
         /// <param name="execute">The execution logic</param>
         /// <param name="canExecute">The execution status logic (optional)</param>
-        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
+        public RelayCommand(Action<T> execute, Func<T, bool>? canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
@@ -82,7 +82,7 @@ namespace Sentinel.NLogViewer.Wpf
         /// <summary>
         /// Occurs when changes occur that affect whether or not the command should execute
         /// </summary>
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
@@ -93,7 +93,7 @@ namespace Sentinel.NLogViewer.Wpf
         /// </summary>
         /// <param name="parameter">Data used by the command</param>
         /// <returns>True if this command can be executed; otherwise, false</returns>
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
             if (parameter is T typedParameter)
             {
@@ -113,7 +113,7 @@ namespace Sentinel.NLogViewer.Wpf
         /// Defines the method to be called when the command is invoked
         /// </summary>
         /// <param name="parameter">Data used by the command</param>
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
             if (parameter is T typedParameter)
             {

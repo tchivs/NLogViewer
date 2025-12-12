@@ -18,7 +18,7 @@ namespace Sentinel.NLogViewer.Wpf.Targets
         /// <param name="defaultMaxCount">The maximum entries which should be buffered. Is only used if no target is defined</param>
         /// <param name="targetName">The name of the target you want to link with</param>
         /// <returns></returns>
-        public static CacheTarget GetInstance(int defaultMaxCount = 0, string targetName = null)
+        public static CacheTarget GetInstance(int defaultMaxCount = 0, string? targetName = null)
         {
             if(LogManager.Configuration == null)
                 LogManager.Configuration = new LoggingConfiguration();
