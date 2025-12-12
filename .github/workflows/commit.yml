@@ -29,3 +29,58 @@ jobs:
         name: NuGet
         path: nuget
         if-no-files-found: error
+        retention-days: 1
+
+  publish-app:
+    name: Publish Application
+    needs: [build]
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.ref }}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+    - name: Publish Self-Contained
+      run: |
+        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+          -c Release `
+          -p:SelfContained=true `
+          -p:PublishSingleFile=true `
+          -p:RuntimeIdentifier=win-x64 `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -o publish/self-contained
+    - name: Publish Framework-Dependent
+      run: |
+        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+          -c Release `
+          -p:SelfContained=false `
+          -p:RuntimeIdentifier=win-x64 `
+          -o publish/framework-dependent
+    - name: Create artifacts directory
+      run: |
+        New-Item -ItemType Directory -Force -Path artifacts
+    - name: Create Self-Contained ZIP
+      run: |
+        Compress-Archive -Path publish/self-contained/* -DestinationPath artifacts/NLogViewer-SelfContained-win-x64.zip -Force
+    - name: Create Framework-Dependent ZIP
+      run: |
+        Compress-Archive -Path publish/framework-dependent/* -DestinationPath artifacts/NLogViewer-FrameworkDependent-win-x64.zip -Force
+    - name: Upload Self-Contained artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NLogViewer-SelfContained-win-x64
+        path: artifacts/NLogViewer-SelfContained-win-x64.zip
+        if-no-files-found: error
+        retention-days: 1
+    - name: Upload Framework-Dependent artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NLogViewer-FrameworkDependent-win-x64
+        path: artifacts/NLogViewer-FrameworkDependent-win-x64.zip
+        if-no-files-found: error
+        retention-days: 1
