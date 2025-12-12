@@ -44,7 +44,7 @@ jobs:
         dotnet-version: '8.x'
     - name: Publish Self-Contained
       run: |
-        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+        dotnet publish app/Sentinel.NLogViewer.App/Sentinel.NLogViewer.App.csproj `
           -c Release `
           -p:SelfContained=true `
           -p:PublishSingleFile=true `
@@ -53,7 +53,7 @@ jobs:
           -o publish/self-contained
     - name: Publish Framework-Dependent
       run: |
-        dotnet publish app/NLogViewer.ClientApplication/NLogViewer.ClientApplication.csproj `
+        dotnet publish app/Sentinel.NLogViewer.App/Sentinel.NLogViewer.App.csproj `
           -c Release `
           -p:SelfContained=false `
           -p:RuntimeIdentifier=win-x64 `
