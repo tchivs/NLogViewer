@@ -6,6 +6,7 @@
         xmlns:dj="clr-namespace:Sentinel.NLogViewer.Wpf;assembly=Sentinel.NLogViewer.Wpf"
         xmlns:viewModels="clr-namespace:Sentinel.NLogViewer.App.ViewModels"
         xmlns:helpers="clr-namespace:Sentinel.NLogViewer.App.Helpers"
+        xmlns:models="clr-namespace:Sentinel.NLogViewer.App.Models"
         mc:Ignorable="d" 
         Title="NLogViewer Client Application" 
         Height="600" 
@@ -75,8 +76,8 @@
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
-                <DataTemplate>
-                    <dj:NLogViewer/>
+                <DataTemplate DataType="models:LogTabViewModel">
+                    <dj:NLogViewer ItemsSource="{Binding Path=LogEventInfos, Mode=OneWay}" />
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

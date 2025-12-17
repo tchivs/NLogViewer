@@ -1,5 +1,7 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using NLog;
 
 namespace Sentinel.NLogViewer.App.Models
 {
@@ -65,7 +67,9 @@ namespace Sentinel.NLogViewer.App.Models
             }
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public ObservableCollection<LogEventInfo> LogEventInfos { get; } = new();
+
+		public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
