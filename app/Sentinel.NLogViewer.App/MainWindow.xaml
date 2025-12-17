@@ -76,8 +76,8 @@
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
-                <DataTemplate DataType="models:LogTabViewModel">
-                    <dj:NLogViewer ItemsSource="{Binding Path=LogEventInfos, Mode=OneWay}" />
+                <DataTemplate DataType="models:LogTabViewModel" x:Shared="False">
+                    <dj:NLogViewer ItemsSource="{Binding DataContext.LogEventInfos, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Mode=OneWay}" />
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
