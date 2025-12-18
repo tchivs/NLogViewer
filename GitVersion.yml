@@ -3,7 +3,6 @@ branches:
   issue:
     label: issue-{BranchName}
     increment: Inherit
-    prevent-increment-of-merged-branch-version: false
     regex: ^(?=\d+-)
     source-branches:
       - develop
@@ -15,5 +14,21 @@ branches:
       - issue
   develop:
     increment: Patch
+    regex: ^dev(elop)?$
+  master:
+    increment: Patch
+    regex: ^master$|^main$
+  release:
+    increment: Patch
+    regex: ^releases?[/-]
+  feature:
+    increment: Patch
+    regex: ^features?[/-]
+  support:
+    increment: Patch
+    regex: ^support[/-]
+  hotfix:
+    increment: Patch
+    regex: ^hotfix(es)?[/-]
 ignore:
   sha: []
