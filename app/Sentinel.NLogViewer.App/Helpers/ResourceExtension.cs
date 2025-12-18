@@ -1,5 +1,9 @@
 using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.Resources;
 using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
 using System.Windows.Markup;
 using Sentinel.NLogViewer.App.Services;
 
@@ -10,6 +14,8 @@ namespace Sentinel.NLogViewer.App.Helpers
     /// </summary>
     public class ResourceExtension : MarkupExtension
     {
+        private static ResourceManager? _designTimeResourceManager;
+
         /// <summary>
         /// The resource key to look up
         /// </summary>
@@ -34,15 +40,60 @@ namespace Sentinel.NLogViewer.App.Helpers
             if (string.IsNullOrEmpty(Key))
                 return DefaultValue;
 
-            // Get LocalizationService from DI container
-            var localizationService = App.ServiceProvider?.GetService<LocalizationService>();
-            
-            if (localizationService != null)
+            // Check if we're in design mode
+            bool isDesignTime = false;
+            if (serviceProvider?.GetService(typeof(IProvideValueTarget)) is IProvideValueTarget target)
             {
-                return localizationService.GetString(Key, DefaultValue);
+                if (target.TargetObject is DependencyObject dependencyObject)
+                {
+                    isDesignTime = DesignerProperties.GetIsInDesignMode(dependencyObject);
+                }
+            }
+
+            // At design time, load resources directly from RESX files
+            if (isDesignTime)
+            {
+                try
+                {
+                    // Initialize ResourceManager if not already done
+                    if (_designTimeResourceManager == null)
+                    {
+                        _designTimeResourceManager = new ResourceManager(
+                            "Sentinel.NLogViewer.App.Resources.Resources",
+                            typeof(ResourceExtension).Assembly);
+                    }
+
+                    // Use current UI culture or default to "en"
+                    var culture = CultureInfo.CurrentUICulture;
+                    if (string.IsNullOrEmpty(culture.Name))
+                    {
+                        culture = new CultureInfo("en");
+                    }
+
+                    // Try to load the resource
+                    var resourceValue = _designTimeResourceManager.GetString(Key, culture);
+                    if (!string.IsNullOrEmpty(resourceValue))
+                    {
+                        return resourceValue;
+                    }
+                }
+                catch
+                {
+                    // If resource loading fails, fall through to DefaultValue
+                }
+            }
+            else
+            {
+                // At runtime, get LocalizationService from DI container
+                var localizationService = App.ServiceProvider?.GetService<LocalizationService>();
+                
+                if (localizationService != null)
+                {
+                    return localizationService.GetString(Key, DefaultValue);
+                }
             }
             
-            // Fallback if DI is not available
+            // Fallback if DI is not available or resource not found
             return DefaultValue;
         }
     }

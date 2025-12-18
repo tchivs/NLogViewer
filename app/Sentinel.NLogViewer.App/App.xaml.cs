@@ -92,6 +92,6 @@ namespace Sentinel.NLogViewer.App
         /// <summary>
         /// Gets the service provider for dependency injection
         /// </summary>
-        public static IServiceProvider ServiceProvider => ((App)Current)._host?.Services;
+        public static IServiceProvider? ServiceProvider => (Current as App)?._host?.Services;
     }
 }
