@@ -74,14 +74,14 @@ jobs:
     - name: Upload Self-Contained artifact
       uses: actions/upload-artifact@v4
       with:
-        name: NLogViewer-SelfContained-win-x64
+        name: NLogViewer-SelfContained-win-x64-${{ env.VERSION }}
         path: publish/NLogViewer-SelfContained-win-x64-${{ env.VERSION }}
         if-no-files-found: error
         retention-days: 1
     - name: Upload Framework-Dependent artifact
       uses: actions/upload-artifact@v4
       with:
-        name: NLogViewer-FrameworkDependent-win-x64
+        name: NLogViewer-FrameworkDependent-win-x64-${{ env.VERSION }}
         path: publish/NLogViewer-FrameworkDependent-win-x64-${{ env.VERSION }}
         if-no-files-found: error
         retention-days: 1
