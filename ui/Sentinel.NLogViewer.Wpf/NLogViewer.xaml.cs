@@ -623,7 +623,7 @@ namespace Sentinel.NLogViewer.Wpf
                 if (item is not LogEventInfo logEvent) return true;
 
                 // Apply level filters first
-                bool levelFilterPassed = logEvent.Level.Name switch
+                var levelFilterPassed = logEvent.Level.Name switch
                 {
                     "Trace" => !TraceFilter,  // If TraceFilter is true, hide Trace entries (!true = false)
                     "Debug" => !DebugFilter,  // If DebugFilter is true, hide Debug entries (!true = false)
@@ -639,17 +639,39 @@ namespace Sentinel.NLogViewer.Wpf
                 // Apply search filters if any active search terms exist
                 if (ActiveSearchTerms?.Count > 0)
                 {
-                    string loggerName = logEvent.LoggerName ?? string.Empty;
-                    string message = MessageResolver?.Resolve(logEvent) ?? string.Empty;
+                    var loggerName = logEvent.LoggerName ?? string.Empty;
+                    var message = MessageResolver?.Resolve(logEvent) ?? string.Empty;
                     
-                    // AND logic: ALL search terms must match
-                    foreach (var searchTerm in ActiveSearchTerms)
+                    // Separate include and exclude terms based on regex pattern
+                    // Exclude patterns start with "^(?!.*" (negative lookahead)
+                    var includeTerms = ActiveSearchTerms.Where(t => 
+                        !(t is RegexSearchTerm regexTerm && regexTerm.Text.StartsWith("^(?!.*", StringComparison.Ordinal))).ToList();
+                    var excludeTerms = ActiveSearchTerms.Where(t => 
+                        t is RegexSearchTerm regexTerm && regexTerm.Text.StartsWith("^(?!.*", StringComparison.Ordinal)).ToList();
+                    
+                    // AND logic: ALL include terms must match
+                    foreach (var searchTerm in includeTerms)
                     {
                         if (!searchTerm.MatchAny(loggerName, message))
                             return false;
                     }
                     
-                    // All search terms matched
+                    // Exclude logic: Hide entry if ANY string (loggerName OR message) contains the excluded pattern
+                    // Note: For exclude patterns (negative lookahead ^(?!.*pattern)), if the pattern matches,
+                    // it means the text does NOT contain the excluded pattern. If it doesn't match, the text contains it.
+                    // We need to check each string individually because MatchAny would return true if ANY string matches,
+                    // but we want to hide if ANY string contains the pattern.
+                    foreach (var searchTerm in excludeTerms)
+                    {
+                        // Check each string individually: if either contains the pattern, hide the entry
+                        var loggerContainsPattern = !searchTerm.Match(loggerName);
+                        var messageContainsPattern = !searchTerm.Match(message);
+                        
+                        if (loggerContainsPattern || messageContainsPattern)
+                            return false; // Hide entry if either string contains the excluded pattern
+                    }
+                    
+                    // All include terms matched and no exclude terms matched
                     return true;
                 }
 
@@ -731,6 +753,25 @@ namespace Sentinel.NLogViewer.Wpf
         /// </summary>
         public static readonly DependencyProperty AddRegexSearchTermCommandProperty = DependencyProperty.Register(nameof(AddRegexSearchTermCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to add a regex search term as an exclude filter from a provided text
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to add a regex search term as an exclude filter from the provided text")]
+        public ICommand AddRegexSearchTermExcludeCommand
+        {
+            get => (ICommand) GetValue(AddRegexSearchTermExcludeCommandProperty);
+            set => SetValue(AddRegexSearchTermExcludeCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="AddRegexSearchTermExcludeCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty AddRegexSearchTermExcludeCommandProperty = DependencyProperty.Register(nameof(AddRegexSearchTermExcludeCommand),
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
         /// <summary>
         /// Command to remove a specific search term
         /// </summary>
@@ -1031,7 +1072,7 @@ namespace Sentinel.NLogViewer.Wpf
 	        if (originalColumn == null) return;
 
 	        // Check if column is currently in the grid
-	        bool columnExists = gridView.Columns.Contains(originalColumn);
+	        var columnExists = gridView.Columns.Contains(originalColumn);
 
 	        if (showColumn && !columnExists)
 	        {
@@ -1039,7 +1080,7 @@ namespace Sentinel.NLogViewer.Wpf
 		        originalColumn.Width = originalWidth;
 		        
 		        // Calculate the correct insertion index based on which columns are currently visible
-		        int insertionIndex = CalculateInsertionIndex(gridView, originalIndex);
+		        var insertionIndex = CalculateInsertionIndex(gridView, originalIndex);
 		        gridView.Columns.Insert(insertionIndex, originalColumn);
 	        }
 	        else if (!showColumn && columnExists)
@@ -1059,7 +1100,7 @@ namespace Sentinel.NLogViewer.Wpf
         private int CalculateInsertionIndex(AutoSizedGridView gridView, int originalIndex)
         {
 	        // Count how many visible columns come before this one in the original order
-	        int insertionIndex = 0;
+	        var insertionIndex = 0;
 	        
 	        // Check ID column (original index 0)
 	        if (originalIndex > 0 && ShowIdColumn && gridView.Columns.Contains(_originalIdColumn))
@@ -1333,8 +1374,9 @@ namespace Sentinel.NLogViewer.Wpf
 
         /// <summary>
         /// Adds a RegexSearchTerm from a provided text and updates the filter
+        /// Special regex characters are escaped to treat the text as a literal string
         /// </summary>
-        /// <param name="text">The text to use as regex pattern</param>
+        /// <param name="text">The text to use as regex pattern (will be escaped)</param>
         public void AddRegexSearchTerm(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
@@ -1342,7 +1384,36 @@ namespace Sentinel.NLogViewer.Wpf
 
             try
             {
-                var term = new RegexSearchTerm(text);
+                // Escape special regex characters to treat the text as a literal string
+                var escapedPattern = Regex.Escape(text);
+                var term = new RegexSearchTerm(escapedPattern);
+                ActiveSearchTerms.Add(term);
+                UpdateFilter();
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show($"Invalid regex pattern: {ex.Message}", "Regex Error",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Adds a RegexSearchTerm as an exclude filter from a provided text and updates the filter
+        /// Special regex characters are escaped and wrapped in a negative lookahead pattern
+        /// </summary>
+        /// <param name="text">The text to use as regex pattern (will be escaped and wrapped in negative lookahead)</param>
+        public void AddRegexSearchTermExclude(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            try
+            {
+                // Escape special regex characters to treat the text as a literal string
+                var escapedPattern = Regex.Escape(text);
+                // Wrap in negative lookahead: matches any text that does NOT contain the pattern
+                var negativeLookaheadPattern = $"^(?!.*{escapedPattern}$)";
+                var term = new RegexSearchTerm(negativeLookaheadPattern);
                 ActiveSearchTerms.Add(term);
                 UpdateFilter();
             }
@@ -1553,13 +1624,13 @@ namespace Sentinel.NLogViewer.Wpf
                 {
                     using (LogEvents.DeferRefresh())
                     {
-                        foreach (LogEventInfo info in infos)
+                        foreach (var info in infos)
                         {
                             _LogEventInfos.Add(info);
                         }
                         if (MaxCount >= 0 & _LogEventInfos.Count - 100 > MaxCount)
                         {
-                            for (int i = 0; i < _LogEventInfos.Count - MaxCount; i++)
+                            for (var i = 0; i < _LogEventInfos.Count - MaxCount; i++)
                             {
                                 _LogEventInfos.RemoveAt(0);
                             }
@@ -1637,6 +1708,7 @@ namespace Sentinel.NLogViewer.Wpf
             ClearAllSearchTermsCommand = new RelayCommand(ClearAllSearchTerms);
             RemoveSearchTermCommand = new RelayCommand<SearchTerm>(RemoveSearchTerm);
             AddRegexSearchTermCommand = new RelayCommand<string>(AddRegexSearchTerm);
+            AddRegexSearchTermExcludeCommand = new RelayCommand<string>(AddRegexSearchTermExclude);
             EditSearchTermCommand = new RelayCommand<SearchTerm>(EditSearchTerm);
             CopyToClipboardCommand = new RelayCommand<string>(CopyToClipboard);
             

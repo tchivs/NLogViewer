@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\app\Sentinel.NLogViewer.App\Sentinel.NLogViewer.App.csproj" />
+    <ProjectReference Include="..\..\ui\Sentinel.NLogViewer.Wpf\Sentinel.NLogViewer.Wpf.csproj" />
   </ItemGroup>
 
 </Project>

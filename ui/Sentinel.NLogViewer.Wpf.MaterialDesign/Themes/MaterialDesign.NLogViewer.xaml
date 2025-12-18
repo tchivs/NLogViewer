@@ -480,6 +480,16 @@
                                                                     </MenuItem.CommandParameter>
                                                                 </MenuItem>
                                                                 <MenuItem
+                                                                Header="Add to Filter (Exclude)"
+                                                                Command="{Binding PlacementTarget.Tag.AddRegexSearchTermExcludeCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                                    <MenuItem.CommandParameter>
+                                                                        <MultiBinding Converter="{StaticResource ILogEventResolverToStringConverter}">
+                                                                            <Binding Path="."/>
+                                                                            <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.Tag.LoggerNameResolver"/>
+                                                                        </MultiBinding>
+                                                                    </MenuItem.CommandParameter>
+                                                                </MenuItem>
+                                                                <MenuItem
                                                                 Header="Copy to Clipboard"
                                                                 Command="{Binding PlacementTarget.Tag.CopyToClipboardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                                                     <MenuItem.CommandParameter>
