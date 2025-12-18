@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Sentinel.NLogViewer.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
@@ -72,44 +73,57 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 		ListeningStatus = _localizationService.GetString("Status_Stopped", "Stopped");
 
 		// Subscribe to log events
-		_udpReceiverService.Log4JEventObservable.Subscribe(OnLogEvent);
+		// Buffer events for 250ms, filter empty batches, group by AppInfo.Id, and process each group as a batch
+		_udpReceiverService.Log4JEventObservable
+			.Buffer(TimeSpan.FromMilliseconds(250))
+			.Where(list => list.Count > 0)
+			.SelectMany(list => list.GroupBy(le => le.AppInfo.Id).Select(g => g.ToList()))
+			.ObserveOn(new DispatcherSynchronizationContext(System.Windows.Application.Current.Dispatcher))
+			.Subscribe(OnLogEvent);
 		//_fileParserService.LogParsed += OnLogReceived;
 
 		// Load configuration
 		LoadConfiguration();
 	}
 
-	private void OnLogEvent(LogEvent logEvent)
+	/// <summary>
+	/// Processes a batch of log events grouped by AppInfo.Id
+	/// </summary>
+	/// <param name="logEvents">List of log events for a specific AppInfo.Id</param>
+	private void OnLogEvent(IList<LogEvent> logEvents)
 	{
-		// Write log event to the CacheTarget
-		WriteLogToCacheTarget(logEvent.AppInfo.Id, logEvent.LogEventInfo);
+		// We're already on the Dispatcher thread, no need to invoke
+		if (logEvents == null || logEvents.Count == 0)
+			return;
 
-		// check if we need a new tab
-
-		System.Windows.Application.Current.Dispatcher.Invoke(() =>
+		// All events in this batch have the same AppInfo.Id (they were grouped)
+		var firstEvent = logEvents[0];
+		var appInfoId = firstEvent.AppInfo.Id;
+		
+		// Find or create tab for this AppInfo
+		var tab = LogTabs.FirstOrDefault(t => t.TargetName == appInfoId);
+		if (tab == null)
 		{
-			// Find or create tab for this AppInfo
-			var tab = LogTabs.FirstOrDefault(t => t.TargetName == logEvent.AppInfo.Id);
-			if (tab == null)
+			tab = new LogTabViewModel
 			{
-				tab = new LogTabViewModel
-				{
-					Header = logEvent.AppInfo.ToString(),
-					TargetName = logEvent.AppInfo.Id,
-					MaxCount = _configService.LoadConfiguration().MaxLogEntriesPerTab
-				};
-				LogTabs.Add(tab);
-				SelectedTab = tab;
-
-				// Create CacheTarget for this tab
-				CreateCacheTargetForTab(tab);
-			}
-			
-			// Update log count
-			tab.LogCount++;
-			LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
-			StatusMessage = $"Received log from {logEvent.AppInfo.AppName.Name}";
-		});
+				Header = firstEvent.AppInfo.ToString(),
+				TargetName = appInfoId,
+				MaxCount = _configService.LoadConfiguration().MaxLogEntriesPerTab
+			};
+			LogTabs.Add(tab);
+			SelectedTab = tab;
+		}
+		
+		// Add all log events from the batch to the tab
+		foreach (var logEvent in logEvents)
+		{
+			tab.LogEventInfos.Add(logEvent.LogEventInfo);
+		}
+		
+		// Update log count
+		tab.LogCount += logEvents.Count;
+		LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
+		StatusMessage = $"Received {logEvents.Count} log(s) from {firstEvent.AppInfo.AppName.Name}";
 	}
 
 	public ObservableCollection<LogTabViewModel> LogTabs { get; }
@@ -490,39 +504,34 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 	/// </summary>
 	private void ProcessParsedLogs(List<LogEventInfo> logEvents, string fileName)
 	{
-		if (logEvents.Count == 0)
+		// We're already on the Dispatcher thread, no need to invoke
+		if (logEvents == null || logEvents.Count == 0)
 			return;
 		
 		// Find or create tab for this file
-		var tab = LogTabs.FirstOrDefault(t => t.TargetName == $"File_{System.IO.Path.GetFileName(fileName)}");
+		var tab = LogTabs.FirstOrDefault(t => t.TargetName == $"File_{Path.GetFileName(fileName)}");
 		if (tab == null)
 		{
 			tab = new LogTabViewModel
 			{
-				Header = System.IO.Path.GetFileName(fileName),
-				TargetName = $"File_{System.IO.Path.GetFileName(fileName)}",
+				Header = Path.GetFileName(fileName),
+				TargetName = $"File_{Path.GetFileName(fileName)}",
 				MaxCount = int.MaxValue
 			};
 			LogTabs.Add(tab);
 			SelectedTab = tab;
-			
-			// Create CacheTarget for this tab
-			CreateCacheTargetForTab(tab);
 		}
-		
-		// Batch-write logs to CacheTarget for better performance
-		var target = CacheTarget.GetInstance(defaultMaxCount: int.MaxValue, targetName: tab.TargetName);
-		var logger = LogManager.GetLogger(tab.TargetName);
 
-		const int batchSize = 500; // Write in batches to avoid UI freezing
+		// Add all log events in batches to avoid UI freezing
+		const int batchSize = 500;
 		for (int i = 0; i < logEvents.Count; i += batchSize)
 		{
 			var batch = logEvents.Skip(i).Take(batchSize).ToList();
 			
-			// Write batch synchronously on UI thread to maintain order
+			// Add batch directly to the collection
 			foreach (var logEvent in batch)
 			{
-				logger.Log(logEvent);
+				tab.LogEventInfos.Add(logEvent);
 			}
 			
 			// Update progress during batch writing
@@ -579,46 +588,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 	{
 		CurrentLanguageFlag = _localizationService.CurrentLanguageFlag;
 	}
-
-	private void CreateCacheTargetForTab(LogTabViewModel tab)
-	{
-		try
-		{
-			var config = LogManager.Configuration ?? new LoggingConfiguration();
-			var target = new CacheTarget(int.MaxValue)
-			{
-				Name = tab.TargetName,
-			};
-
-			config.AddTarget(tab.TargetName, target);
-			config.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, target));
-			LogManager.Configuration = config;
-			LogManager.ReconfigExistingLoggers();
-		}
-		catch (Exception ex)
-		{
-			System.Diagnostics.Debug.WriteLine($"Error creating CacheTarget: {ex.Message}");
-		}
-	}
-
-	private void WriteLogToCacheTarget(string targetName, LogEventInfo logEvent)
-	{
-		try
-		{
-			// Get or create the CacheTarget
-			var target = CacheTarget.GetInstance(targetName: targetName);
-                
-			// Use NLog's public API to write the log event
-			// Create a logger that writes to this specific target
-			var logger = LogManager.GetLogger(targetName);
-			logger.Log(logEvent);
-		}
-		catch (Exception ex)
-		{
-			System.Diagnostics.Debug.WriteLine($"Error writing to CacheTarget: {ex.Message}");
-		}
-	}
-
+	
 	public event PropertyChangedEventHandler? PropertyChanged;
 
 	protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
