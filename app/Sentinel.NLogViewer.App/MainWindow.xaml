@@ -7,6 +7,7 @@
         xmlns:viewModels="clr-namespace:Sentinel.NLogViewer.App.ViewModels"
         xmlns:helpers="clr-namespace:Sentinel.NLogViewer.App.Helpers"
         xmlns:models="clr-namespace:Sentinel.NLogViewer.App.Models"
+        xmlns:attachedProperties="clr-namespace:Sentinel.NLogViewer.App.AttachedProperties"
         mc:Ignorable="d" 
         Title="NLogViewer Client Application" 
         Height="600" 
@@ -14,6 +15,12 @@
         WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
     <Grid>
+        <Grid.Resources>
+            <DataTemplate x:Key="TabControlContentTemplate" DataType="models:LogTabViewModel">
+                <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                <dj:NLogViewer ItemsSource="{Binding DataContext.LogEventInfos, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" />
+            </DataTemplate>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -59,10 +66,11 @@
         </ToolBar>
         
         <!-- Main Content: TabControl with NLogViewers -->
-        <TabControl x:Name="LogTabsControl" 
-                    Grid.Row="1" 
+        <TabControl Grid.Row="1" 
                     ItemsSource="{Binding LogTabs}"
-                    SelectedItem="{Binding SelectedTab}">
+                    SelectedItem="{Binding SelectedTab}"
+                    attachedProperties:TabContent.IsCached="True"
+                    attachedProperties:TabContent.Template="{StaticResource TabControlContentTemplate}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -75,11 +83,6 @@
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
-            <TabControl.ContentTemplate>
-                <DataTemplate DataType="models:LogTabViewModel" x:Shared="False">
-                    <dj:NLogViewer ItemsSource="{Binding DataContext.LogEventInfos, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Mode=OneWay}" />
-                </DataTemplate>
-            </TabControl.ContentTemplate>
         </TabControl>
         
         <!-- Status Bar -->
@@ -112,31 +115,32 @@
         </StatusBar>
         
         <!-- Loading Overlay -->
-        <Grid Grid.RowSpan="3" 
-              Background="#80000000" 
-              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-              Panel.ZIndex="1000">
-            <Border Background="White" 
-                    CornerRadius="10" 
-                    Padding="30"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    MinWidth="300">
-                <StackPanel>
-                    <TextBlock Text="Loading File..." 
-                               FontSize="18" 
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
-                    <ProgressBar IsIndeterminate="True" 
-                                 Height="20" 
-                                 Margin="0,0,0,10"/>
-                    <TextBlock Text="{Binding LoadingProgress}" 
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               Foreground="Gray"/>
-                </StackPanel>
-            </Border>
+        <Grid Grid.Row="0" Grid.RowSpan="3" d:Visibility="Collapsed">
+            <Grid Background="#80000000" 
+                  Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                  Panel.ZIndex="1000">
+                <Border Background="White" 
+                        CornerRadius="10" 
+                        Padding="30"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        MinWidth="300">
+                    <StackPanel>
+                        <TextBlock Text="Loading File..." 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,20"/>
+                        <ProgressBar IsIndeterminate="True" 
+                                     Height="20" 
+                                     Margin="0,0,0,10"/>
+                        <TextBlock Text="{Binding LoadingProgress}" 
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Foreground="Gray"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
