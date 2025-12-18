@@ -1,4 +1,4 @@
-name: publish pre-release
+name: Pre-Release
 on: [workflow_dispatch]
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true  
@@ -14,11 +14,10 @@ jobs:
         ref: ${{ github.ref }}
     - name: Build solution
       run: dotnet build -c Release
-    - name: Fetch nuget packages
-      run: |
-        mkdir -p nuget
-        Get-ChildItem -Path src -Recurse -Filter "*.nupkg" | Copy-Item -Destination nuget
-        Get-ChildItem -Path src -Recurse -Filter "*.snupkg" | Copy-Item -Destination nuget
+    - name: Run tests
+      run: dotnet test -c Release --no-build --verbosity normal
+    - name: Pack NuGet packages
+      run: dotnet pack -c Release --no-build -o nuget
     - name: Upload nuget packages as artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -26,8 +25,61 @@ jobs:
         path: nuget
         if-no-files-found: error
 
-  publish:
-    name: Publish
+  publish-app:
+    name: Publish Application
+    needs: [build]
+    runs-on: windows-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.ref }}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+    - name: Publish Self-Contained
+      run: |
+        dotnet publish app/Sentinel.NLogViewer.App/Sentinel.NLogViewer.App.csproj `
+          -c Release `
+          -p:SelfContained=true `
+          -p:PublishSingleFile=true `
+          -p:RuntimeIdentifier=win-x64 `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -o publish/self-contained
+    - name: Publish Framework-Dependent
+      run: |
+        dotnet publish app/Sentinel.NLogViewer.App/Sentinel.NLogViewer.App.csproj `
+          -c Release `
+          -p:SelfContained=false `
+          -p:RuntimeIdentifier=win-x64 `
+          -o publish/framework-dependent
+    - name: Create artifacts directory
+      run: |
+        New-Item -ItemType Directory -Force -Path artifacts
+    - name: Create Self-Contained ZIP
+      run: |
+        Compress-Archive -Path publish/self-contained/* -DestinationPath artifacts/NLogViewer-SelfContained-win-x64.zip -Force
+    - name: Create Framework-Dependent ZIP
+      run: |
+        Compress-Archive -Path publish/framework-dependent/* -DestinationPath artifacts/NLogViewer-FrameworkDependent-win-x64.zip -Force
+    - name: Upload Self-Contained artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NLogViewer-SelfContained-win-x64
+        path: artifacts/NLogViewer-SelfContained-win-x64.zip
+        if-no-files-found: error
+    - name: Upload Framework-Dependent artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NLogViewer-FrameworkDependent-win-x64
+        path: artifacts/NLogViewer-FrameworkDependent-win-x64.zip
+        if-no-files-found: error
+
+  deploy:
+    name: Deploy
     needs: [build]
     runs-on: ubuntu-latest
     steps:
