@@ -43,13 +43,16 @@ jobs:
       with:
         dotnet-version: '8.x'
     - name: Install GitVersion
-      run: dotnet tool install -g GitVersion.Tool
-    - name: Get GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: '6.x'
+    - name: Run GitVersion
       id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.7
+    - name: Set VERSION environment variable
       run: |
-        $version = dotnet-gitversion /showvariable FullSemVer
+        $version = "${{ steps.gitversion.outputs.fullSemVer }}"
         Add-Content $env:GITHUB_ENV "VERSION=$version"
-        Add-Content $env:GITHUB_OUTPUT "version=$version"
     - name: Normalize version
       run: |
         $rawVersion = $env:VERSION
