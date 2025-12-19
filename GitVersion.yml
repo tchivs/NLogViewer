@@ -18,6 +18,10 @@ branches:
   master:
     increment: Patch
     regex: ^master$|^main$
+    pre-release-weight: 0
+    source-branches: []
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
   release:
     increment: Patch
     regex: ^releases?[/-]
