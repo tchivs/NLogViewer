@@ -79,6 +79,15 @@
   <data name="Menu_About" xml:space="preserve">
     <value>_About...</value>
   </data>
+  <data name="Menu_Logs" xml:space="preserve">
+    <value>_Logs</value>
+  </data>
+  <data name="Menu_Export" xml:space="preserve">
+    <value>_Export</value>
+  </data>
+  <data name="Menu_ExportLogFormat" xml:space="preserve">
+    <value>*.log format</value>
+  </data>
   <data name="Button_StartListening" xml:space="preserve">
     <value>Start Listening</value>
   </data>

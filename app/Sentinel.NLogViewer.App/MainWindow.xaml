@@ -43,6 +43,12 @@
                           Command="{Binding OpenSettingsCommand}" 
                           InputGestureText="Ctrl+,"/>
             </MenuItem>
+            <MenuItem Header="{helpers:Resource Key=Menu_Logs, DefaultValue=_Logs}">
+                <MenuItem Header="{helpers:Resource Key=Menu_Export, DefaultValue=_Export}">
+                    <MenuItem Header="{helpers:Resource Key=Menu_ExportLogFormat, DefaultValue=*.log format}" 
+                              Command="{Binding ExportLogsCommand}"/>
+                </MenuItem>
+            </MenuItem>
             <MenuItem Header="{helpers:Resource Key=Menu_Help, DefaultValue=_Help}">
                 <MenuItem Header="{helpers:Resource Key=Menu_About, DefaultValue=_About...}" 
                           Command="{Binding AboutCommand}"/>

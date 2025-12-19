@@ -18,6 +18,9 @@ using Sentinel.NLogViewer.Wpf.Helper;
 using Sentinel.NLogViewer.Wpf.Resolver;
 using Sentinel.NLogViewer.Wpf.Targets;
 using NLog;
+using System.IO;
+using System.Collections.Generic;
+using Sentinel.NLogViewer.App.Models;
 
 namespace Sentinel.NLogViewer.Wpf
 {
@@ -825,6 +828,24 @@ namespace Sentinel.NLogViewer.Wpf
         /// </summary>
         public static readonly DependencyProperty CopyToClipboardCommandProperty = DependencyProperty.Register(nameof(CopyToClipboardCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to export filtered log entries to a file
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to export filtered log entries to a file")]
+        public ICommand ExportCommand
+        {
+            get => (ICommand) GetValue(ExportCommandProperty);
+            set => SetValue(ExportCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ExportCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ExportCommandProperty = DependencyProperty.Register(nameof(ExportCommand),
+            typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
         /// Stop logging
@@ -1464,6 +1485,81 @@ namespace Sentinel.NLogViewer.Wpf
             }
         }
 
+        /// <summary>
+        /// Gets all filtered log entries from the current view
+        /// </summary>
+        /// <returns>An enumerable collection of filtered LogEventInfo entries</returns>
+        public IEnumerable<LogEventInfo> GetFilteredLogEntries()
+        {
+            if (LogEvents?.View == null)
+                return Enumerable.Empty<LogEventInfo>();
+
+            return LogEvents.View.Cast<LogEventInfo>();
+        }
+
+        /// <summary>
+        /// Exports filtered log entries to a file in the specified format
+        /// </summary>
+        /// <param name="parameter">Export parameters containing file path and format</param>
+        public void ExportLogs(ExportParameter parameter)
+        {
+            if (parameter == null)
+                throw new ArgumentNullException(nameof(parameter));
+
+            if (string.IsNullOrWhiteSpace(parameter.FilePath))
+                throw new ArgumentException("File path cannot be empty", nameof(parameter));
+
+            try
+            {
+                var filteredEntries = GetFilteredLogEntries().ToList();
+                
+                if (filteredEntries.Count == 0)
+                {
+                    MessageBox.Show("No log entries to export.", "Export", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                switch (parameter.Format)
+                {
+                    case ExportFormat.Log:
+                        ExportToLogFormat(parameter.FilePath, filteredEntries);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Export format {parameter.Format} is not supported.");
+                }
+
+                MessageBox.Show($"Successfully exported {filteredEntries.Count} log entry(ies) to {parameter.FilePath}", 
+                    "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to export logs: {ex.Message}", "Export Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Exports log entries to a standard log file format
+        /// </summary>
+        /// <param name="filePath">Target file path</param>
+        /// <param name="logEntries">Log entries to export</param>
+        private void ExportToLogFormat(string filePath, IEnumerable<LogEventInfo> logEntries)
+        {
+            using var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8);
+            
+            foreach (var logEvent in logEntries)
+            {
+                // Format: yyyy-MM-dd HH:mm:ss.ffff | LEVEL | LoggerName | Message
+                var timestamp = logEvent.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss.ffff");
+                var level = logEvent.Level.Name.ToUpper();
+                var loggerName = LoggerNameResolver?.Resolve(logEvent) ?? logEvent.LoggerName ?? "Unknown";
+                var message = MessageResolver?.Resolve(logEvent) ?? logEvent.FormattedMessage ?? string.Empty;
+
+                writer.WriteLine($"{timestamp} | {level} | {loggerName} | {message}");
+            }
+        }
+
         #endregion
 
         // ##########################################################################################
@@ -1711,6 +1807,7 @@ namespace Sentinel.NLogViewer.Wpf
             AddRegexSearchTermExcludeCommand = new RelayCommand<string>(AddRegexSearchTermExclude);
             EditSearchTermCommand = new RelayCommand<SearchTerm>(EditSearchTerm);
             CopyToClipboardCommand = new RelayCommand<string>(CopyToClipboard);
+            ExportCommand = new RelayCommand<ExportParameter>(ExportLogs);
             
             // Filter commands are no longer needed - ToggleButtons handle the binding directly
         }
