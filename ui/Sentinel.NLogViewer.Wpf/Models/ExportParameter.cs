@@ -1,3 +1,5 @@
+using Sentinel.NLogViewer.Wpf.Resolver;
+
 namespace Sentinel.NLogViewer.App.Models;
 
 /// <summary>
@@ -25,5 +27,10 @@ public class ExportParameter
 	/// Gets or sets the export format to use
 	/// </summary>
 	public ExportFormat Format { get; set; } = ExportFormat.Log;
+
+	/// <summary>
+	/// Gets or sets an optional custom formatter to override the default export formatter for this export operation
+	/// </summary>
+	public ILogExportFormatter? CustomFormatter { get; set; }
 }
 

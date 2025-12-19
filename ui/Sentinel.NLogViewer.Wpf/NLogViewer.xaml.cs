@@ -970,6 +970,21 @@ namespace Sentinel.NLogViewer.Wpf
         /// The <see cref="MessageResolver"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty MessageResolverProperty = DependencyProperty.Register(nameof(MessageResolver), typeof(ILogEventInfoResolver), typeof(NLogViewer), new PropertyMetadata(new MessageResolver()));
+
+        /// <summary>
+        /// The <see cref="ILogExportFormatter"/> to format log entries for export
+        /// </summary>
+        [Category("NLogViewerResolver")]
+        public ILogExportFormatter ExportFormatter
+        {
+            get => (ILogExportFormatter)GetValue(ExportFormatterProperty);
+            set => SetValue(ExportFormatterProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ExportFormatter"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ExportFormatterProperty = DependencyProperty.Register(nameof(ExportFormatter), typeof(ILogExportFormatter), typeof(NLogViewer), new PropertyMetadata(new DefaultLogExportFormatter()));
         
         #endregion
 
@@ -1523,7 +1538,7 @@ namespace Sentinel.NLogViewer.Wpf
                 switch (parameter.Format)
                 {
                     case ExportFormat.Log:
-                        ExportToLogFormat(parameter.FilePath, filteredEntries);
+                        ExportToLogFormat(parameter.FilePath, filteredEntries, parameter.CustomFormatter);
                         break;
                     default:
                         throw new NotSupportedException($"Export format {parameter.Format} is not supported.");
@@ -1544,19 +1559,23 @@ namespace Sentinel.NLogViewer.Wpf
         /// </summary>
         /// <param name="filePath">Target file path</param>
         /// <param name="logEntries">Log entries to export</param>
-        private void ExportToLogFormat(string filePath, IEnumerable<LogEventInfo> logEntries)
+        /// <param name="customFormatter">Optional custom formatter to override the default formatter</param>
+        private void ExportToLogFormat(string filePath, IEnumerable<LogEventInfo> logEntries, ILogExportFormatter? customFormatter = null)
         {
             using var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8);
             
+            // Use custom formatter if provided, otherwise use ExportFormatter, fall back to default formatter
+            var formatter = customFormatter ?? ExportFormatter ?? new DefaultLogExportFormatter();
+            
             foreach (var logEvent in logEntries)
             {
-                // Format: yyyy-MM-dd HH:mm:ss.ffff | LEVEL | LoggerName | Message
-                var timestamp = logEvent.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss.ffff");
-                var level = logEvent.Level.Name.ToUpper();
-                var loggerName = LoggerNameResolver?.Resolve(logEvent) ?? logEvent.LoggerName ?? "Unknown";
-                var message = MessageResolver?.Resolve(logEvent) ?? logEvent.FormattedMessage ?? string.Empty;
-
-                writer.WriteLine($"{timestamp} | {level} | {loggerName} | {message}");
+                var formattedLine = formatter.Format(
+                    logEvent,
+                    TimeStampResolver ?? new TimeStampResolver(),
+                    LoggerNameResolver ?? new LoggerNameResolver(),
+                    MessageResolver ?? new MessageResolver());
+                
+                writer.WriteLine(formattedLine);
             }
         }
 
