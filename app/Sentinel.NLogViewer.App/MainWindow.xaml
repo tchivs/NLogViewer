@@ -21,7 +21,7 @@
                 <dj:NLogViewer 
                     x:Name="NLogViewer1"
                     Tag="{Binding ElementName=NLogViewer1}"
-                    ItemsSource="{Binding DataContext.LogEventInfos, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"
+                    CacheTarget="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"
                     DataContext="{Binding DataContext.NLogViewer, Mode=OneWayToSource, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"/>
             </DataTemplate>
         </Grid.Resources>

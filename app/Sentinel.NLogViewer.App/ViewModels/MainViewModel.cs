@@ -118,14 +118,11 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 			SelectedTab = tab;
 		}
 		
-		// Add all log events from the batch to the tab
+		// Add all log events from the batch to the tab (Cache replays to NLogViewer when it subscribes)
 		foreach (var logEvent in logEvents)
 		{
-			tab.LogEventInfos.Add(logEvent.LogEventInfo);
+			tab.AddLogEvent(logEvent.LogEventInfo);
 		}
-		
-		// Update log count
-		tab.LogCount += logEvents.Count;
 		LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
 		StatusMessage = $"Received {logEvents.Count} log(s) from {firstEvent.AppInfo.AppName.Name}";
 	}
@@ -529,16 +526,15 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 			SelectedTab = tab;
 		}
 
-		// Add all log events in batches to avoid UI freezing
+		// Add all log events in batches to avoid UI freezing (Cache replays to NLogViewer when it subscribes)
 		const int batchSize = 500;
 		for (int i = 0; i < logEvents.Count; i += batchSize)
 		{
 			var batch = logEvents.Skip(i).Take(batchSize).ToList();
 			
-			// Add batch directly to the collection
 			foreach (var logEvent in batch)
 			{
-				tab.LogEventInfos.Add(logEvent);
+				tab.AddLogEvent(logEvent);
 			}
 			
 			// Update progress during batch writing
@@ -548,8 +544,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 				LoadingProgress = $"Adding to view: {progress}%";
 			}
 		}
-		
-		tab.LogCount = logEvents.Count;
 		LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
 	}
 
