@@ -563,57 +563,6 @@ namespace Sentinel.NLogViewer.Wpf
             typeof(CollectionViewSource), typeof(NLogViewer), new PropertyMetadata(null));
         
         /// <summary>
-        /// External items source for log events. When set, the control will use this collection instead of the internal cache target.
-        /// If this is set, StartListen() will not be called automatically and the control will not subscribe to CacheTarget.
-        /// </summary>
-        [Category("NLogViewer")]
-        [Browsable(true)]
-        [Description("External collection of LogEventInfo items. When set, the control uses this instead of CacheTarget.")]
-        public ObservableCollection<LogEventInfo> ItemsSource
-        {
-            get => (ObservableCollection<LogEventInfo>)GetValue(ItemsSourceProperty);
-            set => SetValue(ItemsSourceProperty, value);
-        }
-
-        /// <summary>
-        /// The <see cref="ItemsSource"/> DependencyProperty.
-        /// </summary>
-        public static readonly DependencyProperty ItemsSourceProperty = 
-            DependencyProperty.Register(nameof(ItemsSource), typeof(ObservableCollection<LogEventInfo>), typeof(NLogViewer), 
-                new PropertyMetadata(null, OnItemsSourceChanged));
-
-        private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is NLogViewer instance)
-            {
-                instance.OnItemsSourceChanged(e.OldValue as ObservableCollection<LogEventInfo>, 
-                    e.NewValue as ObservableCollection<LogEventInfo>);
-            }
-        }
-
-        private void OnItemsSourceChanged(ObservableCollection<LogEventInfo> oldValue, ObservableCollection<LogEventInfo> newValue)
-        {
-            // Update the CollectionViewSource to point to the new source
-            if (newValue != null)
-            {
-                LogEvents = new CollectionViewSource { Source = newValue };
-                UpdateFilter();
-                
-                // If using external source, stop listening to cache target
-                if (_isListening)
-                {
-                    StopListen();
-                }
-            }
-            else
-            {
-                // Fall back to internal collection
-                LogEvents = new CollectionViewSource { Source = _LogEventInfos };
-                UpdateFilter();
-            }
-        }
-        
-        /// <summary>
         /// Automatically scroll to the newest entry
         /// </summary>
         [Category("NLogViewerControls")]
@@ -917,10 +866,6 @@ namespace Sentinel.NLogViewer.Wpf
         {
             if (d is NLogViewer viewer && !DesignerProperties.GetIsInDesignMode(viewer))
             {
-                // Only handle pause/resume if not using external ItemsSource
-                if (viewer.ItemsSource != null)
-                    return;
-
                 if ((bool)e.NewValue)
                 {
                     // Pause: Stop listening for better performance
@@ -929,7 +874,7 @@ namespace Sentinel.NLogViewer.Wpf
                 else
                 {
                     // Resume: Start listening again
-                    viewer.StartListen();
+                    viewer.StartListen(viewer.CacheTarget);
                 }
             }
         }
@@ -1751,16 +1696,11 @@ namespace Sentinel.NLogViewer.Wpf
 
         /// <summary>
         /// Starts listening for log events by subscribing to the cache target.
-        /// This method should be called when the control needs to resume listening for logs,
-        /// such as when undocking from a docking system or when the window loads again.
-        /// Note: This method will not start listening if ItemsSource is set (external mode).
+        /// Subscribes to <see cref="CacheTarget"/> when set, otherwise uses <see cref="CacheTarget.GetInstance"/> and subscribes to that.
+        /// Call when the control needs to resume listening (e.g. when undocking or when the window loads again).
         /// </summary>
         public void StartListen(ICacheTarget? target = null)
         {
-            // Don't start listening if using external ItemsSource
-            if (ItemsSource != null)
-                return;
-
             if (_isListening || DesignerProperties.GetIsInDesignMode(this))
                 return;
 
@@ -1848,7 +1788,7 @@ namespace Sentinel.NLogViewer.Wpf
             if (DesignerProperties.GetIsInDesignMode(this))
                 return;
 
-            // Initialize with internal collection (will be overridden if ItemsSource is set)
+            // Initialize with internal collection (filled from CacheTarget subscription; target is CacheTargetProperty when set, else CacheTarget.GetInstance).
             LogEvents = new CollectionViewSource {Source = _LogEventInfos};
             ActiveSearchTerms = new ObservableCollection<SearchTerm>();
             UpdateFilter(); // Initialize filter
@@ -1856,18 +1796,8 @@ namespace Sentinel.NLogViewer.Wpf
             Loaded += _OnLoaded;
             Unloaded += _OnUnloaded;
             
-            // ClearCommand: Only clear internal collection if not using external ItemsSource
-            ClearCommand = new RelayCommand(() => 
-            {
-                if (ItemsSource == null)
-                {
-                    _LogEventInfos.Clear();
-                }
-                else
-                {
-                    ItemsSource.Clear();
-                }
-            });
+            // ClearCommand: clears the internal collection (data comes from CacheTarget or GetInstance).
+            ClearCommand = new RelayCommand(() => _LogEventInfos.Clear());
             AddSearchTermCommand = new RelayCommand(AddSearchTerm);
             ClearAllSearchTermsCommand = new RelayCommand(ClearAllSearchTerms);
             RemoveSearchTermCommand = new RelayCommand<SearchTerm>(RemoveSearchTerm);
@@ -1938,11 +1868,8 @@ namespace Sentinel.NLogViewer.Wpf
                 UpdateColumnVisibility();
             }
             
-            // Start listening for log events only if not using external ItemsSource
-            if (ItemsSource == null)
-            {
-                StartListen();
-            }
+            // Start listening: subscribe to CacheTarget if set, else to CacheTarget.GetInstance().
+            StartListen();
         }
 
         #endregion
