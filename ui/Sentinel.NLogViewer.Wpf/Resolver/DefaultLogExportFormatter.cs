@@ -33,3 +33,4 @@ namespace Sentinel.NLogViewer.Wpf.Resolver
     }
 }
 
+

@@ -18,7 +18,11 @@
         <Grid.Resources>
             <DataTemplate x:Key="TabControlContentTemplate" DataType="models:LogTabViewModel">
                 <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                <dj:NLogViewer ItemsSource="{Binding DataContext.LogEventInfos, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" />
+                <dj:NLogViewer 
+                    x:Name="NLogViewer1"
+                    Tag="{Binding ElementName=NLogViewer1}"
+                    ItemsSource="{Binding DataContext.LogEventInfos, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"
+                    DataContext="{Binding DataContext.NLogViewer, Mode=OneWayToSource, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"/>
             </DataTemplate>
         </Grid.Resources>
         <Grid.RowDefinitions>

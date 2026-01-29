@@ -846,6 +846,28 @@ namespace Sentinel.NLogViewer.Wpf
         /// </summary>
         public static readonly DependencyProperty ExportCommandProperty = DependencyProperty.Register(nameof(ExportCommand),
             typeof(ICommand), typeof(NLogViewer), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Command to scroll to the end of the log entries
+        /// </summary>
+        [Category("NLogViewerControls")]
+        [Browsable(true)]
+        [Description("Command to scroll to the end of the log entries")]
+        public ICommand ScrollToEndCommand
+        {
+            get => (ICommand) GetValue(ScrollToEndCommandProperty);
+            set => SetValue(ScrollToEndCommandProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="ScrollToEndCommand"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty ScrollToEndCommandProperty = DependencyProperty.Register(nameof(ScrollToEndCommand),
+            typeof(ICommand), typeof(NLogViewer), new FrameworkPropertyMetadata
+            {
+	            BindsTwoWayByDefault = true,
+	            DefaultUpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+            });
         
         /// <summary>
         /// Stop logging
@@ -1827,8 +1849,10 @@ namespace Sentinel.NLogViewer.Wpf
             EditSearchTermCommand = new RelayCommand<SearchTerm>(EditSearchTerm);
             CopyToClipboardCommand = new RelayCommand<string>(CopyToClipboard);
             ExportCommand = new RelayCommand<ExportParameter>(ExportLogs);
-            
-            // Filter commands are no longer needed - ToggleButtons handle the binding directly
+            ScrollToEndCommand = new RelayCommand(() =>
+            {
+	            PART_ListView?.ScrollToEnd();
+            });
         }
 
         private void _OnUnloaded(object sender, RoutedEventArgs e)

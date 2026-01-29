@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using NLog;
 
 namespace Sentinel.NLogViewer.App.Models
@@ -66,6 +67,8 @@ namespace Sentinel.NLogViewer.App.Models
                 }
             }
         }
+
+        public Wpf.NLogViewer NLogViewer { get; set; }
 
         public ObservableCollection<LogEventInfo> LogEventInfos { get; } = new();
 
