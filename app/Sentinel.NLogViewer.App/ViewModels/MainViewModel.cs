@@ -128,10 +128,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 		tab.LogCount += logEvents.Count;
 		LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
 		StatusMessage = $"Received {logEvents.Count} log(s) from {firstEvent.AppInfo.AppName.Name}";
-
-		// scroll to end
-		if(tab.NLogViewer != null && tab.NLogViewer.AutoScroll)
-			tab.NLogViewer.ScrollToEndCommand?.Execute(null);
 	}
 
 	public ObservableCollection<LogTabViewModel> LogTabs { get; }

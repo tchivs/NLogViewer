@@ -1,15 +1,14 @@
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using NLog;
+using Sentinel.NLogViewer.Wpf.Targets;
 
 namespace Sentinel.NLogViewer.App.Models
 {
     /// <summary>
     /// ViewModel for a log tab in the TabControl
     /// </summary>
-    public class LogTabViewModel : INotifyPropertyChanged
+    public class LogTabViewModel : INotifyPropertyChanged, ICacheTarget
     {
         private string _header = string.Empty;
         private string _targetName = string.Empty;
@@ -68,16 +67,14 @@ namespace Sentinel.NLogViewer.App.Models
             }
         }
 
-        public Wpf.NLogViewer NLogViewer { get; set; }
-
-        public ObservableCollection<LogEventInfo> LogEventInfos { get; } = new();
-
 		public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public IObservable<LogEventInfo> Cache { get; }
     }
 }
 

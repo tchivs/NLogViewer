@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -518,7 +518,34 @@ namespace Sentinel.NLogViewer.Wpf
         /// The <see cref="TargetName"/> DependencyProperty.
         /// </summary>
         public static readonly DependencyProperty TargetNameProperty = DependencyProperty.Register(nameof(TargetName), typeof(string), typeof(NLogViewer), new PropertyMetadata(null));
-        
+
+        /// <summary>
+        /// Cache target to subscribe to for log events. When set to a non-null value, StartListen is called with this target.
+        /// </summary>
+        [Category("NLogViewer")]
+        [Browsable(true)]
+        [Description("Cache target for log events. When set, the control subscribes via StartListen.")]
+        public ICacheTarget? CacheTarget
+        {
+            get => (ICacheTarget?)GetValue(CacheTargetProperty);
+            set => SetValue(CacheTargetProperty, value);
+        }
+
+        /// <summary>
+        /// The <see cref="CacheTarget"/> DependencyProperty.
+        /// </summary>
+        public static readonly DependencyProperty CacheTargetProperty = DependencyProperty.Register(
+            nameof(CacheTarget),
+            typeof(ICacheTarget),
+            typeof(NLogViewer),
+            new PropertyMetadata(null, OnCacheTargetChanged));
+
+        private static void OnCacheTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is NLogViewer instance && e.NewValue is ICacheTarget target && target != null)
+                instance.StartListen(target);
+        }
+
         /// <summary>
         /// Private DP to bind to the gui
         /// </summary>
@@ -1728,7 +1755,7 @@ namespace Sentinel.NLogViewer.Wpf
         /// such as when undocking from a docking system or when the window loads again.
         /// Note: This method will not start listening if ItemsSource is set (external mode).
         /// </summary>
-        public void StartListen()
+        public void StartListen(ICacheTarget? target = null)
         {
             // Don't start listening if using external ItemsSource
             if (ItemsSource != null)
@@ -1750,8 +1777,8 @@ namespace Sentinel.NLogViewer.Wpf
 
             if (_ParentWindow == null)
                 return;
-
-            var target = CacheTarget.GetInstance(targetName: TargetName);
+			
+            target ??= Targets.CacheTarget.GetInstance(targetName: TargetName);
             
             _Subscription = target.Cache.SubscribeOn(Scheduler.Default)
                 .Buffer(TimeSpan.FromMilliseconds(100))
