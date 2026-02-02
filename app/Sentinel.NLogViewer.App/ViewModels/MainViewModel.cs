@@ -61,7 +61,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 		LogTabs = new ObservableCollection<LogTabViewModel>();
 
 		// Initialize commands
-		StartListeningCommand = new RelayCommand(StartListening, () => !_isListening);
+		StartListeningCommand = new AsyncRelayCommand(StartListeningAsync, () => !_isListening);
 		StopListeningCommand = new RelayCommand(StopListening, () => _isListening);
 		OpenFileCommand = new RelayCommand(OpenFile);
 		OpenSettingsCommand = new RelayCommand(OpenSettings);
@@ -153,7 +153,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 			{
 				_isListening = value;
 				OnPropertyChanged();
-				((RelayCommand)StartListeningCommand).RaiseCanExecuteChanged();
+				((AsyncRelayCommand)StartListeningCommand).RaiseCanExecuteChanged();
 				((RelayCommand)StopListeningCommand).RaiseCanExecuteChanged();
 			}
 		}
@@ -269,25 +269,48 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 			Task.Run(async () =>
 			{
 				await Task.Delay(500); // Small delay to ensure UI is ready
-				System.Windows.Application.Current.Dispatcher.Invoke(StartListening);
+				System.Windows.Application.Current.Dispatcher.Invoke(() => _ = StartListeningAsync());
 			});
 		}
 	}
 
-	private void StartListening()
+	/// <summary>
+	/// Starts the UDP listener asynchronously. On failure (e.g. port in use), shows a MessageBox and keeps the listener inactive.
+	/// </summary>
+	private async Task StartListeningAsync()
 	{
 		try
 		{
 			var config = _configService.LoadConfiguration();
-			_udpReceiverService.StartListening(config.Ports);
-			IsListening = true;
-			ListeningStatus = _localizationService.GetString("Status_Listening", "Listening");
-			StatusMessage = _localizationService.GetString("Status_ListeningOnPorts", $"Listening on {config.Ports.Count} port(s)");
+			var result = await _udpReceiverService.StartListeningAsync(config.Ports);
+
+			if (result.AnyStarted)
+			{
+				IsListening = true;
+				ListeningStatus = _localizationService.GetString("Status_Listening", "Listening");
+				StatusMessage = _localizationService.GetString("Status_ListeningOnPorts", $"Listening on {config.Ports.Count} port(s)");
+				if (!string.IsNullOrEmpty(result.ErrorMessage))
+				{
+					// Partial failure: some ports failed
+					StatusMessage += " " + _localizationService.GetString("Status_SomePortsFailed", "(Some ports could not be opened.)");
+				}
+			}
+			else
+			{
+				IsListening = false;
+				ListeningStatus = _localizationService.GetString("Status_Error", "Error");
+				StatusMessage = result.ErrorMessage;
+				var caption = _localizationService.GetString("Error_StartingListenerCaption", "Error starting listener");
+				MessageBox.Show(result.ErrorMessage, caption, MessageBoxButton.OK, MessageBoxImage.Error);
+			}
 		}
 		catch (Exception ex)
 		{
-			StatusMessage = _localizationService.GetString("Error_StartingListener", $"Error starting listener: {ex.Message}");
+			IsListening = false;
 			ListeningStatus = _localizationService.GetString("Status_Error", "Error");
+			StatusMessage = _localizationService.GetString("Error_StartingListener", $"Error starting listener: {ex.Message}");
+			var caption = _localizationService.GetString("Error_StartingListenerCaption", "Error starting listener");
+			MessageBox.Show(ex.Message, caption, MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
 

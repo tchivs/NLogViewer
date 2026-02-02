@@ -15,6 +15,8 @@ namespace Sentinel.NLogViewer.App.Services;
 /// </summary>
 public class UdpLogReceiverService(Log4JEventParser xmlParser) : IDisposable
 {
+	private const int WSAEADDRINUSE = 10048;
+
 	private readonly List<UdpClient> _udpClients = new();
 	private readonly List<CancellationTokenSource> _cancellationTokens = new();
 	private readonly Log4JEventParser _xmlParser = xmlParser ?? throw new ArgumentNullException(nameof(xmlParser));
@@ -23,15 +25,25 @@ public class UdpLogReceiverService(Log4JEventParser xmlParser) : IDisposable
 	public IObservable<LogEvent> Log4JEventObservable => _log4JEventObservable;
 	private readonly Subject<LogEvent> _log4JEventObservable = new();
 
-	public void StartListening(List<string> addresses)
+	/// <summary>
+	/// Starts listening on the given UDP addresses. Returns a result indicating success and any error messages.
+	/// </summary>
+	/// <param name="addresses">List of addresses in format udp://host:port (e.g. udp://0.0.0.0:4000).</param>
+	/// <param name="cancellationToken">Optional cancellation token.</param>
+	/// <returns>Result with AnyStarted and aggregated ErrorMessage (e.g. including process name/PID when port is in use).</returns>
+	public async Task<StartListeningResult> StartListeningAsync(IReadOnlyList<string> addresses, CancellationToken cancellationToken = default)
 	{
 		StopListening();
+		var errors = new List<string>();
 
 		foreach (var address in addresses)
 		{
+			if (cancellationToken.IsCancellationRequested)
+				break;
+			var uri = new Uri(address);
+
 			try
 			{
-				var uri = new Uri(address);
 				if (uri.Scheme != "udp")
 					continue;
 
@@ -39,17 +51,49 @@ public class UdpLogReceiverService(Log4JEventParser xmlParser) : IDisposable
 				var udpClient = new UdpClient(port);
 				_udpClients.Add(udpClient);
 
-				var cts = new CancellationTokenSource();
+				var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 				_cancellationTokens.Add(cts);
 
-				// Start receiving on this port
 				Task.Run(() => ReceiveLoop(udpClient, port, cts.Token), cts.Token);
+			}
+			catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressAlreadyInUse || ex.NativeErrorCode == WSAEADDRINUSE)
+			{
+				var msg = $"Error starting listener on {address}: {ex.Message}";
+				var portForResolver = GetPortFromAddress(address);
+				if (portForResolver != null)
+				{
+					var (processName, pid) = PortProcessResolver.TryGetProcessUsingPort(portForResolver.Value, udp: true);
+					if (pid != null)
+						msg += processName != null
+							? $"\n\nProcess using port {uri.Port}: {processName} (PID: {pid})"
+							: $"\n\nPort {uri.Port} in use by process PID: {pid}";
+				}
+				errors.Add(msg);
+				System.Diagnostics.Debug.WriteLine(msg);
 			}
 			catch (Exception ex)
 			{
-				// Log error but continue with other ports
-				System.Diagnostics.Debug.WriteLine($"Error starting listener on {address}: {ex.Message}");
+				var msg = $"Error starting listener on {address}: {ex.Message}";
+				errors.Add(msg);
+				System.Diagnostics.Debug.WriteLine(msg);
 			}
+		}
+
+		var anyStarted = _udpClients.Count > 0;
+		var errorMessage = errors.Count > 0 ? string.Join(Environment.NewLine, errors) : string.Empty;
+		return await Task.FromResult(new StartListeningResult(anyStarted, errorMessage));
+	}
+
+	private static int? GetPortFromAddress(string address)
+	{
+		try
+		{
+			var uri = new Uri(address);
+			return uri.Port;
+		}
+		catch
+		{
+			return null;
 		}
 	}
 

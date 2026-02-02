@@ -1,8 +1,82 @@
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Sentinel.NLogViewer.Wpf
 {
+    /// <summary>
+    /// A command implementation that executes an async operation and disables while running.
+    /// </summary>
+    public class AsyncRelayCommand : ICommand
+    {
+        private readonly Func<Task> _execute;
+        private readonly Func<bool>? _canExecute;
+        private bool _isRunning;
+
+        /// <summary>
+        /// Initializes a new instance of the AsyncRelayCommand class.
+        /// </summary>
+        /// <param name="execute">The async execution logic.</param>
+        /// <param name="canExecute">The execution status logic (optional).</param>
+        public AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        /// <summary>
+        /// Occurs when changes occur that affect whether or not the command should execute.
+        /// </summary>
+        public event EventHandler? CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        /// <summary>
+        /// Defines the method that determines whether the command can execute in its current state.
+        /// </summary>
+        public bool CanExecute(object? parameter)
+        {
+            if (_isRunning)
+                return false;
+            return _canExecute?.Invoke() ?? true;
+        }
+
+        /// <summary>
+        /// Defines the method to be called when the command is invoked.
+        /// </summary>
+        public void Execute(object? parameter)
+        {
+            if (!CanExecute(parameter))
+                return;
+            _ = ExecuteAsync();
+        }
+
+        private async Task ExecuteAsync()
+        {
+            _isRunning = true;
+            RaiseCanExecuteChanged();
+            try
+            {
+                await _execute();
+            }
+            finally
+            {
+                _isRunning = false;
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
+        /// Raises the CanExecuteChanged event.
+        /// </summary>
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
     /// <summary>
     /// A command implementation that can always execute and delegates to an Action
     /// </summary>
