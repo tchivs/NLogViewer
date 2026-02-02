@@ -103,5 +103,17 @@
   <data name="Status_Stopped" xml:space="preserve">
     <value>Stopped</value>
   </data>
+  <data name="Status_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Status_SomePortsFailed" xml:space="preserve">
+    <value>(Some ports could not be opened.)</value>
+  </data>
+  <data name="Error_StartingListener" xml:space="preserve">
+    <value>Error starting listener</value>
+  </data>
+  <data name="Error_StartingListenerCaption" xml:space="preserve">
+    <value>Error starting listener</value>
+  </data>
 </root>
 
