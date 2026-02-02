@@ -11,17 +11,19 @@ namespace Sentinel.NLogViewer.App.Tests
 	/// <summary>
 	/// Unit tests for NLogViewer filter commands (AddRegexSearchTerm and AddRegexSearchTermExclude)
 	/// </summary>
-	public class NLogViewerFilterTests : IDisposable
+	public class NLogViewerFilterTests : IClassFixture<WpfStaContextFixture>, IDisposable
 	{
-		public NLogViewerFilterTests()
+		private readonly WpfStaContextFixture _context;
+
+		public NLogViewerFilterTests(WpfStaContextFixture fixture)
 		{
-			// No viewer initialization here - each test creates its own
+			_context = fixture ?? throw new ArgumentNullException(nameof(fixture));
 		}
 
 		[Fact]
 		public void AddRegexSearchTerm_EscapesSpecialCharacters_CreatesLiteralPattern()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
 				var viewer = new WpfNLogViewer();
@@ -44,17 +46,16 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void AddRegexSearchTerm_LoggerNameWithDot_MatchesExactLoggerName()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "MyAppLogger", "Test message 2"),
 					new(LogLevel.Info, "MyApp.Other", "Test message 3")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("MyApp.Logger");
@@ -72,7 +73,7 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void AddRegexSearchTermExclude_CreatesNegativeLookaheadPattern()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
 				var viewer = new WpfNLogViewer();
@@ -94,17 +95,16 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void AddRegexSearchTermExclude_ExcludesMatchingEntries()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2"),
 					new(LogLevel.Info, "MyApp.Other", "Test message 3")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -124,16 +124,15 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void AddRegexSearchTermExclude_ShowsNonMatchingEntries()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -151,10 +150,9 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_IncludeAndExcludeTerms_AppliesBothCorrectly()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Error occurred"),
@@ -162,7 +160,7 @@ namespace Sentinel.NLogViewer.App.Tests
 					new(LogLevel.Info, "OtherLogger", "Error occurred"),
 					new(LogLevel.Info, "OtherLogger", "Info message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("Error"); // Include: must contain "Error"
@@ -182,10 +180,9 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_MultipleIncludeTerms_RequiresAllToMatch()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Error occurred"),
@@ -193,7 +190,7 @@ namespace Sentinel.NLogViewer.App.Tests
 					new(LogLevel.Info, "OtherLogger", "Error occurred"),
 					new(LogLevel.Info, "OtherLogger", "Warning message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("Error");
@@ -213,17 +210,16 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_MultipleExcludeTerms_HidesIfAnyMatches()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2"),
 					new(LogLevel.Info, "ThirdLogger", "Test message 3")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -242,16 +238,15 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_EmptySearchTerms_ShowsAllEntries()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act - no search terms added
 
@@ -267,7 +262,7 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void AddRegexSearchTerm_SpecialRegexCharacters_AreEscaped()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
 				var viewer = new WpfNLogViewer();
@@ -292,7 +287,7 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void AddRegexSearchTermExclude_SpecialRegexCharacters_AreEscapedInNegativeLookahead()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
 				var viewer = new WpfNLogViewer();
@@ -315,15 +310,14 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_ExcludePatternMatches_EntryIsHidden()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -340,15 +334,14 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_ExcludePatternDoesNotMatch_EntryIsShown()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "OtherLogger", "Test message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -366,16 +359,15 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_MessageField_IsAlsoFiltered()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Error occurred"),
 					new(LogLevel.Info, "OtherLogger", "Info message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("Error");
@@ -393,10 +385,9 @@ namespace Sentinel.NLogViewer.App.Tests
 		[Fact]
 		public void Filter_ExcludeMessageField_WorksCorrectly()
 		{
-			WpfTestHelper.RunOnStaThread(() =>
+			_context.RunOnSta(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "OtherLogger1", "Error occurred"),
@@ -404,7 +395,7 @@ namespace Sentinel.NLogViewer.App.Tests
 					new(LogLevel.Info, "OtherLogger3", "error"),
 					new(LogLevel.Info, "OtherLogger4", "Error")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("Error");

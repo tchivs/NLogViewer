@@ -11,6 +11,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using Sentinel.NLogViewer.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
@@ -65,6 +68,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 		ExitCommand = new RelayCommand(() => System.Windows.Application.Current.Shutdown());
 		AboutCommand = new RelayCommand(ShowAbout);
 		ChangeLanguageCommand = new RelayCommand<string>(ChangeLanguage);
+		ExportLogsCommand = new RelayCommand(ExportLogs, () => SelectedTab != null);
 
 		// Initialize current language flag
 		UpdateLanguageFlag();
@@ -114,14 +118,11 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 			SelectedTab = tab;
 		}
 		
-		// Add all log events from the batch to the tab
+		// Add all log events from the batch to the tab (Cache replays to NLogViewer when it subscribes)
 		foreach (var logEvent in logEvents)
 		{
-			tab.LogEventInfos.Add(logEvent.LogEventInfo);
+			tab.AddLogEvent(logEvent.LogEventInfo);
 		}
-		
-		// Update log count
-		tab.LogCount += logEvents.Count;
 		LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
 		StatusMessage = $"Received {logEvents.Count} log(s) from {firstEvent.AppInfo.AppName.Name}";
 	}
@@ -137,6 +138,8 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 			{
 				_selectedTab = value;
 				OnPropertyChanged();
+				// Update ExportLogsCommand CanExecute
+				((RelayCommand)ExportLogsCommand).RaiseCanExecuteChanged();
 			}
 		}
 	}
@@ -202,6 +205,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 	public ICommand ExitCommand { get; }
 	public ICommand AboutCommand { get; }
 	public ICommand ChangeLanguageCommand { get; }
+	public ICommand ExportLogsCommand { get; }
 
 	/// <summary>
 	/// Gets the flag emoji for the current language
@@ -522,16 +526,15 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 			SelectedTab = tab;
 		}
 
-		// Add all log events in batches to avoid UI freezing
+		// Add all log events in batches to avoid UI freezing (Cache replays to NLogViewer when it subscribes)
 		const int batchSize = 500;
 		for (int i = 0; i < logEvents.Count; i += batchSize)
 		{
 			var batch = logEvents.Skip(i).Take(batchSize).ToList();
 			
-			// Add batch directly to the collection
 			foreach (var logEvent in batch)
 			{
-				tab.LogEventInfos.Add(logEvent);
+				tab.AddLogEvent(logEvent);
 			}
 			
 			// Update progress during batch writing
@@ -541,8 +544,6 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 				LoadingProgress = $"Adding to view: {progress}%";
 			}
 		}
-		
-		tab.LogCount = logEvents.Count;
 		LastLogTimestamp = DateTime.Now.ToString("HH:mm:ss");
 	}
 
@@ -582,6 +583,148 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable
 		{
 			StatusMessage = $"Error changing language: {ex.Message}";
 		}
+	}
+
+	/// <summary>
+	/// Exports filtered log entries from the currently selected tab to a file
+	/// </summary>
+	private void ExportLogs()
+	{
+		if (SelectedTab == null)
+			return;
+
+		// Generate default filename from tab header (remove whitespaces) + timestamp
+		var headerWithoutSpaces = SelectedTab.Header?.Replace(" ", string.Empty) ?? "Logs";
+		var timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+		var defaultFileName = $"{headerWithoutSpaces}-{timestamp}.log";
+
+		var dialog = new SaveFileDialog
+		{
+			Filter = "Log Files (*.log)|*.log|All Files (*.*)|*.*",
+			Title = "Export Logs",
+			DefaultExt = "log",
+			FileName = defaultFileName
+		};
+
+		if (dialog.ShowDialog() == true)
+		{
+			var filePath = dialog.FileName;
+			var nLogViewer = FindNLogViewerInTab();
+
+			if (nLogViewer == null)
+			{
+				StatusMessage = "Could not find NLogViewer instance in selected tab.";
+				return;
+			}
+
+			var exportParameter = new ExportParameter
+			{
+				FilePath = filePath,
+				Format = ExportFormat.Log
+			};
+
+			// Execute the export command on the NLogViewer
+			if (nLogViewer.ExportCommand?.CanExecute(exportParameter) == true)
+			{
+				nLogViewer.ExportCommand.Execute(exportParameter);
+				StatusMessage = $"Exported logs to {Path.GetFileName(filePath)}";
+			}
+			else
+			{
+				StatusMessage = "Export command is not available.";
+			}
+		}
+	}
+
+	/// <summary>
+	/// Finds the NLogViewer instance in the currently selected tab's visual tree
+	/// </summary>
+	/// <returns>The NLogViewer instance if found, null otherwise</returns>
+	private Wpf.NLogViewer? FindNLogViewerInTab()
+	{
+		if (SelectedTab == null)
+			return null;
+
+		// Get the main window to access the TabControl
+		var mainWindow = System.Windows.Application.Current.MainWindow;
+		if (mainWindow == null)
+			return null;
+
+		// Find the TabControl in the main window
+		var tabControl = FindVisualChild<TabControl>(mainWindow);
+		if (tabControl == null)
+			return null;
+
+		// The TabControl uses TabContent attached property which caches content in a Border
+		// Search for Border elements that might contain the tab content
+		var borders = FindVisualChildren<Border>(tabControl);
+		
+		foreach (var border in borders)
+		{
+			// Check if this border contains a ContentControl (which is used by TabContent)
+			var contentControl = FindVisualChild<ContentControl>(border);
+			if (contentControl != null && contentControl.DataContext == SelectedTab)
+			{
+				// Found the content control for the selected tab, now find NLogViewer
+				var nLogViewer = FindVisualChild<Wpf.NLogViewer>(contentControl);
+				if (nLogViewer != null)
+					return nLogViewer;
+			}
+		}
+
+		// Fallback: Search directly in TabControl for NLogViewer
+		return FindVisualChild<Wpf.NLogViewer>(tabControl);
+	}
+
+	/// <summary>
+	/// Recursively searches the visual tree for all child elements of the specified type
+	/// </summary>
+	/// <typeparam name="T">The type of child elements to find</typeparam>
+	/// <param name="parent">The parent element to search in</param>
+	/// <returns>An enumerable collection of found child elements</returns>
+	private static IEnumerable<T> FindVisualChildren<T>(DependencyObject parent) where T : DependencyObject
+	{
+		if (parent == null)
+			yield break;
+
+		for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+		{
+			var child = VisualTreeHelper.GetChild(parent, i);
+
+			if (child is T result)
+				yield return result;
+
+			foreach (var childOfType in FindVisualChildren<T>(child))
+			{
+				yield return childOfType;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Recursively searches the visual tree for a child element of the specified type
+	/// </summary>
+	/// <typeparam name="T">The type of child element to find</typeparam>
+	/// <param name="parent">The parent element to search in</param>
+	/// <returns>The found child element, or null if not found</returns>
+	private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+	{
+		if (parent == null)
+			return null;
+
+		for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+		{
+			var child = VisualTreeHelper.GetChild(parent, i);
+
+			if (child is T result)
+				return result;
+
+			var childOfType = FindVisualChild<T>(child);
+			if (childOfType != null)
+				return childOfType;
+		}
+
+		return null;
 	}
 
 	private void UpdateLanguageFlag()

@@ -18,7 +18,11 @@
         <Grid.Resources>
             <DataTemplate x:Key="TabControlContentTemplate" DataType="models:LogTabViewModel">
                 <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                <dj:NLogViewer ItemsSource="{Binding DataContext.LogEventInfos, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" />
+                <dj:NLogViewer 
+                    x:Name="NLogViewer1"
+                    Tag="{Binding ElementName=NLogViewer1}"
+                    CacheTarget="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"
+                    DataContext="{Binding DataContext.NLogViewer, Mode=OneWayToSource, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"/>
             </DataTemplate>
         </Grid.Resources>
         <Grid.RowDefinitions>
@@ -42,6 +46,12 @@
                 <MenuItem Header="{helpers:Resource Key=Menu_Settings, DefaultValue=_Settings...}" 
                           Command="{Binding OpenSettingsCommand}" 
                           InputGestureText="Ctrl+,"/>
+            </MenuItem>
+            <MenuItem Header="{helpers:Resource Key=Menu_Logs, DefaultValue=_Logs}">
+                <MenuItem Header="{helpers:Resource Key=Menu_Export, DefaultValue=_Export}">
+                    <MenuItem Header="{helpers:Resource Key=Menu_ExportLogFormat, DefaultValue=*.log format}" 
+                              Command="{Binding ExportLogsCommand}"/>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="{helpers:Resource Key=Menu_Help, DefaultValue=_Help}">
                 <MenuItem Header="{helpers:Resource Key=Menu_About, DefaultValue=_About...}" 

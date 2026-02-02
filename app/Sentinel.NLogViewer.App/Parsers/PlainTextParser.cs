@@ -46,20 +46,63 @@ public class PlainTextParser : IDisposable
 	public List<LogEventInfo> Parse(string[] lines)
 	{
 		var results = new List<LogEventInfo>();
+		LogEventInfo? currentEvent = null;
 
 		foreach (var line in lines)
 		{
-			if (string.IsNullOrWhiteSpace(line))
-				continue;
+			// Check if this line starts a new log entry (has a timestamp at the beginning)
+			var isNewEntry = IsNewLogEntry(line);
 
-			var logEvent = ParseLine(line);
-			if (logEvent != null)
+			if (isNewEntry)
 			{
-				results.Add(logEvent);
+				// Save previous event if exists
+				if (currentEvent != null)
+				{
+					results.Add(currentEvent);
+				}
+
+				// Parse new log entry
+				currentEvent = ParseLine(line);
 			}
+			else if (currentEvent != null)
+			{
+				// This is a continuation line - append to current message
+				if (string.IsNullOrWhiteSpace(line))
+				{
+					// Preserve empty lines in multi-line messages (e.g., stack traces)
+					currentEvent.Message += Environment.NewLine;
+				}
+				else
+				{
+					currentEvent.Message += Environment.NewLine + line;
+				}
+			}
+			// If no current event and line doesn't start new entry, skip it (orphaned continuation line)
+		}
+
+		// Add the last event if exists
+		if (currentEvent != null)
+		{
+			results.Add(currentEvent);
 		}
 
 		return results;
+	}
+
+	/// <summary>
+	/// Determines if a line starts a new log entry by checking for timestamp pattern at the beginning
+	/// </summary>
+	private bool IsNewLogEntry(string line)
+	{
+		if (string.IsNullOrWhiteSpace(line))
+			return false;
+
+		// Check if line starts with a timestamp pattern
+		var trimmedLine = line.TrimStart();
+		var timestampMatch = _timestampRegex.Match(trimmedLine);
+		
+		// Timestamp must be at the start of the line (after trimming whitespace)
+		return timestampMatch.Success && timestampMatch.Index == 0;
 	}
 
 	/// <summary>
@@ -69,20 +112,70 @@ public class PlainTextParser : IDisposable
 	{
 		var results = new List<LogEventInfo>();
 		var dataLines = lines.Skip(format.StartLineIndex).ToList();
+		LogEventInfo? currentEvent = null;
 
 		foreach (var line in dataLines)
 		{
-			if (string.IsNullOrWhiteSpace(line))
-				continue;
+			// Check if this line starts a new log entry
+			var isNewEntry = IsNewLogEntryWithFormat(line, format);
 
-			var logEvent = ParseLineWithFormat(line, format);
-			if (logEvent != null)
+			if (isNewEntry)
 			{
-				results.Add(logEvent);
+				// Save previous event if exists
+				if (currentEvent != null)
+				{
+					results.Add(currentEvent);
+				}
+
+				// Parse new log entry
+				currentEvent = ParseLineWithFormat(line, format);
 			}
+			else if (currentEvent != null)
+			{
+				// This is a continuation line - append to current message
+				if (string.IsNullOrWhiteSpace(line))
+				{
+					// Preserve empty lines in multi-line messages (e.g., stack traces)
+					currentEvent.Message += Environment.NewLine;
+				}
+				else
+				{
+					currentEvent.Message += Environment.NewLine + line;
+				}
+			}
+			// If no current event and line doesn't start new entry, skip it (orphaned continuation line)
+		}
+
+		// Add the last event if exists
+		if (currentEvent != null)
+		{
+			results.Add(currentEvent);
 		}
 
 		return results;
+	}
+
+	/// <summary>
+	/// Determines if a line starts a new log entry when using format-based parsing
+	/// </summary>
+	private bool IsNewLogEntryWithFormat(string line, TextFileFormat format)
+	{
+		if (string.IsNullOrWhiteSpace(line))
+			return false;
+
+		// If timestamp column is mapped, check if first column matches timestamp pattern
+		if (format.ColumnMapping.TimestampColumn >= 0)
+		{
+			var parts = SplitLine(line, format.Separator);
+			if (format.ColumnMapping.TimestampColumn < parts.Length)
+			{
+				var timestampStr = parts[format.ColumnMapping.TimestampColumn].Trim();
+				return TryParseTimestamp(timestampStr, out _);
+			}
+		}
+
+		// Fallback to general timestamp detection
+		return IsNewLogEntry(line);
 	}
 
 	/// <summary>
@@ -166,6 +259,12 @@ public class PlainTextParser : IDisposable
 	{
 		try
 		{
+			// Check if line uses pipe-separated format
+			if (line.Contains(" | "))
+			{
+				return ParsePipeSeparatedLine(line);
+			}
+
 			// Try to extract timestamp
 			var timestampMatch = _timestampRegex.Match(line);
 			var timestamp = timestampMatch.Success && TryParseTimestamp(timestampMatch.Value, out var dt)
@@ -201,6 +300,50 @@ public class PlainTextParser : IDisposable
 	}
 
 	/// <summary>
+	/// Parses a pipe-separated log line: timestamp | level | logger | message
+	/// </summary>
+	private LogEventInfo? ParsePipeSeparatedLine(string line)
+	{
+		try
+		{
+			var parts = line.Split(new[] { " | " }, StringSplitOptions.None);
+			
+			if (parts.Length < 4)
+			{
+				// Not enough parts for pipe format, fall back to regular parsing
+				return null;
+			}
+
+			// Extract timestamp (first part)
+			var timestampStr = parts[0].Trim();
+			var timestamp = TryParseTimestamp(timestampStr, out var dt) ? dt : DateTime.Now;
+
+			// Extract level (second part)
+			var levelStr = parts[1].Trim();
+			var level = ParseLogLevel(levelStr);
+
+			// Extract logger (third part)
+			var loggerName = parts[2].Trim();
+			if (string.IsNullOrWhiteSpace(loggerName))
+			{
+				loggerName = "Unknown";
+			}
+
+			// Extract message (fourth part and beyond, in case message contains " | ")
+			var message = string.Join(" | ", parts.Skip(3)).Trim();
+
+			return new LogEventInfo(level, loggerName, message)
+			{
+				TimeStamp = timestamp
+			};
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	/// <summary>
 	/// Attempts to parse a timestamp string using various common formats
 	/// </summary>
 	/// <param name="timestampStr">The timestamp string to parse</param>
@@ -219,6 +362,9 @@ public class PlainTextParser : IDisposable
 			"yyyy-MM-ddTHH:mm:ss.ffff",     // ISO 8601 with microseconds
 			"yyyy-MM-ddTHH:mm:ss.fff",       // ISO 8601 with milliseconds
 			"yyyy-MM-ddTHH:mm:ss",           // ISO 8601
+			"yyyy-MM-ddTHH:mm:ss.ffffZ",     // ISO 8601 with microseconds and UTC (Z)
+			"yyyy-MM-ddTHH:mm:ss.fffZ",      // ISO 8601 with milliseconds and UTC (Z)
+			"yyyy-MM-ddTHH:mm:ssZ",          // ISO 8601 with UTC (Z)
 			"yyyy-MM-dd HH:mm:ss.ffffK",     // With timezone
 			"yyyy-MM-dd HH:mm:ss.fffK",      // With timezone
 			"yyyy-MM-dd HH:mm:ssK"           // With timezone
@@ -227,14 +373,24 @@ public class PlainTextParser : IDisposable
 		// Try parsing with exact formats first (using InvariantCulture to avoid locale issues)
 		foreach (var format in formats)
 		{
-			if (DateTime.TryParseExact(timestampStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+			// Use RoundtripKind for formats with 'Z' to preserve UTC
+			var styles = format.EndsWith("Z") 
+				? DateTimeStyles.RoundtripKind
+				: DateTimeStyles.None;
+			
+			if (DateTime.TryParseExact(timestampStr, format, CultureInfo.InvariantCulture, styles, out result))
 			{
 				return true;
 			}
 		}
 
 		// Fallback: Try parsing with InvariantCulture (handles ISO formats better)
-		if (DateTime.TryParse(timestampStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+		// Use RoundtripKind to preserve UTC for timestamps ending with 'Z'
+		var fallbackStyles = timestampStr.EndsWith("Z", StringComparison.OrdinalIgnoreCase)
+			? DateTimeStyles.RoundtripKind
+			: DateTimeStyles.None;
+		
+		if (DateTime.TryParse(timestampStr, CultureInfo.InvariantCulture, fallbackStyles, out result))
 		{
 			return true;
 		}
