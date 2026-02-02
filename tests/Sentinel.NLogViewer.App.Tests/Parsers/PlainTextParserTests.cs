@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using NLog;
 using Sentinel.NLogViewer.App.Parsers;
 using Xunit;
