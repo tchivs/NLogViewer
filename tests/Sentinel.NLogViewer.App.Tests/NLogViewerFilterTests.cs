@@ -47,14 +47,13 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "MyAppLogger", "Test message 2"),
 					new(LogLevel.Info, "MyApp.Other", "Test message 3")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("MyApp.Logger");
@@ -97,14 +96,13 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2"),
 					new(LogLevel.Info, "MyApp.Other", "Test message 3")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -127,13 +125,12 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -154,7 +151,6 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Error occurred"),
@@ -162,7 +158,7 @@ namespace Sentinel.NLogViewer.App.Tests
 					new(LogLevel.Info, "OtherLogger", "Error occurred"),
 					new(LogLevel.Info, "OtherLogger", "Info message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("Error"); // Include: must contain "Error"
@@ -185,7 +181,6 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Error occurred"),
@@ -193,7 +188,7 @@ namespace Sentinel.NLogViewer.App.Tests
 					new(LogLevel.Info, "OtherLogger", "Error occurred"),
 					new(LogLevel.Info, "OtherLogger", "Warning message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("Error");
@@ -216,14 +211,13 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2"),
 					new(LogLevel.Info, "ThirdLogger", "Test message 3")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -245,13 +239,12 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message 1"),
 					new(LogLevel.Info, "OtherLogger", "Test message 2")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act - no search terms added
 
@@ -318,12 +311,11 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Test message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -343,12 +335,11 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "OtherLogger", "Test message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("MyApp.Logger");
@@ -369,13 +360,12 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "MyApp.Logger", "Error occurred"),
 					new(LogLevel.Info, "OtherLogger", "Info message")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTerm("Error");
@@ -396,7 +386,6 @@ namespace Sentinel.NLogViewer.App.Tests
 			WpfTestHelper.RunOnStaThread(() =>
 			{
 				// Arrange
-				var viewer = new WpfNLogViewer();
 				var testData = new ObservableCollection<LogEventInfo>
 				{
 					new(LogLevel.Info, "OtherLogger1", "Error occurred"),
@@ -404,7 +393,7 @@ namespace Sentinel.NLogViewer.App.Tests
 					new(LogLevel.Info, "OtherLogger3", "error"),
 					new(LogLevel.Info, "OtherLogger4", "Error")
 				};
-				viewer.ItemsSource = testData;
+				var viewer = WpfTestHelper.CreateViewerWithTestData(testData);
 
 				// Act
 				viewer.AddRegexSearchTermExclude("Error");

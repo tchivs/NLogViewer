@@ -1668,7 +1668,7 @@ namespace Sentinel.NLogViewer.Wpf
 
         private ObservableCollection<LogEventInfo> _LogEventInfos { get; } = new ObservableCollection<LogEventInfo>();
         private IDisposable _Subscription;
-        private Window _ParentWindow;
+        private Window? _ParentWindow;
         private bool _isListening = false;
         
         // Store original column references and widths for restoration
@@ -1704,26 +1704,24 @@ namespace Sentinel.NLogViewer.Wpf
             if (_isListening || DesignerProperties.GetIsInDesignMode(this))
                 return;
 
-			// Ensure we have a parent window reference
-			// add hook to parent window to dispose subscription
-			// use case:
-			// NLogViewer is used in a new window inside of a TabControl. If you switch the TabItems,
-			// the unloaded event is called and would dispose the subscription, even if the control is still alive.
-			if (_ParentWindow == null && Window.GetWindow(this) is { } window)
-            {
-                _ParentWindow = window;
-                _ParentWindow.Closed += _ParentWindowOnClosed;
-            }
+			// Resolve Dispatcher: prefer parent window (for cleanup on Closed/Unloaded), else Application/Current (e.g. unit tests without Window).
+			var window = Window.GetWindow(this);
+			if (_ParentWindow == null && window != null)
+			{
+				_ParentWindow = window;
+				_ParentWindow.Closed += _ParentWindowOnClosed;
+			}
 
-            if (_ParentWindow == null)
-                return;
-			
-            target ??= Targets.CacheTarget.GetInstance(targetName: TargetName);
-            
-            _Subscription = target.Cache.SubscribeOn(Scheduler.Default)
+			var dispatcher = window?.Dispatcher ?? Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+			if (dispatcher == null)
+				return;
+
+			target ??= Targets.CacheTarget.GetInstance(targetName: TargetName);
+
+			_Subscription = target.Cache.SubscribeOn(Scheduler.Default)
                 .Buffer(TimeSpan.FromMilliseconds(100))
                 .Where(x => x.Any())
-                .ObserveOn(new DispatcherSynchronizationContext(_ParentWindow.Dispatcher))
+                .ObserveOn(new DispatcherSynchronizationContext(dispatcher))
                 .Subscribe(infos =>
                 {
                     using (LogEvents.DeferRefresh())
