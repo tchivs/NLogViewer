@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11222.15
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.Wpf.MaterialDesign.TestApp", "testapp\Sentinel.NLogViewer.Wpf.MaterialDesign.TestApp\Sentinel.NLogViewer.Wpf.MaterialDesign.TestApp.csproj", "{D1CF3283-A165-477B-A08A-BEBFCD7A7712}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.App", "app\Sentinel.NLogViewer.App\Sentinel.NLogViewer.App.csproj", "{B2C3D4E5-F6A7-8901-BCDE-F123456789AB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.TestLogging", "app\Sentinel.NLogViewer.TestLogging\Sentinel.NLogViewer.TestLogging.csproj", "{E5F6A7B8-C9D0-1234-EF56-789ABCDE0123}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sentinel.NLogViewer.App.TestApp", "testapp\Sentinel.NLogViewer.App.TestApp\Sentinel.NLogViewer.App.TestApp.csproj", "{C3D4E5F6-A7B8-9012-CDEF-123456789ABC}"
 EndProject
@@ -58,6 +60,10 @@ Global
 		{B2C3D4E5-F6A7-8901-BCDE-F123456789AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2C3D4E5-F6A7-8901-BCDE-F123456789AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2C3D4E5-F6A7-8901-BCDE-F123456789AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5F6A7B8-C9D0-1234-EF56-789ABCDE0123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5F6A7B8-C9D0-1234-EF56-789ABCDE0123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5F6A7B8-C9D0-1234-EF56-789ABCDE0123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5F6A7B8-C9D0-1234-EF56-789ABCDE0123}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C3D4E5F6-A7B8-9012-CDEF-123456789ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C3D4E5F6-A7B8-9012-CDEF-123456789ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3D4E5F6-A7B8-9012-CDEF-123456789ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,6 +82,7 @@ Global
 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{D1CF3283-A165-477B-A08A-BEBFCD7A7712} = {9F4FA7B3-9ADD-4601-8EC7-8C9A7BD691C7}
 		{B2C3D4E5-F6A7-8901-BCDE-F123456789AB} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567891}
+		{E5F6A7B8-C9D0-1234-EF56-789ABCDE0123} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567891}
 		{C3D4E5F6-A7B8-9012-CDEF-123456789ABC} = {9F4FA7B3-9ADD-4601-8EC7-8C9A7BD691C7}
 		{D4E5F6A7-B8C9-0123-DEF1-23456789ABCD} = {1EBF655C-A427-41E1-8BFC-6A2429B7EF6E}
 	EndGlobalSection

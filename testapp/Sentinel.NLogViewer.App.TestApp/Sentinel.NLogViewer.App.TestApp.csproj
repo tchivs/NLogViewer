@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -27,5 +27,9 @@
     <PackageReference Include="NLog" Version="6.0.0" />
     <PackageReference Include="NLog.Targets.Network" Version="6.0.0" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\app\Sentinel.NLogViewer.TestLogging\Sentinel.NLogViewer.TestLogging.csproj" />
+  </ItemGroup>
+
 </Project>

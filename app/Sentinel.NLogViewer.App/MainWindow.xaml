@@ -32,7 +32,7 @@
         </Grid.RowDefinitions>
         
         <!-- Menu Bar -->
-        <Menu Grid.Row="0">
+        <Menu x:Name="MainMenu" Grid.Row="0">
             <MenuItem Header="{helpers:Resource Key=Menu_File, DefaultValue=_File}">
                 <MenuItem Header="{helpers:Resource Key=Menu_OpenFile, DefaultValue=_Open File...}" 
                           Command="{Binding OpenFileCommand}" 

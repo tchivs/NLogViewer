@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Sentinel.NLogViewer.App.ViewModels;
@@ -19,16 +20,37 @@ namespace Sentinel.NLogViewer.App
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
             DataContext = _viewModel;
-            
+
             // Set window title with version
             SetWindowTitleWithVersion();
-            
+
             // Setup keyboard shortcuts
-            this.InputBindings.Add(new KeyBinding(_viewModel.OpenFileCommand, 
+            this.InputBindings.Add(new KeyBinding(_viewModel.OpenFileCommand,
                 new KeyGesture(Key.O, ModifierKeys.Control)));
-            this.InputBindings.Add(new KeyBinding(_viewModel.OpenSettingsCommand, 
+            this.InputBindings.Add(new KeyBinding(_viewModel.OpenSettingsCommand,
                 new KeyGesture(Key.OemComma, ModifierKeys.Control)));
+
+#if DEBUG
+            AddDebugMenu();
+#endif
         }
+
+#if DEBUG
+        private void AddDebugMenu()
+        {
+            var testLoggingItem = new MenuItem { Header = "_Test logging" };
+            testLoggingItem.Click += (s, _) =>
+            {
+                using var scope = App.ServiceProvider!.CreateScope();
+                var window = scope.ServiceProvider.GetRequiredService<TestLoggingWindow>();
+                window.Owner = this;
+                window.Show();
+            };
+            var debugMenu = new MenuItem { Header = "_Debug" };
+            debugMenu.Items.Add(testLoggingItem);
+            MainMenu.Items.Insert(MainMenu.Items.Count - 1, debugMenu);
+        }
+#endif
 
         /// <summary>
         /// Sets the window title with the application version
