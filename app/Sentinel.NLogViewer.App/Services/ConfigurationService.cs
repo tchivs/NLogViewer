@@ -52,7 +52,8 @@ namespace Sentinel.NLogViewer.App.Services
                 Ports = new List<string> { "udp://0.0.0.0:4000" },
                 Language = string.Empty, // Empty means auto-detect on first start
                 MaxLogEntriesPerTab = 10000,
-                AutoStartListening = false
+                AutoStartListening = false,
+                AutoStartTestLogging = false
             };
         }
 
@@ -79,5 +80,8 @@ namespace Sentinel.NLogViewer.App.Services
         public string Language { get; set; } = string.Empty; // Empty means auto-detect
         public int MaxLogEntriesPerTab { get; set; } = 10000;
         public bool AutoStartListening { get; set; } = false;
+
+        /// <summary>When true (Debug only), auto-start the test log generator on startup.</summary>
+        public bool AutoStartTestLogging { get; set; } = false;
     }
 }
